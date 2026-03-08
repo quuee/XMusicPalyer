@@ -1,0 +1,107 @@
+# 1. 构建输出目录 (Build outputs)
+# 这些是编译生成的文件，体积大且每次构建都会变化，绝对不需要提交
+*.iml
+.gradle
+/local.properties
+/.idea/
+/build
+/captures
+.cxx
+local.properties
+
+
+# 2. 签名密钥文件 (Signing keys)
+# ⚠️ 重要：永远不要将 .jks 或 .keystore 文件提交到代码库，否则会导致密钥泄露
+*.jks
+*.keystore
+# 如果团队需要共享签名配置，可以提交 .properties 文件（不包含密码）或手动配置，但密钥文件本身必须忽略
+# 例如：keystore.properties (如果里面包含密码，也建议忽略，改用环境变量或 CI/CD 秘密管理)
+
+# 3. Google Services 配置文件 (可选)
+# google-services.json 通常包含 API Key。
+# 如果是公开项目，建议忽略；如果是私有项目且团队内部共享，可以提交，但需注意权限。
+# 很多团队选择提交它以便构建运行，但通过 CI/CD 注入敏感数据。
+# 这里默认列出，如需提交请删除下一行：
+# google-services.json 
+
+# 4. Android Studio / IntelliJ IDEA 特定文件
+#.idea/ 目录包含项目设置，但部分文件是用户特定的
+.idea/
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/jarRepositories.xml
+# Android Studio 导航状态
+.idea/navEditor.xml
+
+# 5. 移动端特定文件
+# 某些模拟器或设备产生的日志或临时文件
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+/bin/
+/gen/
+/out/
+/release/
+
+# 6. 日志文件 (Logs)
+# 避免提交调试日志
+*.log
+logs/
+
+# 7. 系统生成的垃圾文件 (OS generated files)
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.Trash-*
+.nfs*
+
+# 8. NDK 相关 (如果使用 C/C++)
+.externalNativeBuild
+.cxx/
+
+# 9. Firebase / Crashlytics 等第三方 SDK 生成的临时文件
+crashlytics-build.properties
+fabric-properties.properties
+
+# 10. 测试报告和覆盖率报告 (Test reports)
+/test-results/
+/test-reports/
+/coverage/
+**/build/reports/
+**/build/test-results/
+**/build/outputs/
+
+# 11. ProGuard / R8 映射文件 (可选)
+# 如果你希望保留每次发布的 mapping.txt 用于反混淆，请不要忽略它们。
+# 但通常构建目录下的会被忽略，建议在 release 流程中单独归档。
+# **/mapping.txt 
+# **/seeds.txt 
+# **/usage.txt 
