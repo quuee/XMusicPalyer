@@ -1,5 +1,6 @@
 package cn.x
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ComponentName
 import android.util.Log
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import androidx.navigation.compose.rememberNavController
 import cn.x.di.PlayServiceModule
 import cn.x.service.MusicPlaybackService
-import cn.x.ui.NavGraph
+import cn.x.ui.NavigationGraph
+import cn.x.ui.Screens
 import cn.x.ui.theme.XMusicPalyerTheme
+import cn.x.util.DataStoreUtil
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.HiltAndroidApp
 
@@ -35,6 +40,7 @@ class XMusicApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        DataStoreUtil.init(this)
         Log.d("XMusicApplication", "onCreate: init mediaController")
         val sessionToken =
             SessionToken(this, ComponentName(this, MusicPlaybackService::class.java))
@@ -47,17 +53,21 @@ class XMusicApplication : Application() {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun XMusicApplicationApp() {
     val isReady by PlayServiceModule.isPlayerReady.collectAsState()
 
     if (isReady) {
         XMusicPalyerTheme {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
+            Scaffold(
+                modifier = Modifier.fillMaxSize()
             ) {
-                NavGraph()
+                val navHostController = rememberNavController()
+                NavigationGraph(
+                    navHostController = navHostController,
+                    startDistance = Screens.Home.route
+                )
             }
         }
     } else {

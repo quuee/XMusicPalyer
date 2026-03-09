@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.QueueMusic
@@ -53,15 +52,15 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import cn.x.service.PlayMode
 import cn.x.service.PlayState
-import cn.x.ui.componets.PlayerControls
-import cn.x.ui.viewmodel.PlayerViewModel
+import cn.x.ui.screen.PlayerScreenVM
+import cn.x.util.formatTime
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
     modifier: Modifier = Modifier,
-    viewModel: PlayerViewModel = hiltViewModel()
+    viewModel: PlayerScreenVM = hiltViewModel()
 ) {
 
     val controller = viewModel.playerController
@@ -233,6 +232,9 @@ fun PlayerScreen(
     }
 }
 
+/**
+ * 专辑封面旋转
+ */
 @Composable
 private fun AlbumCover(song: MediaItem?, isPlaying: Boolean) {
     val rotation by animateFloatAsState(
@@ -289,8 +291,4 @@ private fun getPlayModeIcon(mode: PlayMode): ImageVector {
     }
 }
 
-fun formatTime(ms: Long): String {
-    val seconds = (ms / 1000) % 60
-    val minutes = (ms / 1000) / 60
-    return "%02d:%02d".format(minutes, seconds)
-}
+

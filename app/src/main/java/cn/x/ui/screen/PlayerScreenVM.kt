@@ -1,4 +1,4 @@
-package cn.x.ui.viewmodel
+package cn.x.ui.screen
 
 import androidx.lifecycle.ViewModel
 import cn.x.data.db.SongEntity
@@ -8,7 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class PlayerViewModel @Inject constructor(
+class PlayerScreenVM @Inject constructor(
     val playerController: PlayerController // 注入单例控制器
 ) : ViewModel() {
 
