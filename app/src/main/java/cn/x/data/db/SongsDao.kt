@@ -7,22 +7,22 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
-interface PlaylistDao {
+interface SongsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(entity: SongEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(list: List<SongEntity>)
 
-    @Query("SELECT * FROM play_list")
+    @Query("SELECT * FROM songs")
     fun queryAll(): List<SongEntity>
 
-    @Query("SELECT * FROM play_list WHERE unique_id = :uniqueId")
+    @Query("SELECT * FROM songs WHERE unique_id = :uniqueId")
     fun queryByUniqueId(uniqueId: String): SongEntity?
 
     @Delete
     fun delete(entity: SongEntity)
 
-    @Query("DELETE FROM play_list")
+    @Query("DELETE FROM songs")
     fun clear()
 }

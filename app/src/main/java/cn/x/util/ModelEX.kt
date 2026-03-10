@@ -26,7 +26,7 @@ fun SongEntity.toMediaItem(): MediaItem {
                 .setAlbumTitle(album)
                 .setAlbumArtist(artist)
                 //.setArtworkUri(getLargeCover().toUri())
-                .setBaseCover(albumCover)
+//                .setBaseCover(albumCover)
                 .setDuration(duration)
                 .setFilePath(path)
                 .setFileName(fileName)
@@ -45,7 +45,7 @@ fun MediaItem.toSongEntity(): SongEntity {
         artistId = 0,
         album = mediaMetadata.albumTitle?.toString() ?: "",
         albumId = 0,
-        albumCover = mediaMetadata.getBaseCover() ?: "",
+//        albumCover = mediaMetadata.getBaseCover() ?: "",
         duration = mediaMetadata.getDuration(),
         uri = localConfiguration?.uri?.toString() ?: "",
         path = mediaMetadata.getFilePath(),

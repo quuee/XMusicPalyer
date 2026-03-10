@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cn.x.util.formatTime
 import java.util.concurrent.TimeUnit
 
 @Composable
@@ -97,10 +98,4 @@ fun PlayerControls(
             }
         }
     }
-}
-
-private fun formatTime(milliseconds: Long): String {
-    val minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds)
-    val seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) % 60
-    return String.format("%02d:%02d", minutes, seconds)
 }

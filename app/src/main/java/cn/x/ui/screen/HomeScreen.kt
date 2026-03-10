@@ -113,13 +113,19 @@ fun HomeScreen() {
                     navController = navHostController,
                     modifier = Modifier.padding(innerPadding)
                 ) {
-
                     composable(Screens.Scan.route) {
                         ScanScreen()
                     }
                     composable(Screens.Folder.route) {
                         FolderScreen()
                     }
+                    composable(Screens.LocalSongList.route) {
+                        LocalSongListScreen()
+                    }
+                    composable(Screens.LocalSong.route) {
+                        LocalSongScreen()
+                    }
+
 
                 }
 

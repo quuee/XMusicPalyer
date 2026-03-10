@@ -17,7 +17,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             application,
             MusicDatabase::class.java,
-            "music_db"
+            "x_music_db"
         ).build()
     }
 }

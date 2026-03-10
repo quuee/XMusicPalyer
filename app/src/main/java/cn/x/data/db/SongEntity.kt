@@ -1,18 +1,16 @@
 package cn.x.data.db
 
 
-import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import cn.x.util.generateUniqueId
-import kotlinx.parcelize.Parcelize
 
 
-@Parcelize
-@Entity("play_list", indices = [Index("title"), Index("artist"), Index("album")])
+@Entity("songs", indices = [Index("title"), Index("artist"), Index("album")])
 data class SongEntity(
+
     // 歌曲类型:本地/网络
     @ColumnInfo("type")
     val type: Int = 0,
@@ -42,9 +40,9 @@ data class SongEntity(
     val albumId: Long = 0,
 
     // 专辑封面
-    @Deprecated("Please use resized url")
-    @ColumnInfo("album_cover")
-    val albumCover: String = "",
+//    @Deprecated("Please use resized url")
+//    @ColumnInfo("album_cover")
+//    val albumCover: String = "",
 
     // 持续时间
     @ColumnInfo("duration")
@@ -66,11 +64,22 @@ data class SongEntity(
     @ColumnInfo("file_size")
     val fileSize: Long = 0,
 
+    // 本地路径 拼接后可播放的uri
+    @ColumnInfo("content_uri")
+    val contentUri: String = "",
+
+    // 本地 父级目录
+    @ColumnInfo("parent_folder")
+    val parentFolder: String = "",
+
+//    @ColumnInfo("lyrics")
+//    val lyrics:String="",
+
     @PrimaryKey
     @ColumnInfo("unique_id")
     var uniqueId: String = generateUniqueId(type, songId)
 
-) : Parcelable {
+) {
 
     fun isLocal() = type == LOCAL
 

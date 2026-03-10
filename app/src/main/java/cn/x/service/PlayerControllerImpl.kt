@@ -47,7 +47,7 @@ class PlayerControllerImpl
     override val bufferingPercent = _bufferingPercent.asStateFlow()
 
     private val _playMode = MutableStateFlow(PlayMode.valueOf(0))
-    override val playMode: StateFlow<PlayMode> = _playMode
+    override val playMode: StateFlow<PlayMode> = _playMode.asStateFlow()
 
     private var audioSessionId = 0
 
@@ -101,7 +101,7 @@ class PlayerControllerImpl
             override fun onPlayerError(error: PlaybackException) {
                 super.onPlayerError(error)
                 stop()
-                // toast("播放失败(${error.errorCodeName},${error.localizedMessage})")
+                //toast("播放失败(${error.errorCodeName},${error.localizedMessage})")
             }
         })
 
@@ -109,7 +109,7 @@ class PlayerControllerImpl
 
         launch(Dispatchers.Main.immediate) {
             val playlist = withContext(Dispatchers.IO) {
-                db.playlistDao()
+                db.SongsDao()
                     .queryAll()
                     .onEach {
                         // 兼容老版本数据库
@@ -161,8 +161,8 @@ class PlayerControllerImpl
                 player.addMediaItem(song)
             }
             withContext(Dispatchers.IO) {
-                db.playlistDao().clear()
-                db.playlistDao().insertAll(newPlaylist.map { it.toSongEntity() })
+                db.SongsDao().clear()
+                db.SongsDao().insertAll(newPlaylist.map { it.toSongEntity() })
             }
             _playlist.value = newPlaylist
             play(song.mediaId)
@@ -173,8 +173,8 @@ class PlayerControllerImpl
     override fun replaceAll(songList: List<MediaItem>, song: MediaItem) {
         launch(Dispatchers.Main.immediate) {
             withContext(Dispatchers.IO) {
-                db.playlistDao().clear()
-                db.playlistDao().insertAll(songList.map { it.toSongEntity() })
+                db.SongsDao().clear()
+                db.SongsDao().insertAll(songList.map { it.toSongEntity() })
             }
             stop()
             player.setMediaItems(songList)
@@ -216,7 +216,7 @@ class PlayerControllerImpl
                 playlist.removeAt(index)
                 _playlist.value = playlist
                 withContext(Dispatchers.IO) {
-                    db.playlistDao().delete(song.toSongEntity())
+                    db.SongsDao().delete(song.toSongEntity())
                 }
                 player.removeMediaItem(index)
             }
@@ -227,7 +227,7 @@ class PlayerControllerImpl
     override fun clearPlaylist() {
         launch(Dispatchers.Main.immediate) {
             withContext(Dispatchers.IO) {
-                db.playlistDao().clear()
+                db.SongsDao().clear()
             }
             stop()
             player.clearMediaItems()
