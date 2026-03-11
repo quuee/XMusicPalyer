@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongEntity
+import cn.x.service.PlayerController
+import cn.x.util.toMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LocalSongScreenVM @Inject constructor(
     private val db: MusicDatabase,
+    private val playerController: PlayerController
 ) : ViewModel() {
 
     private val tag = "LocalSongScreenVM"
@@ -35,6 +38,10 @@ class LocalSongScreenVM @Inject constructor(
                 // 可以在这里设置一个错误状态或空列表
             }
         }
+    }
+
+    fun play(song: SongEntity){
+        playerController.addAndPlay(song.toMediaItem())
     }
 
 }
