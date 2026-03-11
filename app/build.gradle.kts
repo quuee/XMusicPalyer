@@ -1,14 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
-    //alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
-//    id("org.jetbrains.kotlin.plugin.serialization") // 添加这行
 
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
-
-    id("kotlin-parcelize")
 }
 
 android {
@@ -98,6 +93,6 @@ dependencies {
 }
 
 // 关键配置：告诉 KSP 把 schema 输出到 src/main/schemas 目录
-ksp {
-    arg("room.schemaLocation", "$projectDir/src/main/schemas")
-}
+//ksp {
+//    arg("room.schemaLocation", "$projectDir/src/main/schemas")
+//}

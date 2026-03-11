@@ -20,7 +20,7 @@ import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.DrawerContent
 import cn.x.ui.componets.PushDrawer
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun HomeScreen() {
 
@@ -42,7 +42,7 @@ fun HomeScreen() {
                 navHostController.navigate(
                     routeString
                 )
-            }, onLogoutSheet = { })
+            })
         },
         content = { drawerControl ->
 
@@ -67,6 +67,7 @@ fun HomeScreen() {
                 },
 
                 ) { innerPadding ->
+
                 NavHost(
                     startDestination = Screens.Scan.route,
                     navController = navHostController,

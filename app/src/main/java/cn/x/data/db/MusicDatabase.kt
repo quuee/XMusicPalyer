@@ -14,4 +14,6 @@ import androidx.room.RoomDatabase
 abstract class MusicDatabase : RoomDatabase() {
 
     abstract fun SongsDao(): SongsDao
+
+    abstract fun SongListDao(): SongListDao
 }

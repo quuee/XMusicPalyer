@@ -9,21 +9,22 @@ import androidx.room.Transaction
 
 @Dao
 interface SongListDao {
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSongList(songList: SongListEntity)
+    fun insertSongList(songList: SongListEntity)
 
     @Query("SELECT * FROM song_lists")
-    suspend fun getAllSongLists(): List<SongListEntity>
+    fun getAllSongLists(): List<SongListEntity>
 
 
 
     @Insert
-    suspend fun addSongToSongList(songlistSong: SongListWithSongEntity)
+    fun addSongToSongList(songlistSong: SongListWithSongEntity)
 
     @Delete
-    suspend fun removeSongFromSongList(songlistSong: SongListWithSongEntity)
+    fun removeSongFromSongList(songlistSong: SongListWithSongEntity)
 
     @Transaction
     @Query("SELECT * FROM song_lists WHERE id = :songlistId")
-    suspend fun getSongListWithSongs(songlistId: Long): SongListWithSongs?
+    fun getSongListWithSongs(songlistId: Long): SongListWithSongs?
 }

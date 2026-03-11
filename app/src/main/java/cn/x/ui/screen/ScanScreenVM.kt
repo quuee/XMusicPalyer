@@ -51,8 +51,7 @@ class ScanScreenVM @Inject constructor(
                 }
 
                 flow.collect { songItem ->
-                    Log.d(TAG, "songItem.contentUri: ${songItem.contentUri}")
-                    Log.d(TAG, "songItem.path: ${songItem.path}")
+                    Log.d(TAG, "startScan: $songItem")
 
                     // 1. 获取父文件夹路径
                     val songParentPath = songItem.path.substringBeforeLast("/")
@@ -69,7 +68,7 @@ class ScanScreenVM @Inject constructor(
                     }
 
                     // 每收到一首歌就更新歌曲列表
-                    _musicList.value = _musicList.value + songItem
+                    _musicList.value += songItem
                     delay(200)
                 }
 

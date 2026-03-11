@@ -3,7 +3,7 @@ package cn.x.ui.screen
 import androidx.lifecycle.ViewModel
 import cn.x.data.db.SongEntity
 import cn.x.service.PlayerController
-import cn.x.util.toMediaItem
+import cn.x.util.toLocalMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -21,7 +21,7 @@ class PlayerScreenVM @Inject constructor(
             title = "wanfeng",
             artist = "aliyue",
             uri = "android.resource://cn.x/raw/test"
-        ).toMediaItem()
+        ).toLocalMediaItem()
         playerController.addAndPlay(m)
     }
 

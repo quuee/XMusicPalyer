@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.service.PlayerController
-import cn.x.util.toMediaItem
+import cn.x.util.toLocalMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,7 +32,7 @@ class LocalSongScreenVM @Inject constructor(
             try {
                 val songs = db.SongsDao().queryAll() // 这行现在在后台线程执行
                 _songList.value = songs
-                Log.d(tag, "songs:{}"+songs.size)
+                Log.d(tag, "songs: ${songs.first()}")
             } catch (e: Exception) {
                 Log.e(tag, "Error loading songs from database", e)
                 // 可以在这里设置一个错误状态或空列表
@@ -40,8 +40,8 @@ class LocalSongScreenVM @Inject constructor(
         }
     }
 
-    fun play(song: SongEntity){
-        playerController.addAndPlay(song.toMediaItem())
+    fun play(song: SongEntity) {
+        playerController.addAndPlay(song.toLocalMediaItem())
     }
 
 }

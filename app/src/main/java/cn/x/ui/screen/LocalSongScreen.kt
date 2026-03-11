@@ -15,15 +15,15 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun LocalSongScreen(
-    localSongScreenVM: LocalSongScreenVM= hiltViewModel()
-){
+    localSongScreenVM: LocalSongScreenVM = hiltViewModel()
+) {
     val songList by localSongScreenVM.songList.collectAsState()
 
     Box() {
 
         LazyColumn() {
-            itemsIndexed(songList) {index,songItem ->
-                Row() {
+            itemsIndexed(songList) { index, songItem ->
+                Row(modifier = Modifier.clickable(onClick = { localSongScreenVM.play(songItem) })) {
                     Text(songItem.title)
                 }
             }

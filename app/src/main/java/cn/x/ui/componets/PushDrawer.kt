@@ -104,7 +104,8 @@ fun PushDrawer(
                     detectHorizontalDragGestures(
                         onHorizontalDrag = { _, dragAmount ->
                             scope.launch {
-                                val target = (offsetX.value + dragAmount).coerceIn(0f, drawerWidthPx)
+                                val target =
+                                    (offsetX.value + dragAmount).coerceIn(0f, drawerWidthPx)
                                 offsetX.snapTo(target)
                             }
                         },
@@ -164,7 +165,6 @@ enum class DrawerElement(
 fun DrawerContent(
     elements: Array<DrawerElement> = DrawerElement.entries.toTypedArray(),
     naviRouteItem: (String) -> Unit,
-    onLogoutSheet: () -> Unit
 ) {
 
     Column(

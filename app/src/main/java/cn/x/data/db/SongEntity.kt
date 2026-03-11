@@ -8,7 +8,9 @@ import androidx.room.PrimaryKey
 import cn.x.util.generateUniqueId
 
 
-@Entity("songs", indices = [Index("title"), Index("artist"), Index("album")])
+@Entity("songs",
+    indices = [Index("title"), Index("artist"), Index("album")]
+)
 data class SongEntity(
 
     // 歌曲类型:本地/网络
@@ -54,7 +56,7 @@ data class SongEntity(
 
     // [本地]文件路径
     @ColumnInfo("path")
-    var path: String = "",
+    val path: String = "",
 
     // [本地]文件名
     @ColumnInfo("file_name")
@@ -73,11 +75,11 @@ data class SongEntity(
     val parentFolder: String = "",
 
 //    @ColumnInfo("lyrics")
-//    val lyrics:String="",
+//    var lyrics:String="",
 
     @PrimaryKey
     @ColumnInfo("unique_id")
-    var uniqueId: String = generateUniqueId(type, songId)
+    val uniqueId: String = generateUniqueId(type, songId)
 
 ) {
 

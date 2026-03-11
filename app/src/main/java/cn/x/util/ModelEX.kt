@@ -15,10 +15,10 @@ const val EXTRA_FILE_SIZE = "file_size"
 const val EXTRA_BASE_COVER = "base_cover"
 
 
-fun SongEntity.toMediaItem(): MediaItem {
+fun SongEntity.toLocalMediaItem(): MediaItem {
     return MediaItem.Builder()
         .setMediaId(uniqueId)
-        .setUri(uri)
+        .setUri(contentUri)
         .setMediaMetadata(
             MediaMetadata.Builder()
                 .setTitle(title)

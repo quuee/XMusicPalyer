@@ -103,7 +103,7 @@ class MusicScanFlow(private val context: Context) {
                             val relativePath = it.getString(relativePathColumn)
                             val album = it.getString(albumColumn)
                             val albumId = it.getLong(albumIdColumn)
-                            // 可用于播放的uri
+                            // 可用于本地播放的uri
                             val contentUri = ContentUris.withAppendedId(
                                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                                 id

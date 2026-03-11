@@ -32,7 +32,6 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-#kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 # Hilt 插件 (注意：新版 Hilt 推荐直接在 module 中用 id，或者在这里定义)
