@@ -4,11 +4,17 @@
     <string name="play_mode_loop">列表循环</string>
     <string name="play_mode_shuffle">随机播放</string>
     <string name="play_mode_single">单曲循环</string>
+    <string name="play_previous">上一首</string>
+    <string name="play_next">下一首</string>
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
 
     <string name="drawer_scan_local_song">扫描音乐</string>
     <string name="drawer_local_folder">文件夹</string>
     <string name="drawer_local_song_list">本地歌单</string>
     <string name="drawer_local_song">全部歌曲</string>
+
+
 
     <string name="drawer_download">下载任务</string>
     <string name="drawer_setting">设置</string>
