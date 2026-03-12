@@ -4,6 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+/**
+ * 歌单
+ */
 @Entity(tableName = "song_lists")
 data class SongListEntity(
 

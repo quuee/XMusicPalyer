@@ -3,7 +3,6 @@ package cn.x.ui.screen
 import androidx.lifecycle.ViewModel
 import cn.x.data.db.SongEntity
 import cn.x.service.PlayerController
-import cn.x.util.toLocalMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -15,14 +14,7 @@ class PlayerScreenVM @Inject constructor(
 
     // UI 事件委托给 Controller
     fun togglePlayPause() {
-        val m = SongEntity(
-            type = 0,
-            songId = 1,
-            title = "wanfeng",
-            artist = "aliyue",
-            uri = "android.resource://cn.x/raw/test"
-        ).toLocalMediaItem()
-        playerController.addAndPlay(m)
+        playerController.playPause()
     }
 
     fun next() {

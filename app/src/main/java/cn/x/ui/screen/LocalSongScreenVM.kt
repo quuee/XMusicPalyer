@@ -3,10 +3,11 @@ package cn.x.ui.screen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.service.PlayerController
-import cn.x.util.toLocalMediaItem
+import cn.x.util.toMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +31,7 @@ class LocalSongScreenVM @Inject constructor(
         // 在 viewModelScope 内启动一个协程
         viewModelScope.launch(Dispatchers.IO) { // 使用 IO 调度器以确保在后台线程运行
             try {
-                val songs = db.SongsDao().queryAll() // 这行现在在后台线程执行
+                val songs = db.SongDao().queryAll() // 这行现在在后台线程执行
                 _songList.value = songs
                 Log.d(tag, "songs: ${songs.first()}")
                 Log.d(tag, "songs: ${songs.size}")
@@ -41,8 +42,8 @@ class LocalSongScreenVM @Inject constructor(
         }
     }
 
-    fun play(song: SongEntity) {
-        playerController.addAndPlay(song.toLocalMediaItem())
+    fun play(song: MediaItem) {
+        playerController.replaceAll(_songList.value.map { it.toMediaItem() }, song)
     }
 
 }

@@ -3,17 +3,14 @@ package cn.x.data.db
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import cn.x.util.generateUniqueId
 
 /**
- * 我的所有歌曲,包括本地和在线
+ * 播放列表的 每次播放新的列表都更新
  */
-@Entity("songs",
-    indices = [Index("title"), Index("artist"), Index("album")]
-)
-data class SongEntity(
+@Entity("play_list_songs")
+data class PlayListSongEntity(
 
     // 歌曲类型:本地/网络
     @ColumnInfo("type")
@@ -83,13 +80,4 @@ data class SongEntity(
     @ColumnInfo("unique_id")
     val uniqueId: String = generateUniqueId(type, songId)
 
-) {
-
-    fun isLocal() = type == LOCAL
-
-
-    companion object {
-        const val LOCAL = 0
-        const val ONLINE = 1
-    }
-}
+)

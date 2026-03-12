@@ -4,6 +4,7 @@ package cn.x.util
 import androidx.core.os.bundleOf
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import cn.x.data.db.PlayListSongEntity
 import cn.x.data.db.SongEntity
 
 
@@ -15,25 +16,49 @@ const val EXTRA_FILE_SIZE = "file_size"
 const val EXTRA_BASE_COVER = "base_cover"
 
 
-fun SongEntity.toLocalMediaItem(): MediaItem {
-    return MediaItem.Builder()
-        .setMediaId(uniqueId)
-        .setUri(contentUri)
-        .setMediaMetadata(
-            MediaMetadata.Builder()
-                .setTitle(title)
-                .setArtist(artist)
-                .setAlbumTitle(album)
-                .setAlbumArtist(artist)
-                //.setArtworkUri(getLargeCover().toUri())
+fun SongEntity.toMediaItem(): MediaItem {
+    if (
+        type == SongEntity.LOCAL
+    ){
+        return MediaItem.Builder()
+            .setMediaId(uniqueId)
+            .setUri(contentUri)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(title)
+                    .setArtist(artist)
+                    .setAlbumTitle(album)
+                    .setAlbumArtist(artist)
+                    //.setArtworkUri(getLargeCover().toUri())
 //                .setBaseCover(albumCover)
-                .setDuration(duration)
-                .setFilePath(path)
-                .setFileName(fileName)
-                .setFileSize(fileSize)
-                .build()
-        )
-        .build()
+                    .setDuration(duration)
+                    .setFilePath(path)
+                    .setFileName(fileName)
+                    .setFileSize(fileSize)
+                    .build()
+            )
+            .build()
+    }else{
+        return MediaItem.Builder()
+            .setMediaId(uniqueId)
+            .setUri(uri)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(title)
+                    .setArtist(artist)
+                    .setAlbumTitle(album)
+                    .setAlbumArtist(artist)
+                    //.setArtworkUri(getLargeCover().toUri())
+//                .setBaseCover(albumCover)
+                    .setDuration(duration)
+                    .setFilePath(path)
+                    .setFileName(fileName)
+                    .setFileSize(fileSize)
+                    .build()
+            )
+            .build()
+    }
+
 }
 
 fun MediaItem.toSongEntity(): SongEntity {
@@ -121,3 +146,12 @@ fun MediaMetadata.getBaseCover(): String? {
     return extras?.getString(EXTRA_BASE_COVER)
 }
 
+fun PlayListSongEntity.toSongEntity(): SongEntity{
+    return SongEntity(type,songId,title,artist,artistId,album,albumId,duration,uri,path,fileName,fileSize,contentUri,parentFolder,uniqueId)
+}
+
+fun List<PlayListSongEntity>.toSongEntityList(): List<SongEntity> = map { it.toSongEntity() }
+
+fun SongEntity.toPlayListSongEntity(): PlayListSongEntity{
+    return PlayListSongEntity(type,songId,title,artist,artistId,album,albumId,duration,uri,path,fileName,fileSize,contentUri,parentFolder,uniqueId)
+}

@@ -7,7 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
-interface SongsDao {
+interface SongDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(entity: SongEntity)
 

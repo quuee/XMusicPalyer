@@ -74,7 +74,7 @@ class ScanScreenVM @Inject constructor(
 
                 // *** 关键修改：将数据库操作移到后台线程 ***
                 withContext(Dispatchers.IO) {
-                    db.SongsDao().insertAll(_musicList.value)
+                    db.SongDao().insertAll(_musicList.value)
                 }
 
                 _scanState.value = ScanState.Completed

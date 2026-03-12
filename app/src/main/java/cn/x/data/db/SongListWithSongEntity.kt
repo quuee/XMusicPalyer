@@ -7,7 +7,9 @@ import androidx.room.ForeignKey
 import androidx.room.Junction
 import androidx.room.Relation
 
-
+/**
+ * 歌曲 歌单 关系表
+ */
 @Entity(
     tableName = "songlist_song",
     primaryKeys = ["songlist_id", "song_id"],
