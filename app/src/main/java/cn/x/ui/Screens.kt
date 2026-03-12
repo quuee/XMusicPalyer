@@ -15,13 +15,13 @@ sealed class Screens(val route: String) {
     object LocalSongList : Screens("LocalSongList")
     object LocalSong : Screens("LocalSong")
 
+    object SongList : Screens("SongList")
+
     object Player : Screens("Player")
 
     object Setting : Screens("Setting")
 
     object Search : Screens("Search")
-
-    object SongList : Screens("SongList")
 
     object SongListSort : Screens("SongListSort")
 }

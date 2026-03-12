@@ -255,6 +255,7 @@ private fun CoverLyricsPager(
 
 }
 
+// todo 不旋转
 @Composable
 private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
     val rotation by animateFloatAsState(

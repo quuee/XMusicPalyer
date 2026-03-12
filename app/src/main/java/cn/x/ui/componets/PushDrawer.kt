@@ -1,7 +1,6 @@
 package cn.x.ui.componets
 
 import android.annotation.SuppressLint
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
@@ -146,8 +145,8 @@ class DrawerControl internal constructor(
 
 // region 侧边栏
 enum class DrawerElement(
-    @StringRes val title: Int,
-    @StringRes val icon: Int,
+    val title: Int,
+    val icon: Int,
     val route: String
 ) {
     ScanLocalSong(
@@ -157,17 +156,17 @@ enum class DrawerElement(
     ),
     Folder(
         R.string.drawer_local_folder,
-        R.drawable.icon_navigation_folder,
+        R.drawable.icon_drawer_folder,
         Screens.Folder.route
     ),
     LocalSongList(
         R.string.drawer_local_song_list,
-        R.drawable.icon_navigtion_music_list,
+        R.drawable.icon_drawer_music_list,
         Screens.LocalSongList.route
     ),
     LocalSong(
         R.string.drawer_local_song,
-        R.drawable.icon_navigtion_music_list,
+        R.drawable.icon_drawer_song,
         Screens.LocalSong.route
     ),
 }

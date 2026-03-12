@@ -144,7 +144,7 @@ fun HomeScreen(
                         FolderScreen()
                     }
                     composable(Screens.LocalSongList.route) {
-                        LocalSongListScreen()
+                        SongListScreen()
                     }
                     composable(Screens.LocalSong.route) {
                         LocalSongScreen()
