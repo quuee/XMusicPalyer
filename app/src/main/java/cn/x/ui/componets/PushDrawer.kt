@@ -58,6 +58,8 @@ fun PushDrawer(
     content: @Composable (drawerControl: DrawerControl) -> Unit,
     drawerWidth: Dp = LocalConfiguration.current.screenWidthDp.dp / 2
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     val density = LocalDensity.current
     val drawerWidthPx = with(density) { drawerWidth.toPx() }
 
@@ -90,7 +92,7 @@ fun PushDrawer(
             modifier = Modifier
                 .width(drawerWidth)
                 .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(colorScheme.secondaryContainer)
         ) {
             drawerContent()
         }

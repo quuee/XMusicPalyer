@@ -58,6 +58,7 @@ fun HomeScreen(
     naviRouteItem: (String) -> Unit,
 ) {
 
+
     val controller = homeScreenVM.playerController
     // 1. 直接收集各个 StateFlow
     val currentSong by controller.currentSong.collectAsState()
@@ -95,6 +96,7 @@ fun HomeScreen(
     PushDrawer(
         drawerContent = {
             DrawerContent(naviRouteItem = { routeString ->
+                navHostController.popBackStack() // 替换当前页,不保留路由(栈)历史
                 navHostController.navigate(
                     routeString
                 )

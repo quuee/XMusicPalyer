@@ -9,6 +9,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,6 +52,8 @@ fun ScanScreen(
 ) {
 
     val context = LocalContext.current
+
+    val colorScheme = MaterialTheme.colorScheme
 
     val scanState by scanVM.scanState.collectAsState()
     val currentFolders by scanVM.currentFolders.collectAsState()
@@ -84,6 +88,7 @@ fun ScanScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
+            .background(colorScheme.primaryContainer)
     ) {
 
         Column(

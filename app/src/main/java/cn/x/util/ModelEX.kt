@@ -19,7 +19,7 @@ const val EXTRA_BASE_COVER = "base_cover"
 fun SongEntity.toMediaItem(): MediaItem {
     if (
         type == SongEntity.LOCAL
-    ){
+    ) {
         return MediaItem.Builder()
             .setMediaId(uniqueId)
             .setUri(contentUri)
@@ -38,7 +38,7 @@ fun SongEntity.toMediaItem(): MediaItem {
                     .build()
             )
             .build()
-    }else{
+    } else {
         return MediaItem.Builder()
             .setMediaId(uniqueId)
             .setUri(uri)
@@ -146,12 +146,44 @@ fun MediaMetadata.getBaseCover(): String? {
     return extras?.getString(EXTRA_BASE_COVER)
 }
 
-fun PlayListSongEntity.toSongEntity(): SongEntity{
-    return SongEntity(type,songId,title,artist,artistId,album,albumId,duration,uri,path,fileName,fileSize,contentUri,parentFolder,uniqueId)
+fun PlayListSongEntity.toSongEntity(): SongEntity {
+    return SongEntity(
+        type,
+        songId,
+        title,
+        artist,
+        artistId,
+        album,
+        albumId,
+        duration,
+        uri,
+        path,
+        fileName,
+        fileSize,
+        contentUri,
+        parentFolder,
+        uniqueId
+    )
 }
 
 fun List<PlayListSongEntity>.toSongEntityList(): List<SongEntity> = map { it.toSongEntity() }
 
-fun SongEntity.toPlayListSongEntity(): PlayListSongEntity{
-    return PlayListSongEntity(type,songId,title,artist,artistId,album,albumId,duration,uri,path,fileName,fileSize,contentUri,parentFolder,uniqueId)
+fun SongEntity.toPlayListSongEntity(): PlayListSongEntity {
+    return PlayListSongEntity(
+        type,
+        songId,
+        title,
+        artist,
+        artistId,
+        album,
+        albumId,
+        duration,
+        uri,
+        path,
+        fileName,
+        fileSize,
+        contentUri,
+        parentFolder,
+        uniqueId
+    )
 }

@@ -1,5 +1,6 @@
 package cn.x.ui.screen
 
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
@@ -32,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -52,7 +55,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import cn.x.service.PlayMode
 import cn.x.service.PlayState
-import cn.x.ui.screen.PlayerScreenVM
+import cn.x.ui.componets.BufferedSlider
 import cn.x.util.formatTime
 import coil.compose.AsyncImage
 
@@ -60,11 +63,11 @@ import coil.compose.AsyncImage
 @Composable
 fun PlayerScreen(
     modifier: Modifier = Modifier,
-    viewModel: PlayerScreenVM = hiltViewModel(),
+    playerScreenVM: PlayerScreenVM = hiltViewModel(),
     naviBack: () -> Unit
 ) {
-
-    val controller = viewModel.playerController
+    val colorScheme = MaterialTheme.colorScheme
+    val controller = playerScreenVM.playerController
     // 1. 直接收集各个 StateFlow
     val currentSong by controller.currentSong.collectAsState()
     val playState by controller.playState.collectAsState()
@@ -89,7 +92,7 @@ fun PlayerScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF121212)), // 深色背景
+            .background(colorScheme.secondaryContainer), // 深色背景
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -109,7 +112,7 @@ fun PlayerScreen(
             // 2. 歌曲信息
             Text(
                 text = songTitle,
-                color = Color.White,
+                color = colorScheme.onSecondaryContainer,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1
@@ -124,17 +127,20 @@ fun PlayerScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             // 3. 进度条
-            Slider(
-                value = if (duration > 0) (progress.toFloat() / duration) else 0f,
-                onValueChange = { viewModel.seekTo(it) },
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = Color.White,
-                    inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
-                ),
-                modifier = Modifier.fillMaxWidth()
+            BufferedSlider(
+                currentPosition = progress.toFloat(),
+                bufferedPosition = buffering.toFloat(),
+                duration = duration.toFloat(),
+                onSeek = { newPosition ->
+                    Log.d("PlayerScreen", "PlayerScreen newPosition: $newPosition")
+                    playerScreenVM.seekTo(newPosition)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
             )
 
+            // 00:00  04:00
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -145,18 +151,7 @@ fun PlayerScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. 缓冲提示
-            if (playState == PlayState.Preparing || buffering > 0 && buffering < 100) {
-                LinearProgressIndicator(
-                    progress = (buffering / 100f).coerceIn(0f, 1f),
-                    color = Color.Yellow,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            
 
             // 5. 控制按钮
             Row(
@@ -165,7 +160,7 @@ fun PlayerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // 播放模式按钮
-                IconButton(onClick = { viewModel.togglePlayMode() }) {
+                IconButton(onClick = { playerScreenVM.togglePlayMode() }) {
                     Icon(
                         imageVector = getPlayModeIcon(playMode),
                         contentDescription = "Play Mode",
@@ -174,7 +169,7 @@ fun PlayerScreen(
                 }
 
                 // 上一首
-                IconButton(onClick = { viewModel.prev() }) {
+                IconButton(onClick = { playerScreenVM.prev() }) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = "Previous",
@@ -185,7 +180,7 @@ fun PlayerScreen(
 
                 // 播放/暂停 (大按钮)
                 FilledIconButton(
-                    onClick = { viewModel.togglePlayPause() },
+                    onClick = { playerScreenVM.togglePlayPause() },
                     modifier = Modifier.size(72.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = Color.White,
@@ -200,7 +195,7 @@ fun PlayerScreen(
                 }
 
                 // 下一首
-                IconButton(onClick = { viewModel.next() }) {
+                IconButton(onClick = { playerScreenVM.next() }) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = "Next",

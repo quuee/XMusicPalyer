@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,7 +28,7 @@ import cn.x.di.PlayServiceModule
 import cn.x.service.MusicPlaybackService
 import cn.x.ui.NavigationGraph
 import cn.x.ui.Screens
-import cn.x.ui.theme.XMusicPalyerTheme
+import cn.x.ui.theme.XMusicPlayerTheme
 import cn.x.util.DataStoreUtil
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.HiltAndroidApp
@@ -59,7 +58,7 @@ fun XMusicApplicationApp() {
     val isReady by PlayServiceModule.isPlayerReady.collectAsState()
 
     if (isReady) {
-        XMusicPalyerTheme {
+        XMusicPlayerTheme {
             Scaffold(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -80,11 +79,11 @@ fun LoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF121212)), // 背景色
+            .background(MaterialTheme.colorScheme.background), // 背景色
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(color = Color.White)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.secondaryContainer)
             Spacer(modifier = Modifier.height(16.dp))
             Text("正在启动音乐服务...", color = Color.Gray)
         }
