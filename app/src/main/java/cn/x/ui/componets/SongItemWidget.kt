@@ -20,11 +20,13 @@ import cn.x.R
 import cn.x.util.formatTime
 
 @Composable
-fun SongItemWidget(    title: String?,
-                       artist: String?,
-                       duration: Long?,
-                       onClick: () -> Unit,
-                       onMenuClick: () -> Unit){
+fun SongItemWidget(
+    title: String?,
+    artist: String?,
+    duration: Long?,
+    onClick: () -> Unit,
+    onMenuClick: () -> Unit
+) {
     Item(
         title = title ?: "unknown",
         artist = artist ?: "unknown",
@@ -36,7 +38,8 @@ fun SongItemWidget(    title: String?,
 
 
 @Composable
-fun LocalSongItemWidget(){}
+fun LocalSongItemWidget() {
+}
 
 @Composable
 private fun Item(
@@ -45,7 +48,7 @@ private fun Item(
     duration: Long,
     onClick: () -> Unit,
     onMenuClick: () -> Unit
-){
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

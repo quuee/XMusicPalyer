@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 import java.io.File
+import androidx.core.net.toUri
 
 // 查询字段
 private val LocalAudioColumns = arrayOf(
@@ -103,6 +104,12 @@ class MusicScanFlow(private val context: Context) {
                             val relativePath = it.getString(relativePathColumn)
                             val album = it.getString(albumColumn)
                             val albumId = it.getLong(albumIdColumn)
+
+                            val artworkUri = ContentUris.withAppendedId(
+                                "content://media/external/audio/albumart".toUri(),
+                                albumId
+                            )
+
                             // 可用于本地播放的uri
                             val contentUri = ContentUris.withAppendedId(
                                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
@@ -119,7 +126,9 @@ class MusicScanFlow(private val context: Context) {
                                 path = relativePath,
                                 album = album,
                                 albumId = albumId,
-                                contentUri = contentUri.toString()
+                                artworkUri = artworkUri.toString(),
+                                contentUri = contentUri.toString(),
+
                             )
 
                             trySend(songItem) // 发送每首歌曲到流

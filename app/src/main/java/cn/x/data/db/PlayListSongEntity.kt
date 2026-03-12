@@ -41,9 +41,8 @@ data class PlayListSongEntity(
     val albumId: Long = 0,
 
     // 专辑封面
-//    @Deprecated("Please use resized url")
-//    @ColumnInfo("album_cover")
-//    val albumCover: String = "",
+    @ColumnInfo("artwork_uri")
+    var artworkUri: String = "",
 
     // 持续时间
     @ColumnInfo("duration")

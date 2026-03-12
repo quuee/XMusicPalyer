@@ -1,6 +1,5 @@
 package cn.x.ui.screen
 
-import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
@@ -17,38 +16,45 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -56,13 +62,14 @@ import androidx.media3.common.MediaItem
 import cn.x.service.PlayMode
 import cn.x.service.PlayState
 import cn.x.ui.componets.BufferedSlider
+import cn.x.ui.componets.ImageWidget
+import cn.x.util.LyricLine
+import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
 import coil.compose.AsyncImage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
-    modifier: Modifier = Modifier,
     playerScreenVM: PlayerScreenVM = hiltViewModel(),
     naviBack: () -> Unit
 ) {
@@ -85,154 +92,171 @@ fun PlayerScreen(
     val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "未知艺术家"
     val isPlaylistEmpty = playlist.isEmpty()
 
-    // 格式化时间
-    val formattedProgress = formatTime(progress)
-    val formattedDuration = formatTime(duration)
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colorScheme.secondaryContainer), // 深色背景
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
+    Box(modifier = Modifier.fillMaxSize()) {
+        // 背景模糊效果
+        ImageWidget(
+            cover = currentSong?.mediaMetadata?.artworkUri.toString(),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .blur(radius = 50.dp),
+            contentScale = ContentScale.Crop
+        )
+        // 半透明遮罩
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
         ) {
-            // 1. 专辑封面 (带旋转动画)
-            AlbumCover(
-                song = currentSong,
-                isPlaying = isPlaying
-            )
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // 2. 歌曲信息
-            Text(
-                text = songTitle,
-                color = colorScheme.onSecondaryContainer,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1
-            )
-            Text(
-                text = songArtist,
-                color = Color.Gray,
-                fontSize = 14.sp,
-                maxLines = 1
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 3. 进度条
-            BufferedSlider(
-                currentPosition = progress.toFloat(),
-                bufferedPosition = buffering.toFloat(),
-                duration = duration.toFloat(),
-                onSeek = { newPosition ->
-                    Log.d("PlayerScreen", "PlayerScreen newPosition: $newPosition")
-                    playerScreenVM.seekTo(newPosition)
-                },
+            // 内容
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            )
-
-            // 00:00  04:00
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .fillMaxSize()
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = formattedProgress, color = Color.Gray, fontSize = 12.sp)
-                Text(text = formattedDuration, color = Color.Gray, fontSize = 12.sp)
-            }
+                Spacer(modifier = Modifier.height(8.dp))
+                // 顶部工具栏
+                TopBar(naviBack)
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            
+                // 封面 lyric 滑动区域
+                CoverLyricsPager(
+                    currentSong,
+                    listOf(LyricLine(0L, "no lyric")),
+                    progress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(3f)
+                )
 
-            // 5. 控制按钮
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 播放模式按钮
-                IconButton(onClick = { playerScreenVM.togglePlayMode() }) {
-                    Icon(
-                        imageVector = getPlayModeIcon(playMode),
-                        contentDescription = "Play Mode",
-                        tint = if (playMode != PlayMode.Loop) Color.Yellow else Color.White
-                    )
-                }
 
-                // 上一首
-                IconButton(onClick = { playerScreenVM.prev() }) {
-                    Icon(
-                        imageVector = Icons.Default.SkipPrevious,
-                        contentDescription = "Previous",
-                        tint = Color.White,
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
+                // 歌曲信息 播放进度
+                SongBufferedSlider(
+                    currentSong,
+                    progress,
+                    buffering,
+                    duration,
+                    seekTo = { p -> playerScreenVM.seekTo(p) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .weight(1f)
+                )
 
-                // 播放/暂停 (大按钮)
-                FilledIconButton(
-                    onClick = { playerScreenVM.togglePlayPause() },
-                    modifier = Modifier.size(72.dp),
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = Color.White,
-                        contentColor = Color.Black
-                    )
-                ) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) "Pause" else "Play",
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
 
-                // 下一首
-                IconButton(onClick = { playerScreenVM.next() }) {
-                    Icon(
-                        imageVector = Icons.Default.SkipNext,
-                        contentDescription = "Next",
-                        tint = Color.White,
-                        modifier = Modifier.size(48.dp)
-                    )
-                }
-
-                // 占位或列表按钮
-                IconButton(onClick = { /* 打开播放列表 */ }) {
-                    Icon(
-                        imageVector = Icons.Default.QueueMusic,
-                        contentDescription = "Playlist",
-                        tint = Color.White
-                    )
-                }
+                // 控制按钮
+                ControlsButton(
+                    previous = { playerScreenVM.prev() },
+                    playPause = { playerScreenVM.togglePlayPause() },
+                    playNext = { playerScreenVM.next() },
+                    togglePlayMode = {},
+                    isPlaying,
+                    playMode,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                )
             }
         }
+    }
+}
 
-        // 空状态提示
-        if (isPlaylistEmpty) {
-            Text(
-                text = "播放列表为空",
-                color = Color.Gray,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 48.dp)
+@Composable
+private fun TopBar(
+    naviBack: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = { naviBack() }) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White
+            )
+        }
+
+        Text(
+            text = "正在播放",
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        IconButton(onClick = { /* 更多选项 */ }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = "More",
+                tint = Color.White
             )
         }
     }
 }
 
-/**
- * 专辑封面旋转
- */
 @Composable
-private fun AlbumCover(song: MediaItem?, isPlaying: Boolean) {
+private fun CoverLyricsPager(
+    currentSong: MediaItem?,
+    lyrics: List<LyricLine>,
+    currentPosition: Long,
+    modifier: Modifier
+) {
+    val pagerState = rememberPagerState(pageCount = { 2 })
+
+
+    // 滑动指示器
+    Row(
+        modifier = Modifier.padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        repeat(pagerState.pageCount) { index ->
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (index == pagerState.currentPage) Color.White
+                        else Color.White.copy(alpha = 0.5f)
+                    )
+            )
+        }
+    }
+
+    // 滑动内容
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier
+    ) { page ->
+        when (page) {
+            // 第一页 - 歌曲封面
+            0 -> {
+                AlbumCover(
+                    currentSong?.mediaMetadata?.artworkUri.toString(),
+                    isPlaying = true
+                )
+            }
+
+            // 第二页 - 歌词
+            1 -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    LyricsScroller(lyrics, currentPosition + 500L)
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
     val rotation by animateFloatAsState(
         targetValue = if (isPlaying) 360f else 0f,
         animationSpec = infiniteRepeatable(
@@ -242,49 +266,217 @@ private fun AlbumCover(song: MediaItem?, isPlaying: Boolean) {
         label = "rotation"
     )
 
-    // 如果暂停，我们需要保持当前的旋转角度，而不是重置为0。
-    // 上面的逻辑简单化处理了：暂停时动画停止在当前帧需要更复杂的逻辑，
-    // 这里简化为：播放时旋转，暂停时不旋转（视觉上可能瞬间跳回0，生产环境需优化）
-    // 优化方案：使用 remember 保存当前角度，暂停时停止动画更新目标值。
-
-    val animatedRotation = if (isPlaying) rotation else 0f
-    // 注意：简单的 animateFloatAsState 在 pause 时会倒转回 0。
-    // 真正的黑胶唱片效果需要自定义 AnimationSpec 或手动控制 targetValue 累加。
-    // 此处仅做演示，使用简化的旋转逻辑：
-
     Box(
-        modifier = Modifier
-            .size(280.dp)
-            .rotate(if (isPlaying) rotation else 0f) // 简化版：暂停会倒转，生产请用 deriveAnimatedFloat
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
         AsyncImage(
-            model = song?.mediaMetadata?.artworkUri,
+            model = artworkUri,
             contentDescription = "Album Art",
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.DarkGray, CircleShape),
+                .size(300.dp)
+                .rotate(rotation) // ← 直接旋转图片
+                .clip(CircleShape), // 如果需要圆形裁剪
             contentScale = ContentScale.Crop,
             placeholder = painterResource(android.R.drawable.ic_menu_gallery),
             error = painterResource(android.R.drawable.ic_menu_gallery)
-        )
-
-        // 中间的黑点
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .align(Alignment.Center)
-                .background(Color.Black, CircleShape)
         )
     }
 }
 
 @Composable
-private fun getPlayModeIcon(mode: PlayMode): ImageVector {
-    return when (mode) {
-        PlayMode.Loop -> Icons.Default.Repeat
-        PlayMode.Shuffle -> Icons.Default.Shuffle
-        PlayMode.Single -> Icons.Default.RepeatOne
+private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
+    val listState = rememberLazyListState()
+    val currentLine = remember(lyrics, currentPosition) {
+        findCurrentLyricIndex(lyrics, currentPosition)
+    }
+
+    // 自动滚动到当前行并居中
+    LaunchedEffect(currentLine) {
+        if (currentLine >= 0) {
+            listState.animateScrollToItem(
+                index = currentLine,
+                scrollOffset = 0,
+            )
+        }
+    }
+
+    val typography = MaterialTheme.typography
+    val colorScheme = MaterialTheme.colorScheme
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        itemsIndexed(lyrics) { index, line ->
+            Text(
+                text = line.content,
+                style = typography.bodyLarge,
+                color = if (index == currentLine) colorScheme.primary else Color.Gray,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
     }
 }
 
+@Composable
+private fun SongBufferedSlider(
+    currentSong: MediaItem?,
+    progress: Long,
+    buffering: Int,
+    duration: Long,
+    seekTo: (Float) -> Unit,
+    modifier: Modifier
+) {
+    // 格式化时间
+    val formattedProgress = formatTime(progress)
+    val formattedDuration = formatTime(duration)
 
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.SpaceAround
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column {
+                // 歌曲名
+                Text(
+                    text = currentSong?.mediaMetadata?.title.toString(),
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                // 歌手
+                Text(
+                    text = currentSong?.mediaMetadata?.artist.toString(),
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 16.sp
+                )
+            }
+
+            IconButton(
+                onClick = { /* 切换收藏状态 */ },
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = if (currentSong?.mediaMetadata?.extras?.getBoolean("starred") == true) Icons.Outlined.Favorite
+                    else Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = if (currentSong?.mediaMetadata?.extras?.getBoolean("starred") == true) Color.Red else Color.White
+                )
+            }
+        }
+
+        // 进度条
+        BufferedSlider(
+            currentPosition = progress.toFloat(),
+            bufferedPosition = buffering.toFloat(),
+            duration = duration.toFloat(),
+            onSeek = { newPosition ->
+//                Log.d("PlayerScreen", "PlayerScreen newPosition: $newPosition")
+                seekTo(newPosition)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+
+        // 00:00  04:00
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = formattedProgress, color = Color.Gray, fontSize = 12.sp)
+            Text(text = formattedDuration, color = Color.Gray, fontSize = 12.sp)
+        }
+    }
+
+
+}
+
+@Composable
+private fun ControlsButton(
+    previous: () -> Unit,
+    playPause: () -> Unit,
+    playNext: () -> Unit,
+    togglePlayMode:()->Unit,
+    isPlaying: Boolean,
+    playMode: PlayMode,
+    modifier: Modifier
+) {
+    // 控制按钮
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // 播放模式
+        IconButton(onClick = {togglePlayMode()}) {
+            Icon(
+                imageVector = when (playMode) {
+                    PlayMode.Loop -> Icons.Default.Repeat
+                    PlayMode.Shuffle -> Icons.Default.Shuffle
+                    PlayMode.Single -> Icons.Default.RepeatOne
+                },
+                contentDescription = "Playback Mode",
+                tint = Color.White
+            )
+        }
+
+        // 上一首
+        IconButton(
+            onClick = { previous() },
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.SkipPrevious,
+                contentDescription = "Previous",
+                tint = Color.White,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+
+        // 播放/暂停
+        IconButton(
+            onClick = { playPause() },
+            modifier = Modifier.size(64.dp)
+        ) {
+            Icon(
+                imageVector = if (isPlaying) Icons.Default.Pause
+                else Icons.Default.PlayArrow,
+                contentDescription = if (isPlaying) "Pause" else "Play",
+                tint = Color.White,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+
+        // 下一首
+        IconButton(
+            onClick = { playNext() },
+            modifier = Modifier.size(48.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.SkipNext,
+                contentDescription = "Next",
+                tint = Color.White,
+                modifier = Modifier.size(36.dp)
+            )
+        }
+
+        // 播放列表
+        IconButton(onClick = { }) {
+            Icon(
+                imageVector = Icons.Outlined.PlaylistPlay,
+                contentDescription = "Playlist",
+                tint = Color.White
+            )
+        }
+    }
+}

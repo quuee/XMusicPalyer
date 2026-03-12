@@ -134,6 +134,16 @@ fun PushDrawer(
     }
 }
 
+class DrawerControl internal constructor(
+    val open: () -> Unit,
+    val close: () -> Unit,
+    val isOpen: Boolean
+) {
+    fun toggle() {
+        if (isOpen) close() else open()
+    }
+}
+
 // region 侧边栏
 enum class DrawerElement(
     @StringRes val title: Int,
@@ -173,7 +183,6 @@ fun DrawerContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxHeight()
-            //.fillMaxWidth(0.75f)
             .padding(8.dp)
 //            .background().verticalScroll()
     ) {
@@ -298,3 +307,4 @@ private fun DrawerItem(
         }
     }
 }
+

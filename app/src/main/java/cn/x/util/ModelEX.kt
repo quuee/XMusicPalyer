@@ -1,6 +1,7 @@
 package cn.x.util
 
 
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -29,7 +30,7 @@ fun SongEntity.toMediaItem(): MediaItem {
                     .setArtist(artist)
                     .setAlbumTitle(album)
                     .setAlbumArtist(artist)
-                    //.setArtworkUri(getLargeCover().toUri())
+                    .setArtworkUri(artworkUri.toUri())
 //                .setBaseCover(albumCover)
                     .setDuration(duration)
                     .setFilePath(path)
@@ -48,7 +49,7 @@ fun SongEntity.toMediaItem(): MediaItem {
                     .setArtist(artist)
                     .setAlbumTitle(album)
                     .setAlbumArtist(artist)
-                    //.setArtworkUri(getLargeCover().toUri())
+                    .setArtworkUri(artworkUri.toUri())
 //                .setBaseCover(albumCover)
                     .setDuration(duration)
                     .setFilePath(path)
@@ -70,7 +71,7 @@ fun MediaItem.toSongEntity(): SongEntity {
         artistId = 0,
         album = mediaMetadata.albumTitle?.toString() ?: "",
         albumId = 0,
-//        albumCover = mediaMetadata.getBaseCover() ?: "",
+        artworkUri = mediaMetadata.artworkUri?.toString() ?:"",
         duration = mediaMetadata.getDuration(),
         uri = localConfiguration?.uri?.toString() ?: "",
         path = mediaMetadata.getFilePath(),
@@ -155,6 +156,7 @@ fun PlayListSongEntity.toSongEntity(): SongEntity {
         artistId,
         album,
         albumId,
+        artworkUri,
         duration,
         uri,
         path,
@@ -177,6 +179,7 @@ fun SongEntity.toPlayListSongEntity(): PlayListSongEntity {
         artistId,
         album,
         albumId,
+        artworkUri,
         duration,
         uri,
         path,
