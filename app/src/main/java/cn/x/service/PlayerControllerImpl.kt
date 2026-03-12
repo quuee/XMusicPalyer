@@ -1,5 +1,6 @@
 package cn.x.service
 
+import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
@@ -113,12 +114,13 @@ class PlayerControllerImpl
                     .queryAll()
                     .onEach {
                         // 兼容老版本数据库
-                        if (it.uri.isEmpty()) {
-                            it.uri = it.path
-                        }
+//                        if (it.uri.isEmpty()) {
+//                            it.uri = it.path
+//                        }
                     }
                     .map { it.toLocalMediaItem() }
             }
+            Log.d("PlayerControllerImpl", "playlist: ${playlist.size}")
             if (playlist.isNotEmpty()) {
                 _playlist.value = playlist
                 player.setMediaItems(playlist)

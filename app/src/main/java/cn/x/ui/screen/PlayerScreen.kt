@@ -60,7 +60,8 @@ import coil.compose.AsyncImage
 @Composable
 fun PlayerScreen(
     modifier: Modifier = Modifier,
-    viewModel: PlayerScreenVM = hiltViewModel()
+    viewModel: PlayerScreenVM = hiltViewModel(),
+    naviBack: () -> Unit
 ) {
 
     val controller = viewModel.playerController

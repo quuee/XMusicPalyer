@@ -54,7 +54,8 @@ import cn.x.util.formatTime
 
 @Composable
 fun HomeScreen(
-    homeScreenVM: HomeScreenVM= hiltViewModel()
+    homeScreenVM: HomeScreenVM = hiltViewModel(),
+    naviRouteItem: (String) -> Unit,
 ) {
 
     val controller = homeScreenVM.playerController
@@ -118,8 +119,13 @@ fun HomeScreen(
                     CenterTopBar(currentRoute, drawerToggle = { drawerControl.toggle() })
                 },
                 bottomBar = {
-
-                    FloatingPlayerBar(mediaItem = currentSong,isPlaying=isPlaying, onSongClick = {}, onNextClick = {}, onPreviousClick = {}, onPlayPauseClick = {})
+                    FloatingPlayerBar(
+                        mediaItem = currentSong,
+                        isPlaying = isPlaying,
+                        onSongClick = { naviRouteItem(Screens.Player.route) },
+                        onNextClick = {},
+                        onPreviousClick = {},
+                        onPlayPauseClick = {})
                 },
 
                 ) { innerPadding ->
@@ -152,7 +158,7 @@ fun HomeScreen(
 fun FloatingPlayerBar(
     mediaItem: MediaItem?,
     isPlaying: Boolean,
-    onSongClick:(Long) -> Unit,
+    onSongClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
@@ -164,14 +170,16 @@ fun FloatingPlayerBar(
             .height(72.dp)
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 8.dp, vertical = 8.dp)
-            .clickable {  },
+            .clickable(onClick = onSongClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(contentAlignment = Alignment.Center) {
             // 歌曲封面
             ImageWidget(
                 cover = mediaItem?.mediaMetadata?.artworkUri.toString(),
-                modifier = Modifier.size(56.dp).clip(MaterialTheme.shapes.small),
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(MaterialTheme.shapes.small),
                 contentScale = ContentScale.Crop
             )
         }
@@ -219,12 +227,16 @@ fun FloatingPlayerBar(
             ) {
                 IconButton(
                     onClick = onPlayPauseClick
-                ) { Icon(
-                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )}
+                ) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(
+                            R.string.play
+                        ),
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
 
             }
 

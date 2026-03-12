@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import cn.x.ui.screen.HomeScreen
+import cn.x.ui.screen.PlayerScreen
 
 @Composable
 fun NavigationGraph(
@@ -17,7 +18,13 @@ fun NavigationGraph(
     ) {
 
         composable(Screens.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                naviRouteItem = { routeString -> navHostController.navigate(routeString) },
+            )
+        }
+
+        composable(Screens.Player.route){
+            PlayerScreen(naviBack = { navHostController.navigateUp() },)
         }
 
     }

@@ -33,6 +33,7 @@ class LocalSongScreenVM @Inject constructor(
                 val songs = db.SongsDao().queryAll() // 这行现在在后台线程执行
                 _songList.value = songs
                 Log.d(tag, "songs: ${songs.first()}")
+                Log.d(tag, "songs: ${songs.size}")
             } catch (e: Exception) {
                 Log.e(tag, "Error loading songs from database", e)
                 // 可以在这里设置一个错误状态或空列表

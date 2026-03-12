@@ -15,6 +15,8 @@ sealed class Screens(val route: String) {
     object LocalSongList : Screens("LocalSongList")
     object LocalSong : Screens("LocalSong")
 
+    object Player : Screens("Player")
+
     object Setting : Screens("Setting")
 
     object Search : Screens("Search")

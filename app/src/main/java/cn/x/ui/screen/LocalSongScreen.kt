@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.ui.componets.SongItemWidget
 
 @Composable
 fun LocalSongScreen(
@@ -23,9 +24,7 @@ fun LocalSongScreen(
 
         LazyColumn() {
             itemsIndexed(songList) { index, songItem ->
-                Row(modifier = Modifier.clickable(onClick = { localSongScreenVM.play(songItem) })) {
-                    Text(songItem.title)
-                }
+                SongItemWidget(title = songItem.title, artist = songItem.artist, duration = songItem.duration, onClick = {localSongScreenVM.play(songItem)}, onMenuClick = {})
             }
         }
     }
