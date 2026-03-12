@@ -65,8 +65,8 @@ data class PlayListSongEntity(
     val fileSize: Long = 0,
 
     // 本地路径 拼接后可播放的uri
-    @ColumnInfo("content_uri")
-    var contentUri: String = "",
+//    @ColumnInfo("content_uri")
+//    var contentUri: String = "",
 
     // 本地 父级目录
     @ColumnInfo("parent_folder")

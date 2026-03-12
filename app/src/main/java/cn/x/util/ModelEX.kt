@@ -18,47 +18,24 @@ const val EXTRA_BASE_COVER = "base_cover"
 
 
 fun SongEntity.toMediaItem(): MediaItem {
-    if (
-        type == SongEntity.LOCAL
-    ) {
-        return MediaItem.Builder()
-            .setMediaId(uniqueId)
-            .setUri(contentUri)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(title)
-                    .setArtist(artist)
-                    .setAlbumTitle(album)
-                    .setAlbumArtist(artist)
-                    .setArtworkUri(artworkUri.toUri())
+    return MediaItem.Builder()
+        .setMediaId(uniqueId)
+        .setUri(uri)
+        .setMediaMetadata(
+            MediaMetadata.Builder()
+                .setTitle(title)
+                .setArtist(artist)
+                .setAlbumTitle(album)
+                .setAlbumArtist(artist)
+                .setArtworkUri(artworkUri.toUri())
 //                .setBaseCover(albumCover)
-                    .setDuration(duration)
-                    .setFilePath(path)
-                    .setFileName(fileName)
-                    .setFileSize(fileSize)
-                    .build()
-            )
-            .build()
-    } else {
-        return MediaItem.Builder()
-            .setMediaId(uniqueId)
-            .setUri(uri)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(title)
-                    .setArtist(artist)
-                    .setAlbumTitle(album)
-                    .setAlbumArtist(artist)
-                    .setArtworkUri(artworkUri.toUri())
-//                .setBaseCover(albumCover)
-                    .setDuration(duration)
-                    .setFilePath(path)
-                    .setFileName(fileName)
-                    .setFileSize(fileSize)
-                    .build()
-            )
-            .build()
-    }
+                .setDuration(duration)
+                .setFilePath(path)
+                .setFileName(fileName)
+                .setFileSize(fileSize)
+                .build()
+        )
+        .build()
 
 }
 
@@ -162,7 +139,7 @@ fun PlayListSongEntity.toSongEntity(): SongEntity {
         path,
         fileName,
         fileSize,
-        contentUri,
+//        contentUri,
         parentFolder,
         uniqueId
     )
@@ -185,7 +162,7 @@ fun SongEntity.toPlayListSongEntity(): PlayListSongEntity {
         path,
         fileName,
         fileSize,
-        contentUri,
+//        contentUri,
         parentFolder,
         uniqueId
     )

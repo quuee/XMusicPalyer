@@ -62,7 +62,7 @@ class ScanScreenVM @Inject constructor(
                             // 3. 合并或添加新的 Uri
                             put(
                                 songParentPath,
-                                (currentMap[songParentPath] ?: emptySet()) + songItem.contentUri
+                                (currentMap[songParentPath] ?: emptySet()) + songItem.uri
                             )
                         }
                     }

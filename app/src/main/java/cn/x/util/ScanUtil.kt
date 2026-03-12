@@ -127,7 +127,8 @@ class MusicScanFlow(private val context: Context) {
                                 album = album,
                                 albumId = albumId,
                                 artworkUri = artworkUri.toString(),
-                                contentUri = contentUri.toString(),
+//                                contentUri = contentUri.toString(),
+                                uri = contentUri.toString(),
 
                             )
 

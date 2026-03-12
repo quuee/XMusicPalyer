@@ -53,6 +53,8 @@ class PlayerControllerImpl
 
     private var audioSessionId = 0
 
+    private val TAG = "PlayerControllerImpl"
+
     init {
         player.playWhenReady = false
         player.addListener(object : Player.Listener {
@@ -117,10 +119,11 @@ class PlayerControllerImpl
 //                        if (it.uri.isEmpty()) {
 //                            it.uri = it.path
 //                        }
+                        Log.d(TAG, "song: $it")
                     }
                     .map { it.toSongEntity().toMediaItem() }
             }
-            Log.d("PlayerControllerImpl", "playlist: ${playlist.size}")
+//            Log.d("PlayerControllerImpl", "playlist: $playlist")
             if (playlist.isNotEmpty()) {
                 _playlist.value = playlist
                 player.setMediaItems(playlist)
