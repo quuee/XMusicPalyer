@@ -162,7 +162,7 @@ enum class DrawerElement(
     LocalSongList(
         R.string.drawer_local_song_list,
         R.drawable.icon_drawer_music_list,
-        Screens.LocalSongList.route
+        Screens.SongList.route
     ),
     LocalSong(
         R.string.drawer_local_song,

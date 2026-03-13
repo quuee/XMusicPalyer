@@ -19,7 +19,8 @@ import androidx.core.net.toUri
 // 查询字段
 private val LocalAudioColumns = arrayOf(
     MediaStore.Audio.AudioColumns._ID, // 音频id
-    MediaStore.Audio.AudioColumns.RELATIVE_PATH, // 音频路径
+    MediaStore.Audio.AudioColumns.RELATIVE_PATH, // 音频相对路径
+    MediaStore.Audio.AudioColumns.DATA, // 文件绝对路径
     MediaStore.Audio.AudioColumns.SIZE, // 音频字节大小
     MediaStore.Audio.AudioColumns.DISPLAY_NAME, // 音频名称 xxx.amr
     MediaStore.Audio.AudioColumns.TITLE, // 音频标题
@@ -36,7 +37,8 @@ private val LocalAudioColumns = arrayOf(
     MediaStore.Audio.AudioColumns.IS_MUSIC, // 是否为音乐音频
     MediaStore.Audio.AudioColumns.IS_PODCAST, MediaStore.Audio.AudioColumns.IS_RINGTONE, // 是否为警告音频
     MediaStore.Audio.AudioColumns.IS_ALARM, // 是否为闹钟音频
-    MediaStore.Audio.AudioColumns.IS_NOTIFICATION // 是否为通知音频
+    MediaStore.Audio.AudioColumns.IS_NOTIFICATION, // 是否为通知音频,
+
 )
 
 /**
@@ -91,6 +93,8 @@ class MusicScanFlow(private val context: Context) {
                         val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
                         val relativePathColumn =
                             it.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH)
+                        val pathColumn =
+                            it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
                         val albumColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
                         val albumIdColumn =
                             it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
@@ -102,6 +106,8 @@ class MusicScanFlow(private val context: Context) {
                             val duration = it.getLong(durationColumn)
                             val size = it.getLong(sizeColumn)
                             val relativePath = it.getString(relativePathColumn)
+                            val path = it.getString(pathColumn)
+                            val parentPath = File(path).parent ?: continue
                             val album = it.getString(albumColumn)
                             val albumId = it.getLong(albumIdColumn)
 
@@ -129,6 +135,7 @@ class MusicScanFlow(private val context: Context) {
                                 artworkUri = artworkUri.toString(),
 //                                contentUri = contentUri.toString(),
                                 uri = contentUri.toString(),
+                                parentFolder = parentPath
 
                             )
 

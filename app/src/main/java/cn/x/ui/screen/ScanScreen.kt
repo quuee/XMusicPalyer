@@ -118,16 +118,14 @@ fun ScanScreen(
                 Text("添加自定义文件夹")
             }
 
-            // 自定义文件夹
+            // 扫描 添加后的文件夹
             LazyColumn {
-                itemsIndexed(currentFolders.keys.toList()) { index: Int, folderName: String ->
-                    currentFolders[folderName]?.let {
-                        FolderCard(
-                            folderName,
-                            it.size,
-                            onClick = {}
-                        )
-                    }
+                itemsIndexed(currentFolders) { index: Int, folder ->
+                    FolderCard(
+                        folder.folderPath,
+                        folder.songCount,
+                        onClick = {}
+                    )
                 }
             }
 

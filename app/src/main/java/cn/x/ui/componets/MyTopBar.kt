@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,7 +46,7 @@ fun CenterTopBar(currentRoute: String?, drawerToggle: () -> Unit) {
                 text = when (currentRoute) {
                     Screens.Scan.route -> "扫描"
                     Screens.Folder.route -> "文件夹"
-                    Screens.LocalSongList.route -> "本地歌曲列表"
+                    Screens.SongList.route -> "歌单"
                     Screens.LocalSong.route -> "本地歌曲"
                     else -> "未知页面"
                 },
@@ -55,6 +56,11 @@ fun CenterTopBar(currentRoute: String?, drawerToggle: () -> Unit) {
         navigationIcon = {
             IconButton(onClick = drawerToggle) {
                 Icon(Icons.Filled.Menu, contentDescription = "Menu")
+            }
+        },
+        actions = {
+            IconButton(onClick = {}) {
+                Icon(Icons.Default.Search, contentDescription = "search")
             }
         }
     )

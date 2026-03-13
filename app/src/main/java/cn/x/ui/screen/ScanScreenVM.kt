@@ -3,6 +3,7 @@ package cn.x.ui.screen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cn.x.data.db.FolderEntity
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.util.MusicScanFlow
@@ -34,7 +35,7 @@ class ScanScreenVM @Inject constructor(
     val scanState: StateFlow<ScanState> = _scanState.asStateFlow()
 
     // 已有文件夹目录集合
-    private val _currentFolders = MutableStateFlow<Map<String, Set<String>>>(emptyMap())
+    private val _currentFolders = MutableStateFlow<List<FolderEntity>>(emptyList())
     val currentFolders = _currentFolders.asStateFlow()
 
     // 开始扫描音乐
@@ -52,29 +53,19 @@ class ScanScreenVM @Inject constructor(
 
                 flow.collect { songItem ->
                     Log.d(TAG, "startScan: $songItem")
-
-                    // 1. 获取父文件夹路径
-                    val songParentPath = songItem.path.substringBeforeLast("/")
-
-                    // 2. 使用 update 原子性更新 StateFlow
-                    _currentFolders.update { currentMap ->
-                        currentMap.toMutableMap().apply {
-                            // 3. 合并或添加新的 Uri
-                            put(
-                                songParentPath,
-                                (currentMap[songParentPath] ?: emptySet()) + songItem.uri
-                            )
-                        }
-                    }
-
                     // 每收到一首歌就更新歌曲列表
                     _musicList.value += songItem
-                    delay(200)
+                    delay(150)
                 }
+
+                _currentFolders.value = _musicList.value
+                    .groupingBy { it.parentFolder }
+                    .eachCount().map { FolderEntity(it.key, it.value) }
 
                 // *** 关键修改：将数据库操作移到后台线程 ***
                 withContext(Dispatchers.IO) {
                     db.SongDao().insertAll(_musicList.value)
+                    db.FolderDao().insertAll(_currentFolders.value)
                 }
 
                 _scanState.value = ScanState.Completed
