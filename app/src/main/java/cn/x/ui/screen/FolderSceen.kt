@@ -2,27 +2,48 @@ package cn.x.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 
 @Composable
 fun FolderScreen(
-    folderScreenVM: FolderScreenVM = hiltViewModel()
-){
+    folderScreenVM: FolderScreenVM = hiltViewModel(),
+    onDrawerToggle: () -> Unit
+) {
     val colorScheme = MaterialTheme.colorScheme
     val currentFolders by folderScreenVM.currentFolders.collectAsState()
 
-    Box(
-        modifier = Modifier.background(colorScheme.primaryContainer)
-    ) {
-        LazyColumn {
+    Scaffold(
+        topBar = {
+            CenterTopBar(
+                "Folder",
+                onDrawerToggle,
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = null
+                        )
+                    }
+                })
+        }
+    ) { padding ->
+        LazyColumn(modifier = Modifier.padding(padding)) {
             itemsIndexed(currentFolders) { index: Int, folder ->
                 FolderCard(
                     folder.folderPath,
@@ -32,5 +53,6 @@ fun FolderScreen(
             }
         }
     }
+
 
 }

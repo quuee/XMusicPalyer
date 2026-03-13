@@ -22,9 +22,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -43,12 +49,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongEntity
+import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun ScanScreen(
     scanVM: ScanScreenVM = hiltViewModel(),
+    onDrawerToggle: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -84,15 +92,26 @@ fun ScanScreen(
     // 选择目录 添加自定义文件夹
     val (selectedDirUri, pickDirectory) = rememberDirectoryPicker(context)
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-            .background(colorScheme.primaryContainer)
-    ) {
+    Scaffold(
+        topBar = {
+            CenterTopBar(
+                title = "Scan",
+                onDrawerToggle,
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = null
+                        )
+                    }
+                })
+        }
+    ) { padding ->
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TextButton(
@@ -140,6 +159,14 @@ fun ScanScreen(
 
         ScanningCard(scanState, { scanVM.onDismiss() }, scanVM.musicList)
     }
+
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(8.dp)
+//            .background(colorScheme.primaryContainer)
+//    ) {
+//    }
 
 
 }

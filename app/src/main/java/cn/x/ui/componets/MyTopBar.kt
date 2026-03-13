@@ -1,6 +1,7 @@
 package cn.x.ui.componets
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,35 +34,29 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import cn.x.ui.Screens
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CenterTopBar(currentRoute: String?, drawerToggle: () -> Unit) {
+fun CenterTopBar(
+    title: String?,
+    drawerToggle: () -> Unit,
+    actions: @Composable (RowScope.() -> Unit) = {}
+) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = when (currentRoute) {
-                    Screens.Scan.route -> "扫描"
-                    Screens.Folder.route -> "文件夹"
-                    Screens.SongList.route -> "歌单"
-                    Screens.LocalSong.route -> "本地歌曲"
-                    else -> "未知页面"
-                },
+                text = title ?: "",
                 textAlign = TextAlign.Center
             )
         },
         navigationIcon = {
             IconButton(onClick = drawerToggle) {
-                Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                Icon(Icons.Filled.Menu, contentDescription = "Drawer Menu")
             }
         },
-        actions = {
-            IconButton(onClick = {}) {
-                Icon(Icons.Default.Search, contentDescription = "search")
-            }
-        }
+        actions = actions
     )
 }
 

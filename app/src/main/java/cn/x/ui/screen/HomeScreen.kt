@@ -44,12 +44,10 @@ import androidx.navigation.compose.rememberNavController
 import cn.x.R
 import cn.x.service.PlayState
 import cn.x.ui.Screens
-import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.DrawerContent
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MarqueeText
 import cn.x.ui.componets.PushDrawer
-import cn.x.util.formatTime
 
 
 @Composable
@@ -57,7 +55,6 @@ fun HomeScreen(
     homeScreenVM: HomeScreenVM = hiltViewModel(),
     naviRouteItem: (String) -> Unit,
 ) {
-
 
     val controller = homeScreenVM.playerController
     // 1. 直接收集各个 StateFlow
@@ -77,9 +74,6 @@ fun HomeScreen(
     val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "未知艺术家"
     val isPlaylistEmpty = playlist.isEmpty()
 
-    // 格式化时间
-    val formattedProgress = formatTime(progress)
-    val formattedDuration = formatTime(duration)
 
     val navHostController = rememberNavController()
 
@@ -108,46 +102,36 @@ fun HomeScreen(
                 drawerControl.close()
                 shouldCloseDrawer = false
             }
-            // 监听当前路由变化，并从中提取标题
-            val currentRoute = navHostController
-                .currentBackStackEntryFlow
-                .collectAsState(initial = navHostController.currentBackStackEntry)
-                .value
-                ?.destination
-                ?.route
 
             Scaffold(
-                topBar = {
-                    CenterTopBar(currentRoute, drawerToggle = { drawerControl.toggle() })
-                },
                 bottomBar = {
                     FloatingPlayerBar(
                         mediaItem = currentSong,
                         isPlaying = isPlaying,
                         onSongClick = { naviRouteItem(Screens.Player.route) },
-                        onNextClick = {},
-                        onPreviousClick = {},
-                        onPlayPauseClick = {})
+                        onNextClick = { controller.next() },
+                        onPreviousClick = { controller.prev() },
+                        onPlayPauseClick = { controller.playPause() })
                 },
 
                 ) { innerPadding ->
 
                 NavHost(
-                    startDestination = Screens.Scan.route,
+                    startDestination = Screens.Scan.route, // todo LAST open
                     navController = navHostController,
                     modifier = Modifier.padding(innerPadding)
                 ) {
                     composable(Screens.Scan.route) {
-                        ScanScreen()
+                        ScanScreen(onDrawerToggle = { drawerControl.toggle() })
                     }
                     composable(Screens.Folder.route) {
-                        FolderScreen()
+                        FolderScreen(onDrawerToggle = { drawerControl.toggle() })
                     }
                     composable(Screens.SongList.route) {
-                        SongListScreen()
+                        SongListScreen(onDrawerToggle = { drawerControl.toggle() })
                     }
                     composable(Screens.LocalSong.route) {
-                        LocalSongScreen()
+                        LocalSongScreen(onDrawerToggle = { drawerControl.toggle() })
                     }
                 }
             }
