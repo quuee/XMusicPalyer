@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -66,7 +65,8 @@ import cn.x.ui.componets.ImageWidget
 import cn.x.util.LyricLine
 import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
+
 
 @Composable
 fun PlayerScreen(
@@ -152,7 +152,7 @@ fun PlayerScreen(
                     previous = { playerScreenVM.prev() },
                     playPause = { playerScreenVM.togglePlayPause() },
                     playNext = { playerScreenVM.next() },
-                    togglePlayMode = {},
+                    togglePlayMode = {playerScreenVM.togglePlayMode()},
                     isPlaying,
                     playMode,
                     modifier = Modifier

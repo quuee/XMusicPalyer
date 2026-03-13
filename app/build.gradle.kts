@@ -74,10 +74,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    // 图片
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
 
     // Room
     implementation("androidx.room:room-runtime:2.6.1")
@@ -88,6 +89,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material:material-icons-core")
 
+    //
     implementation("androidx.datastore:datastore-preferences:1.2.0")
 
 }

@@ -29,7 +29,6 @@ import cn.x.service.MusicPlaybackService
 import cn.x.ui.NavigationGraph
 import cn.x.ui.Screens
 import cn.x.ui.theme.XMusicPlayerTheme
-import cn.x.util.DataStoreUtil
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.HiltAndroidApp
 
@@ -39,7 +38,6 @@ class XMusicApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        DataStoreUtil.init(this)
         Log.d("XMusicApplication", "onCreate: init mediaController")
         val sessionToken =
             SessionToken(this, ComponentName(this, MusicPlaybackService::class.java))

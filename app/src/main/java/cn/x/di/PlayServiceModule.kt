@@ -5,6 +5,7 @@ import androidx.media3.session.MediaController
 import cn.x.data.db.MusicDatabase
 import cn.x.service.PlayerController
 import cn.x.service.PlayerControllerImpl
+import cn.x.util.SPUtil
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.EntryPoint
@@ -30,10 +31,10 @@ object PlayServiceModule {
     }
 
     @Provides
-    fun providerPlayerController(db: MusicDatabase): PlayerController {
+    fun providerPlayerController(db: MusicDatabase, spUtil: SPUtil): PlayerController {
         return playerController ?: run {
             val player = player ?: throw IllegalStateException("Player not prepared!")
-            PlayerControllerImpl(player, db).also {
+            PlayerControllerImpl(player, db, spUtil).also {
                 playerController = it
             }
         }

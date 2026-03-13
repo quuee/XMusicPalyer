@@ -9,6 +9,8 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import cn.x.data.db.MusicDatabase
+import cn.x.util.Constants
+import cn.x.util.SPUtil
 import cn.x.util.toMediaItem
 import cn.x.util.toPlayListSongEntity
 import cn.x.util.toSongEntity
@@ -28,6 +30,7 @@ class PlayerControllerImpl
     (
     private val player: MediaController,
     private val db: MusicDatabase,
+    private val spUtil: SPUtil,
 ) : PlayerController, CoroutineScope by MainScope() {
 
     override val mediaController: MediaController
@@ -48,7 +51,7 @@ class PlayerControllerImpl
     private val _bufferingPercent = MutableStateFlow(0)
     override val bufferingPercent = _bufferingPercent.asStateFlow()
 
-    private val _playMode = MutableStateFlow(PlayMode.valueOf(0))
+    private val _playMode = MutableStateFlow(PlayMode.valueOf(spUtil.getInt(Constants.PlayMode)))
     override val playMode: StateFlow<PlayMode> = _playMode.asStateFlow()
 
     private var audioSessionId = 0
@@ -108,7 +111,7 @@ class PlayerControllerImpl
             }
         })
 
-        //setPlayMode(PlayMode.valueOf(ConfigPreferences.playMode))
+        setPlayMode(PlayMode.valueOf(spUtil.getInt(Constants.PlayMode)))
 
         launch(Dispatchers.Main.immediate) {
             val playlist = withContext(Dispatchers.IO) {
@@ -127,8 +130,7 @@ class PlayerControllerImpl
             if (playlist.isNotEmpty()) {
                 _playlist.value = playlist
                 player.setMediaItems(playlist)
-                // val currentSongId = ConfigPreferences.currentSongId
-                val currentSongId = ""
+                val currentSongId = spUtil.getString(Constants.CurrentSongId)
                 if (currentSongId.isNotEmpty()) {
                     val currentSongIndex = playlist.indexOfFirst {
                         it.mediaId == currentSongId
@@ -139,7 +141,7 @@ class PlayerControllerImpl
             }
 
             _currentSong.collectLatest {
-                //ConfigPreferences.currentSongId = it?.mediaId ?: ""
+                spUtil.putString(Constants.CurrentSongId,it?.mediaId ?: "")
             }
         }
 
@@ -167,7 +169,8 @@ class PlayerControllerImpl
             }
             withContext(Dispatchers.IO) {
                 db.PlayListDao().clear()
-                db.PlayListDao().insertAll(newPlaylist.map { it.toSongEntity().toPlayListSongEntity() })
+                db.PlayListDao()
+                    .insertAll(newPlaylist.map { it.toSongEntity().toPlayListSongEntity() })
             }
             _playlist.value = newPlaylist
             play(song.mediaId)
@@ -179,7 +182,8 @@ class PlayerControllerImpl
         launch(Dispatchers.Main.immediate) {
             withContext(Dispatchers.IO) {
                 db.PlayListDao().clear()
-                db.PlayListDao().insertAll(songList.map { it.toSongEntity().toPlayListSongEntity() })
+                db.PlayListDao()
+                    .insertAll(songList.map { it.toSongEntity().toPlayListSongEntity() })
             }
             stop()
             player.setMediaItems(songList)
@@ -302,7 +306,7 @@ class PlayerControllerImpl
 
     @MainThread
     override fun setPlayMode(mode: PlayMode) {
-        // ConfigPreferences.playMode = mode.value
+        spUtil.putInt(Constants.PlayMode,mode.value)
         _playMode.value = mode
         when (mode) {
             PlayMode.Loop -> {
