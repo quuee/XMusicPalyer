@@ -2,10 +2,10 @@ package cn.x.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongListEntity
 import cn.x.service.PlayerController
+import cn.x.util.getCurrentDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,14 +23,22 @@ class SongListScreenVM @Inject constructor(
     val songLists = _songLists.asStateFlow()
 
     init {
-        // 在 viewModelScope 内启动一个协程
-        viewModelScope.launch(Dispatchers.IO) { // 使用 IO 调度器以确保在后台线程运行
-            try {
-                val songLists = db.SongListDao().getAllSongLists() // 这行现在在后台线程执行
-                _songLists.value = songLists
+        loadSongLists()
+    }
 
-            } catch (e: Exception) {
-                // 可以在这里设置一个错误状态或空列表
+    private fun loadSongLists() {
+        // 从 repository 加载歌单列表
+        viewModelScope.launch(Dispatchers.IO) {
+            _songLists.value = db.SongListDao().getAllSongLists()
+        }
+    }
+
+    fun createSongList(name: String) {
+        if (name.isNotBlank()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val s = SongListEntity(0, name, "", 0, getCurrentDateTime())
+                db.SongListDao().insertSongList(s)
+                loadSongLists() // 刷新列表
             }
         }
     }

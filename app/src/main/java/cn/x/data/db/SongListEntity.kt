@@ -10,11 +10,15 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "song_lists")
 data class SongListEntity(
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo("id")
     val id: Long,
     @ColumnInfo("name")
     val name: String,
+    @ColumnInfo("cover")
+    var cover: String,
+    @ColumnInfo("count")
+    val count: Int,
     @ColumnInfo("create_date")
-    val createDate:String
+    val createDate: String
 )

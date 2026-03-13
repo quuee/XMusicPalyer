@@ -21,5 +21,15 @@
     <string name="drawer_switch_account">切换账号</string>
     <string name="drawer_about">关于</string>
 
+    <string name="songListCount">%1$d 首</string>
+    <string name="rename">重命名</string>
+    <string name="exportSongList">导出歌单</string>
+    <string name="deleteSongList">删除歌单</string>
+    <string name="createSongList">创建歌单</string>
+    <string name="importSongList">导入歌单</string>
+    <string name="sortSongList">歌单排序</string>
+    <string name="refreshSongList">刷新歌单</string>
+    <string name="songListName">歌单名称</string>
+
     <string name="more">更多</string>
 </resources>
