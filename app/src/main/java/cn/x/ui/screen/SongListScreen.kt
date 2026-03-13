@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.ImportExport
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -51,7 +52,13 @@ fun SongListScreen(
             CenterTopBar(
                 title = "SongList",
                 drawerToggle = onDrawerToggle,
-                actions = { Actions(onCreateClick = { showCreateDialog = true }) })
+                actions = {
+                    Actions(
+                        onCreateClick = { showCreateDialog = true },
+                        naviRouteItem = { naviRouteItem(Screens.SongListSort.route) },
+                    )
+                }
+            )
         }
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
@@ -80,7 +87,7 @@ fun SongListScreen(
 }
 
 @Composable
-private fun Actions(onCreateClick: () -> Unit) {
+private fun Actions(onCreateClick: () -> Unit, naviRouteItem: () -> Unit) {
     FloatingDropdownMenu { onDismiss ->
         DropdownMenuItem(
             text = { Text(stringResource(R.string.createSongList)) },
@@ -106,6 +113,21 @@ private fun Actions(onCreateClick: () -> Unit) {
             leadingIcon = {
                 Icon(
                     Icons.Default.ImportExport,
+                    null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+        )
+        HorizontalDivider()
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.sortSongList)) },
+            onClick = {
+                naviRouteItem()
+                onDismiss()
+            },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Sort,
                     null,
                     modifier = Modifier.padding(end = 8.dp)
                 )

@@ -20,5 +20,7 @@ data class SongListEntity(
     @ColumnInfo("count")
     val count: Int,
     @ColumnInfo("create_date")
-    val createDate: String
+    val createDate: String,
+    @ColumnInfo("sort")
+    var sort:Int,
 )

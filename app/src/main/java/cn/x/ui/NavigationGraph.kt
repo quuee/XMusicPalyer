@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import cn.x.ui.screen.HomeScreen
 import cn.x.ui.screen.PlayerScreen
+import cn.x.ui.screen.SongListSortScreen
 import cn.x.ui.screen.SongsScreen
 
 @Composable
@@ -30,6 +31,10 @@ fun NavigationGraph(
 
         composable(Screens.Songs.route){
             SongsScreen(naviBack = { navHostController.navigateUp() },)
+        }
+
+        composable(Screens.SongListSort.route){
+            SongListSortScreen(naviBack = { navHostController.navigateUp() },)
         }
 
     }

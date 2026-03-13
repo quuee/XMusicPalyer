@@ -36,7 +36,7 @@ class SongListScreenVM @Inject constructor(
     fun createSongList(name: String) {
         if (name.isNotBlank()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val s = SongListEntity(0, name, "", 0, getCurrentDateTime())
+                val s = SongListEntity(0, name, "", 0, getCurrentDateTime(),1)
                 db.SongListDao().insertSongList(s)
                 loadSongLists() // 刷新列表
             }

@@ -13,10 +13,11 @@ interface SongListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSongList(songList: SongListEntity)
 
-    @Query("SELECT * FROM song_lists")
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertSongListAll(list: List<SongListEntity>)
+
+    @Query("SELECT * FROM song_lists order by sort")
     fun getAllSongLists(): List<SongListEntity>
-
-
 
     @Insert
     fun addSongToSongList(songlistSong: SongListWithSongEntity)
@@ -27,4 +28,7 @@ interface SongListDao {
     @Transaction
     @Query("SELECT * FROM song_lists WHERE id = :songlistId")
     fun getSongListWithSongs(songlistId: Long): SongListWithSongs?
+
+    @Query("DELETE FROM song_lists")
+    fun clear()
 }
