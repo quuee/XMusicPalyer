@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.R
+import cn.x.ui.Screens
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FloatingDropdownMenu
 import cn.x.ui.componets.SongListItemWidget
@@ -36,7 +37,8 @@ import cn.x.ui.componets.SongListItemWidget
 @Composable
 fun SongListScreen(
     songListScreenVM: SongListScreenVM = hiltViewModel(),
-    onDrawerToggle: () -> Unit
+    onDrawerToggle: () -> Unit,
+    naviRouteItem: (String) -> Unit,
 ) {
     val songLists by songListScreenVM.songLists.collectAsState()
 
@@ -54,7 +56,7 @@ fun SongListScreen(
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
             itemsIndexed(songLists) { index, songListItem ->
-                SongListItemWidget(songListItem, onClick = {})
+                SongListItemWidget(songListItem, onClick = { naviRouteItem(Screens.Songs.route) })
             }
         }
 
