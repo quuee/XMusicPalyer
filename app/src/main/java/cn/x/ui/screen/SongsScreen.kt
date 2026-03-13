@@ -1,43 +1,82 @@
 package cn.x.ui.screen
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.RestoreFromTrash
+import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongEntity
+import cn.x.data.db.SongListEntity
+import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.SongItemWidget
 
 /**
@@ -46,8 +85,13 @@ import cn.x.ui.componets.SongItemWidget
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongsScreen(
+    songsScreenVM: SongsScreenVM = hiltViewModel(),
     naviBack: () -> Unit
 ) {
+
+    val items by songsScreenVM.items.collectAsState()
+    val selectedIds by songsScreenVM.selectedIds.collectAsState()
+    val isSelectionMode by songsScreenVM.isSelectionMode.collectAsState()
 
     val colorScheme = MaterialTheme.colorScheme
     val listState = rememberLazyListState()
@@ -73,27 +117,6 @@ fun SongsScreen(
         }
     }
 
-    val songs = listOf(
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-        SongEntity(title = "333", artist = "efe", duration = 12345L),
-    )
 
     Scaffold(
         topBar = {
@@ -109,53 +132,101 @@ fun SongsScreen(
                         Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
                     }
                 },
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null
+                        )
+                    }
+                    if (isSelectionMode) {
+                        IconButton(onClick = { songsScreenVM.clearSelection() }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                        }
+                    }
+                    IconButton(onClick = { songsScreenVM.toggleSelectionMode() }) {
+                        Icon(
+                            imageVector = if (isSelectionMode) Icons.Default.Done else Icons.Default.Checklist,
+                            contentDescription = if (isSelectionMode) "Done" else "Select"
+                        )
+                    }
+                }
             )
         },
 
         ) { padding ->
-        // 可滚动内容
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize().padding(padding),
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            // 可滚动内容
+            LazyColumn(
+                state = listState,
 
+                ) {
+                item {
+                    CoverSection(
+                        SongListEntity(
+                            0,
+                            "ceshi",
+                            cover = "",
+                            count = 1,
+                            createDate = "2026-3-12",
+                            sort = 1
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(topSectionHeightDp)
+                            .alpha(alpha)
+                    )
+                }
+
+                stickyHeader {
+                    Toolbar(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .background(colorScheme.secondaryContainer)
+                    )
+                }
+
+                itemsIndexed(items) { index, song ->
+//                SongItemWidget(
+//                    title = song.title,
+//                    artist = song.artist,
+//                    duration = song.duration,
+//                    onClick = {},
+//                    onMenuClick = {}
+//                )
+                    MultiSelectItem(
+                        item = song,
+                        isSelected = selectedIds.contains(song.uniqueId),
+                        isSelectionMode = isSelectionMode,
+                        onToggleSelection = { songsScreenVM.toggleSelection(song.uniqueId) })
+                }
+            }
+            // 底部操作菜单：仅在选择模式开启且有选中项时显示
+            AnimatedVisibility(
+                visible = isSelectionMode && selectedIds.isNotEmpty(),
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter)
             ) {
-            item {
-                TopSection(
-                    playlistName = "ceshi",
-                    createTime = "2026-3-13",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(topSectionHeightDp)
-                        .alpha(alpha)
-                )
-            }
-
-            stickyHeader {
-                PlaylistToolbar(
-                    playlistName = "ddd",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .background(colorScheme.secondaryContainer)
-                )
-            }
-
-            itemsIndexed(songs) { index, song ->
-                SongItemWidget(
-                    title = song.title,
-                    artist = song.artist,
-                    duration = song.duration,
-                    onClick = {},
-                    onMenuClick = {}
+                MultiSelectBottomBar(
+                    onDeleteClick = { },
+                    onMoveClick = { },
+                    onAddToClick = { }
                 )
             }
         }
+
     }
 }
 
 @Composable
-private fun PlaylistToolbar(
-    playlistName: String,
+private fun Toolbar(
+
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -163,13 +234,26 @@ private fun PlaylistToolbar(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = playlistName,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold
-            ),
-            maxLines = 1
-        )
+        IconButton(onClick = {}) {
+            Icon(
+                imageVector = Icons.Default.Shuffle,
+                contentDescription = null
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = {}) {
+            Icon(
+                imageVector = Icons.Default.Download,
+                contentDescription = null
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = {}) {
+            Icon(
+                imageVector = Icons.Default.RestoreFromTrash,
+                contentDescription = null
+            )
+        }
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = { /* 分享 */ }) {
             Icon(
@@ -181,37 +265,232 @@ private fun PlaylistToolbar(
 }
 
 @Composable
-private fun TopSection(
-    playlistName: String,
-    createTime: String,
+private fun CoverSection(
+    songList: SongListEntity,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
-            .background(Color(0xFF4A90E2))
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(
+
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Bottom
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = playlistName,
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp,
-                    color = Color.White
-                )
+
+            ImageWidget(
+                cover = songList.cover,
+                modifier = Modifier.size(150.dp)
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = createTime,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.White.copy(alpha = 0.8f)
+
+            Column() {
+                Text(
+                    text = songList.name,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+
+                        )
                 )
-            )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = songList.createDate,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
         }
     }
 }
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun MultiSelectItem(
+    item: SongEntity,
+    isSelected: Boolean,
+    isSelectionMode: Boolean,
+    onToggleSelection: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val animatedAlpha by animateFloatAsState(
+        targetValue = if (isSelectionMode && !isSelected) 0.6f else 1f,
+        label = "alpha"
+    )
+
+    val animatedScale by animateFloatAsState(
+        targetValue = if (isSelected) 1.02f else 1f,
+        label = "scale"
+    )
+
+    val animatedBackgroundColor by animateColorAsState(
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+        label = "bgColor"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .graphicsLayer {
+                scaleX = animatedScale
+                scaleY = animatedScale
+            }
+            .clip(RoundedCornerShape(12.dp))
+            .background(animatedBackgroundColor)
+            .alpha(animatedAlpha)
+            .combinedClickable(
+                onClick = {
+                    if (isSelectionMode) {
+                        onToggleSelection()
+                    }
+                    // 否则可处理普通点击逻辑
+                },
+                onLongClick = {
+                    if (!isSelectionMode) {
+                        onToggleSelection()
+                    }
+                }
+            )
+            .padding(12.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            AnimatedVisibility(
+                visible = isSelectionMode,
+                enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
+                exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AnimatedContent(
+                        targetState = isSelected,
+                        label = "checkmark"
+                    ) { targetIsSelected ->
+                        if (targetIsSelected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Selected",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                    )
+                )
+                Text(
+                    text = item.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MultiSelectBottomBar(
+    onDeleteClick: () -> Unit,
+    onMoveClick: () -> Unit,
+    onAddToClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = true, // 由父组件控制是否显示
+        enter = slideInVertically { fullHeight -> fullHeight } + fadeIn(),
+        exit = slideOutVertically { fullHeight -> fullHeight } + fadeOut(),
+        label = "bottomActionMenu"
+    ) {
+        Surface(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = WindowInsets.navigationBars.getBottom(LocalDensity.current).dp),
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            shadowElevation = 8.dp,
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                BottomBarItem(
+                    icon = Icons.Default.Delete,
+                    text = "删除",
+                    onClick = onDeleteClick
+                )
+                BottomBarItem(
+                    icon = Icons.Default.ExitToApp,
+                    text = "移出",
+                    onClick = onMoveClick
+                )
+                BottomBarItem(
+                    icon = Icons.Default.LibraryAdd,
+                    text = "添加到",
+                    onClick = onAddToClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BottomBarItem(
+    icon: ImageVector,
+    text: String,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+//@Preview
+//@Composable
+//fun prevew(){
+//    CoverSection(SongListEntity(0,"ceshi", cover = "", count = 1, createDate = "2026-3-12",sort=1))
+//}

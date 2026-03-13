@@ -77,6 +77,7 @@ fun SongListSortScreen(
                     Box(
                         Modifier
                             .fillMaxWidth()
+                            .padding(vertical = 8.dp)
                             .zIndex(if (draggingIndex.value == index) 1f else 0f)
                             .offset {
                                 // 拖动后的偏移量（位置）
