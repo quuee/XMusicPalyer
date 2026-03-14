@@ -20,6 +20,8 @@ sealed class Screens(val route: String) {
 
     object Songs : Screens("Songs")
 
+    object AddSelectSong : Screens("AddSelectSong")
+
     object Setting : Screens("Setting")
 
     object Search : Screens("Search")

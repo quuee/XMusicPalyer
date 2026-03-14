@@ -1,19 +1,12 @@
 package cn.x.ui.screen
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,7 +26,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
@@ -43,7 +34,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.RestoreFromTrash
-import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -62,31 +52,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
+import cn.x.ui.Screens
 import cn.x.ui.componets.ImageWidget
-import cn.x.ui.componets.SongItemWidget
+import cn.x.ui.componets.MultiSelectSongItem
+
 
 /**
  * 用于展示文件夹歌曲 歌单歌曲的页面
  */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongsScreen(
     songsScreenVM: SongsScreenVM = hiltViewModel(),
-    naviBack: () -> Unit
+    naviBack: () -> Unit,
+    naviRouteItem: (String) -> Unit,
 ) {
 
     val items by songsScreenVM.items.collectAsState()
@@ -133,12 +122,15 @@ fun SongsScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null
-                        )
+                    if (!isSelectionMode) {
+                        IconButton(onClick = {naviRouteItem(Screens.AddSelectSong.route)}) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null
+                            )
+                        }
                     }
+
                     if (isSelectionMode) {
                         IconButton(onClick = { songsScreenVM.clearSelection() }) {
                             Icon(Icons.Default.Clear, contentDescription = "Clear")
@@ -192,18 +184,14 @@ fun SongsScreen(
                 }
 
                 itemsIndexed(items) { index, song ->
-//                SongItemWidget(
-//                    title = song.title,
-//                    artist = song.artist,
-//                    duration = song.duration,
-//                    onClick = {},
-//                    onMenuClick = {}
-//                )
-                    MultiSelectItem(
-                        item = song,
+                    MultiSelectSongItem(
+                        song = song,
                         isSelected = selectedIds.contains(song.uniqueId),
                         isSelectionMode = isSelectionMode,
-                        onToggleSelection = { songsScreenVM.toggleSelection(song.uniqueId) })
+                        onClick = {},
+                        onMenuClick = {},
+                        onToggleSelection = { songsScreenVM.toggleSelection(song.uniqueId) }
+                    )
                 }
             }
             // 底部操作菜单：仅在选择模式开启且有选中项时显示
@@ -307,114 +295,9 @@ private fun CoverSection(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun MultiSelectItem(
-    item: SongEntity,
-    isSelected: Boolean,
-    isSelectionMode: Boolean,
-    onToggleSelection: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val animatedAlpha by animateFloatAsState(
-        targetValue = if (isSelectionMode && !isSelected) 0.6f else 1f,
-        label = "alpha"
-    )
-
-    val animatedScale by animateFloatAsState(
-        targetValue = if (isSelected) 1.02f else 1f,
-        label = "scale"
-    )
-
-    val animatedBackgroundColor by animateColorAsState(
-        targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-        label = "bgColor"
-    )
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .graphicsLayer {
-                scaleX = animatedScale
-                scaleY = animatedScale
-            }
-            .clip(RoundedCornerShape(12.dp))
-            .background(animatedBackgroundColor)
-            .alpha(animatedAlpha)
-            .combinedClickable(
-                onClick = {
-                    if (isSelectionMode) {
-                        onToggleSelection()
-                    }
-                    // 否则可处理普通点击逻辑
-                },
-                onLongClick = {
-                    if (!isSelectionMode) {
-                        onToggleSelection()
-                    }
-                }
-            )
-            .padding(12.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            AnimatedVisibility(
-                visible = isSelectionMode,
-                enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
-                exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            if (isSelected) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AnimatedContent(
-                        targetState = isSelected,
-                        label = "checkmark"
-                    ) { targetIsSelected ->
-                        if (targetIsSelected) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Selected",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                    )
-                )
-                Text(
-                    text = item.artist,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
 
 @Composable
-fun MultiSelectBottomBar(
+private fun MultiSelectBottomBar(
     onDeleteClick: () -> Unit,
     onMoveClick: () -> Unit,
     onAddToClick: () -> Unit,

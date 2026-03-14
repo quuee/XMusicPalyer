@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import cn.x.ui.screen.AddSelectSongScreen
 import cn.x.ui.screen.HomeScreen
 import cn.x.ui.screen.PlayerScreen
 import cn.x.ui.screen.SongListSortScreen
@@ -30,11 +31,15 @@ fun NavigationGraph(
         }
 
         composable(Screens.Songs.route){
-            SongsScreen(naviBack = { navHostController.navigateUp() },)
+            SongsScreen(naviBack = { navHostController.navigateUp() },naviRouteItem = { routeString -> navHostController.navigate(routeString) },)
         }
 
         composable(Screens.SongListSort.route){
             SongListSortScreen(naviBack = { navHostController.navigateUp() },)
+        }
+
+        composable(Screens.AddSelectSong.route){
+            AddSelectSongScreen(naviBack = { navHostController.navigateUp() },)
         }
 
     }
