@@ -76,6 +76,7 @@ fun SongsScreen(
     songsScreenVM: SongsScreenVM = hiltViewModel(),
     naviBack: () -> Unit,
     naviRouteItem: (String) -> Unit,
+    appSharedVM: AppSharedVM
 ) {
 
     val items by songsScreenVM.items.collectAsState()
@@ -112,7 +113,7 @@ fun SongsScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "song list",
+                        text = appSharedVM.songList.name,
                         textAlign = TextAlign.Center
                     )
                 },
@@ -159,14 +160,7 @@ fun SongsScreen(
                 ) {
                 item {
                     CoverSection(
-                        SongListEntity(
-                            0,
-                            "ceshi",
-                            cover = "",
-                            count = 1,
-                            createDate = "2026-3-12",
-                            sort = 1
-                        ),
+                        appSharedVM.songList,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(topSectionHeightDp)

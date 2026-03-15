@@ -42,6 +42,7 @@ fun SongListScreen(
     songListScreenVM: SongListScreenVM = hiltViewModel(),
     onDrawerToggle: () -> Unit,
     naviRouteItem: (String) -> Unit,
+    appSharedVM: AppSharedVM
 ) {
     val songLists by songListScreenVM.songLists.collectAsState()
 
@@ -65,7 +66,12 @@ fun SongListScreen(
     ) { padding ->
         LazyColumn(modifier = Modifier.padding(padding)) {
             itemsIndexed(songLists) { index, songListItem ->
-                SongListItemWidget(songListItem, onClick = { naviRouteItem(Screens.Songs.route) })
+                SongListItemWidget(
+                    songListItem,
+                    onClick = {
+                        appSharedVM.updateSongList(songListItem)
+                        naviRouteItem(Screens.Songs.route)
+                    })
             }
         }
 

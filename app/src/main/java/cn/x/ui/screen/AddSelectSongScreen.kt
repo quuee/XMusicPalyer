@@ -26,7 +26,8 @@ import cn.x.ui.componets.MultiSelectSongItem
 @Composable
 fun AddSelectSongScreen(
     naviBack: () -> Unit,
-    addSelectSongScreenVM: AddSelectSongScreenVM = hiltViewModel()
+    addSelectSongScreenVM: AddSelectSongScreenVM = hiltViewModel(),
+    appSharedVM: AppSharedVM
 ) {
 
     val items by addSelectSongScreenVM.items.collectAsState()
@@ -37,7 +38,7 @@ fun AddSelectSongScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "song list",
+                        text = appSharedVM.songList.name,
                         textAlign = TextAlign.Center
                     )
                 },
