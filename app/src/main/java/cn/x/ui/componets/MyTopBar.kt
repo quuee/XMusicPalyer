@@ -76,7 +76,7 @@ fun SearchTopBar(
             .fillMaxWidth()
             .statusBarsPadding()
             .padding(8.dp)
-            .height(56.dp),
+            .height(48.dp),
         color = MaterialTheme.colorScheme.primaryContainer,
         shadowElevation = 4.dp
     ) {

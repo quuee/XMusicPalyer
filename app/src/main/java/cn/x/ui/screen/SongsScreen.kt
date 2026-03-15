@@ -179,7 +179,7 @@ fun SongsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
-                            .background(colorScheme.secondaryContainer)
+                            .background(colorScheme.surfaceVariant)
                     )
                 }
 

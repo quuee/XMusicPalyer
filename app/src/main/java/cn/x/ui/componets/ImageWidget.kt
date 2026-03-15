@@ -31,7 +31,7 @@ fun ImageWidget(
             .diskCacheKey(cover.hashCode().toString())
             .size(Size.ORIGINAL)
             .build(),
-        contentDescription = "Intnet image",
+        contentDescription = "image",
         modifier = finalModifier,
         contentScale = contentScale,
         placeholder = painterResource(R.drawable.music_logo),

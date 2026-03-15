@@ -19,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -55,8 +54,8 @@ class XMusicApplication : Application() {
 fun XMusicApplicationApp() {
     val isReady by PlayServiceModule.isPlayerReady.collectAsState()
 
-    if (isReady) {
-        XMusicPlayerTheme {
+    XMusicPlayerTheme {
+        if (isReady) {
             Scaffold(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -66,9 +65,10 @@ fun XMusicApplicationApp() {
                     startDistance = Screens.Home.route
                 )
             }
+
+        } else {
+            LoadingScreen()
         }
-    } else {
-        LoadingScreen()
     }
 }
 
@@ -81,9 +81,9 @@ fun LoadingScreen() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(color = MaterialTheme.colorScheme.secondaryContainer)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("正在启动音乐服务...", color = Color.Gray)
+            Text("正在启动音乐服务...", color = MaterialTheme.colorScheme.onBackground)
         }
     }
 }

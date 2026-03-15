@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,13 +86,16 @@ fun PushDrawer(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         // 🟦 Drawer
         Box(
             modifier = Modifier
                 .width(drawerWidth)
                 .fillMaxHeight()
-                .background(colorScheme.secondaryContainer)
+                .background(colorScheme.background)
         ) {
             drawerContent()
         }
@@ -100,6 +104,7 @@ fun PushDrawer(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+//                .background(colorScheme.background) // 不能加,会把上面的菜单挡住
                 .offset { IntOffset(offsetX.value.toInt(), 0) }
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures(
@@ -118,7 +123,12 @@ fun PushDrawer(
                         }
                     )
                 }
-                .clickable(enabled = isOpen) { closeDrawer() }
+                .clickable(
+                    enabled = isOpen,
+                    // 不要点击动画涟漪效果
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { closeDrawer() }
         ) {
             if (offsetX.value > 0) {
                 Box(
@@ -246,6 +256,7 @@ fun DrawerContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // 菜单区域
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
 //            .heightIn()

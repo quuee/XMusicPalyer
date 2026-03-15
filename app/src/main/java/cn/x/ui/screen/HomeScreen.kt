@@ -154,7 +154,7 @@ fun FloatingPlayerBar(
         modifier = modifier
             .fillMaxWidth()
             .height(72.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp, vertical = 8.dp)
             .clickable(onClick = onSongClick),
         verticalAlignment = Alignment.CenterVertically
@@ -179,7 +179,7 @@ fun FloatingPlayerBar(
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurface
             ),
             initialDelay = 1000,
             delay = 2000,
@@ -220,7 +220,7 @@ fun FloatingPlayerBar(
                             R.string.play
                         ),
                         modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
