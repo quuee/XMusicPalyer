@@ -47,7 +47,10 @@ fun AddSelectSongScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        addSelectSongScreenVM.addSelectToSongList()
+                        naviBack()
+                    }) {
                         Icon(imageVector = Icons.Default.Done, contentDescription = null)
                     }
                 }

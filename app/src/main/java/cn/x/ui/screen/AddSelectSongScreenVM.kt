@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongEntity
+import cn.x.data.db.SongListWithSongEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,5 +42,12 @@ class AddSelectSongScreenVM @Inject constructor(
 
     fun clearSelection() {
         _selectedIds.value = emptySet()
+    }
+
+
+    fun addSelectToSongList(){
+        val list = _selectedIds.value.map { SongListWithSongEntity(songlistId = 1L, songId = it) }
+
+//        db.SongListDao().addSongToSongList(list)
     }
 }

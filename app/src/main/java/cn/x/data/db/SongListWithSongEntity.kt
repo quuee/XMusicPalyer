@@ -32,7 +32,7 @@ data class SongListWithSongEntity(
     @ColumnInfo("songlist_id")
     val songlistId: Long,
     @ColumnInfo("song_id")
-    val songId: Long
+    val songId: String
 )
 
 

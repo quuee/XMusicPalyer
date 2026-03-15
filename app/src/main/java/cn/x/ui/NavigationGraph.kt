@@ -26,20 +26,23 @@ fun NavigationGraph(
             )
         }
 
-        composable(Screens.Player.route){
-            PlayerScreen(naviBack = { navHostController.navigateUp() },)
+        composable(Screens.Player.route) {
+            PlayerScreen(naviBack = { navHostController.navigateUp() })
         }
 
-        composable(Screens.Songs.route){
-            SongsScreen(naviBack = { navHostController.navigateUp() },naviRouteItem = { routeString -> navHostController.navigate(routeString) },)
+        composable(Screens.Songs.route) {
+            SongsScreen(
+                naviBack = { navHostController.navigateUp() },
+                naviRouteItem = { routeString -> navHostController.navigate(routeString) },
+            )
         }
 
-        composable(Screens.SongListSort.route){
-            SongListSortScreen(naviBack = { navHostController.navigateUp() },)
+        composable(Screens.SongListSort.route) {
+            SongListSortScreen(naviBack = { navHostController.navigateUp() })
         }
 
-        composable(Screens.AddSelectSong.route){
-            AddSelectSongScreen(naviBack = { navHostController.navigateUp() },)
+        composable(Screens.AddSelectSong.route) {
+            AddSelectSongScreen(naviBack = { navHostController.navigateUp() })
         }
 
     }

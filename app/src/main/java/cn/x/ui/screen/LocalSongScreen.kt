@@ -2,12 +2,17 @@ package cn.x.ui.screen
 
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.componets.CenterTopBar
-import cn.x.ui.componets.ModalBottomSheetWidget
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.launch
@@ -62,14 +66,21 @@ fun LocalSongScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Text("这是 ModalBottomSheet 内容")
-                Button(onClick = {
-                    scope.launch {
-                        sheetState.hide()
-                        showBottomSheet = false
-                    }
-                }) {
-                    Text("关闭")
+                Row() {
+                    Icon(imageVector = Icons.Default.Add,contentDescription = null)
+                    Text("添加到歌单")
+                }
+                Row() {
+                    Icon(imageVector = Icons.Default.Share,contentDescription = null)
+                    Text("fengxiang")
+                }
+                Row() {
+                    Icon(imageVector = Icons.Default.Info,contentDescription = null)
+                    Text("gequxingxi")
+                }
+                Row() {
+                    Icon(imageVector = Icons.Default.Delete,contentDescription = null)
+                    Text("delete")
                 }
             }
         }

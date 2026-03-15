@@ -19,6 +19,13 @@ interface SongListDao {
     @Query("SELECT * FROM song_lists order by sort")
     fun getAllSongLists(): List<SongListEntity>
 
+    @Delete
+    fun delete(entity: SongListEntity)
+
+    @Query("DELETE FROM song_lists")
+    fun clear()
+
+    // 关联表操作
     @Insert
     fun addSongToSongList(songlistSong: SongListWithSongEntity)
 
@@ -29,6 +36,5 @@ interface SongListDao {
     @Query("SELECT * FROM song_lists WHERE id = :songlistId")
     fun getSongListWithSongs(songlistId: Long): SongListWithSongs?
 
-    @Query("DELETE FROM song_lists")
-    fun clear()
+
 }
