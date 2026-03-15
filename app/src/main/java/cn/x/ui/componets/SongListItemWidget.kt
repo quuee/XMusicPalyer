@@ -84,7 +84,12 @@ fun SongListItemWidget(
 
             FloatingDropdownMenu {
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.rename)) },
+                    text = {
+                        Text(
+                            stringResource(R.string.rename),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
                     onClick = { },
                     leadingIcon = {
                         Icon(
@@ -92,11 +97,17 @@ fun SongListItemWidget(
                             null,
                             modifier = Modifier.padding(end = 8.dp)
                         )
-                    }
-                )
+                    },
+
+                    )
                 HorizontalDivider()
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.exportSongList)) },
+                    text = {
+                        Text(
+                            stringResource(R.string.exportSongList),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
                     onClick = { /* 处理点击 */ },
                     leadingIcon = {
                         Icon(
@@ -108,7 +119,12 @@ fun SongListItemWidget(
                 )
                 HorizontalDivider()
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.deleteSongList)) },
+                    text = {
+                        Text(
+                            stringResource(R.string.deleteSongList),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
                     onClick = { },
                     leadingIcon = {
                         Icon(Icons.Default.Delete, null, modifier = Modifier.padding(end = 8.dp))

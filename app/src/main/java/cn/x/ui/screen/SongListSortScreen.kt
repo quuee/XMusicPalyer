@@ -1,6 +1,8 @@
 package cn.x.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -77,7 +79,7 @@ fun SongListSortScreen(
                     Box(
                         Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(8.dp)
                             .zIndex(if (draggingIndex.value == index) 1f else 0f)
                             .offset {
                                 // 拖动后的偏移量（位置）
@@ -101,8 +103,11 @@ fun SongListSortScreen(
                             }
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .background(MaterialTheme.colorScheme.surface),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 ImageWidget(
@@ -112,6 +117,7 @@ fun SongListSortScreen(
                                         .clip(MaterialTheme.shapes.small),
                                     contentScale = ContentScale.Crop
                                 )
+
                             }
                             Column(modifier = Modifier.weight(1f)) {
                                 // 歌曲信息
@@ -154,8 +160,10 @@ private fun DragHandle(
                     onDragEnd = { onDragEnd() },
                     onDragCancel = { onDragCancel() }
                 )
-            }
+            },
+        contentAlignment = Alignment.Center
     ) {
+//        Icon(modifier = Modifier.align(Alignment.CenterVertically))(
         Icon(
             imageVector = Icons.Default.DragHandle,
             contentDescription = "拖动排序"

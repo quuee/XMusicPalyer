@@ -12,8 +12,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,16 +25,25 @@ import androidx.compose.ui.unit.dp
 import cn.x.R
 
 @Composable
-fun FolderCard(folderName:String,count:Int,onClick:()->Unit){
+fun FolderCard(
+    folderName: String,
+    count: Int,
+    onClick: () -> Unit
+) {
 
     Card(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
 
-        ) {
+    ) {
         Row(
-            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp).clickable {
-                onClick()
-            },
+            modifier = Modifier
+                .padding(top = 8.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -43,7 +54,7 @@ fun FolderCard(folderName:String,count:Int,onClick:()->Unit){
 
             Column {
                 Text(folderName)
-                Text(stringResource(R.string.songListCount,count))
+                Text(stringResource(R.string.songListCount, count))
             }
 
             Spacer(modifier = Modifier.weight(1f))

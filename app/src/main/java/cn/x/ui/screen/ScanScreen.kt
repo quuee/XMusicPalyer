@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -123,7 +124,7 @@ fun ScanScreen(
                     }
 
                 }) {
-                Text("开始扫描")
+                Text("开始扫描", color = colorScheme.onSurface)
             }
             TextButton(
                 modifier = Modifier.fillMaxWidth(),
@@ -131,7 +132,7 @@ fun ScanScreen(
                     pickDirectory()
                 }
             ) {
-                Text("添加自定义文件夹")
+                Text("添加自定义文件夹", color = colorScheme.onSurface)
             }
 
             // 扫描 添加后的文件夹
@@ -204,7 +205,8 @@ private fun ScanningCard(
             Card(
                 modifier = Modifier
                     .height(screenHeight * 0.7f)
-                    .width(screenWidth * 0.7f)
+                    .width(screenWidth * 0.7f),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)

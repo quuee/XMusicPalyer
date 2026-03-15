@@ -1,5 +1,6 @@
 package cn.x.ui.componets
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +35,7 @@ fun FloatingDropdownMenu(
         modifier = Modifier
             .wrapContentSize(Alignment.TopEnd)
             .padding(8.dp)
+
     ) {
         // 触发器按钮
         IconButton(onClick = { expanded = true }) {
@@ -45,7 +48,9 @@ fun FloatingDropdownMenu(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.width(160.dp)
+            modifier = Modifier
+                .width(160.dp)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
             // 将关闭函数传给 menuContent
             menuContent({ expanded = false })
