@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.outlined.Equalizer
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PlaylistPlay
@@ -474,8 +475,8 @@ private fun ControlsButton(
         // 播放列表
         IconButton(onClick = { }) {
             Icon(
-                imageVector = Icons.Outlined.PlaylistPlay,
-                contentDescription = "Playlist",
+                imageVector = Icons.Outlined.Equalizer,
+                contentDescription = "Equalizer",
                 tint = Color.White
             )
         }
