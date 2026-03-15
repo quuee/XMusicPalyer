@@ -19,8 +19,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,13 +42,16 @@ fun SongListScreen(
     songListScreenVM: SongListScreenVM = hiltViewModel(),
     onDrawerToggle: () -> Unit,
     naviRouteItem: (String) -> Unit,
-    appSharedVM: AppSharedVM
 ) {
     val songLists by songListScreenVM.songLists.collectAsState()
 
     // 弹窗状态
     var showCreateDialog by remember { mutableStateOf(false) }
     var newSongListName by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        songListScreenVM.loadSongLists()
+    }
 
     Scaffold(
         topBar = {
@@ -69,8 +72,7 @@ fun SongListScreen(
                 SongListItemWidget(
                     songListItem,
                     onClick = {
-                        appSharedVM.updateSongList(songListItem)
-                        naviRouteItem(Screens.Songs.route)
+                        naviRouteItem(Screens.Songs.route.plus("/${songListItem.id}"))
                     })
             }
         }

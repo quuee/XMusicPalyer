@@ -27,14 +27,16 @@ interface SongListDao {
 
     // 关联表操作
     @Insert
-    fun addSongToSongList(songlistSong: SongListWithSongEntity)
+    fun insertSongsToSongList(songs: List<SongListWithSongEntity>)
 
     @Delete
-    fun removeSongFromSongList(songlistSong: SongListWithSongEntity)
+    fun deleteSongFromSongList(songlistSong: SongListWithSongEntity)
 
     @Transaction
     @Query("SELECT * FROM song_lists WHERE id = :songlistId")
-    fun getSongListWithSongs(songlistId: Long): SongListWithSongs?
+    fun getSongsBySongListId(songlistId: Long): SongListWithSongs?
 
+    @Query("DELETE FROM songlist_song WHERE songlist_id = :songlistId")
+    fun deleteAllBySongListId(songlistId: Long)
 
 }

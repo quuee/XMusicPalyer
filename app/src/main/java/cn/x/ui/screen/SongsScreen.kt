@@ -45,6 +45,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -73,13 +74,14 @@ import cn.x.ui.componets.MultiSelectSongItem
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongsScreen(
-    songsScreenVM: SongsScreenVM = hiltViewModel(),
     naviBack: () -> Unit,
     naviRouteItem: (String) -> Unit,
-    appSharedVM: AppSharedVM
+    songsScreenVM: SongsScreenVM = hiltViewModel(),
+    songListId: Long
 ) {
 
-    val items by songsScreenVM.items.collectAsState()
+    val items by songsScreenVM.songs.collectAsState()
+    val songList by songsScreenVM.songList.collectAsState()
     val selectedIds by songsScreenVM.selectedIds.collectAsState()
     val isSelectionMode by songsScreenVM.isSelectionMode.collectAsState()
 
@@ -107,24 +109,34 @@ fun SongsScreen(
         }
     }
 
+    // 仅在首次进入该屏幕时加载数据
+    LaunchedEffect(Unit) {
+        songsScreenVM.loadData(songListId)
+    }
+
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = appSharedVM.songList.name,
+                        text = songList.name,
                         textAlign = TextAlign.Center
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = naviBack) {
+                    IconButton(onClick = {
+                        songsScreenVM.clearSelection()
+                        naviBack()
+                    }) {
                         Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
                     }
                 },
                 actions = {
                     if (!isSelectionMode) {
-                        IconButton(onClick = {naviRouteItem(Screens.AddSelectSong.route)}) {
+                        IconButton(onClick = {
+                            naviRouteItem(Screens.AddSelectSong.route.plus("/${songListId}"))
+                        }) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = null
@@ -160,7 +172,7 @@ fun SongsScreen(
                 ) {
                 item {
                     CoverSection(
-                        appSharedVM.songList,
+                        songList,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(topSectionHeightDp)

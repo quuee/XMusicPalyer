@@ -15,11 +15,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.ui.Screens
 import cn.x.ui.componets.MultiSelectSongItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,29 +29,36 @@ import cn.x.ui.componets.MultiSelectSongItem
 fun AddSelectSongScreen(
     naviBack: () -> Unit,
     addSelectSongScreenVM: AddSelectSongScreenVM = hiltViewModel(),
-    appSharedVM: AppSharedVM
+    songListId:Long
 ) {
 
-    val items by addSelectSongScreenVM.items.collectAsState()
+    val items by addSelectSongScreenVM.unselectSongs.collectAsState()
     val selectedIds by addSelectSongScreenVM.selectedIds.collectAsState()
+
+    // 仅在首次进入该屏幕时加载数据
+    LaunchedEffect(Unit) {
+        addSelectSongScreenVM.loadData(songListId)
+    }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = appSharedVM.songList.name,
+                        text = "选择歌曲",
                         textAlign = TextAlign.Center
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = naviBack) {
+                    IconButton(onClick = {
+                        naviBack()
+                    }) {
                         Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
                     }
                 },
                 actions = {
                     IconButton(onClick = {
-                        addSelectSongScreenVM.addSelectToSongList()
+                        addSelectSongScreenVM.addSelectToSongList(songListId)
                         naviBack()
                     }) {
                         Icon(imageVector = Icons.Default.Done, contentDescription = null)
@@ -60,9 +69,11 @@ fun AddSelectSongScreen(
         }
     ) { paddingValues ->
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             LazyColumn() {
                 itemsIndexed(items) { index, song ->
                     MultiSelectSongItem(

@@ -54,7 +54,6 @@ import cn.x.ui.componets.PushDrawer
 fun HomeScreen(
     homeScreenVM: HomeScreenVM = hiltViewModel(),
     naviRouteItem: (String) -> Unit,
-    appSharedVM: AppSharedVM
 ) {
 
     val controller = homeScreenVM.playerController
@@ -132,7 +131,6 @@ fun HomeScreen(
                         SongListScreen(
                             onDrawerToggle = { drawerControl.toggle() },
                             naviRouteItem = naviRouteItem,
-                            appSharedVM = appSharedVM
                         )
                     }
                     composable(Screens.LocalSong.route) {

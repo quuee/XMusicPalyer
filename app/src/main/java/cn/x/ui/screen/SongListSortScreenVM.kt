@@ -14,22 +14,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Collections
 import javax.inject.Inject
 
 @HiltViewModel
 class SongListSortScreenVM @Inject constructor(
     private val db: MusicDatabase,
-    private val savedStateHandle: SavedStateHandle,
+//    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val TAG = "SongListSortVM"
 
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
     val songLists = _songLists.asStateFlow()
-
-    init {
-        loadSongLists()
-    }
 
 
     // 拖动项索引
@@ -38,7 +35,7 @@ class SongListSortScreenVM @Inject constructor(
     // 偏移量
     val draggingOffset = MutableStateFlow(Offset.Zero)
 
-    private fun loadSongLists() {
+    fun loadSongLists() {
         // 从 repository 加载歌单列表
         viewModelScope.launch(Dispatchers.IO) {
             _songLists.value = db.SongListDao().getAllSongLists()
@@ -107,13 +104,17 @@ class SongListSortScreenVM @Inject constructor(
     fun finishDrag() {
         resetState()
 
-        viewModelScope.launch(Dispatchers.IO) {
-            db.SongListDao().clear()
-            _songLists.value = _songLists.value.mapIndexed { index, item ->
+        viewModelScope.launch {
+            val updatedList = _songLists.value.mapIndexed { index, item ->
                 item.copy(sort = index)
             }
-            db.SongListDao().insertSongListAll(_songLists.value)
-            // TODO 返回后 如何更新歌单顺序
+
+            withContext(Dispatchers.IO) {
+                db.SongListDao().clear()
+                db.SongListDao().insertSongListAll(updatedList)
+            }
+
+            _songLists.value = updatedList // 触发 Compose 重组
         }
 
     }

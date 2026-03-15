@@ -22,11 +22,9 @@ class SongListScreenVM @Inject constructor(
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
     val songLists = _songLists.asStateFlow()
 
-    init {
-        loadSongLists()
-    }
 
-    private fun loadSongLists() {
+
+    fun loadSongLists() {
         // 从 repository 加载歌单列表
         viewModelScope.launch(Dispatchers.IO) {
             _songLists.value = db.SongListDao().getAllSongLists()

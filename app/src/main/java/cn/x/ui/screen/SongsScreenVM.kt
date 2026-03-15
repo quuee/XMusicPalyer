@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongEntity
+import cn.x.data.db.SongListEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,19 +21,27 @@ class SongsScreenVM @Inject constructor(
 
 ) : ViewModel() {
 
-    private val _items = MutableStateFlow<List<SongEntity>>(emptyList())
-    val items: StateFlow<List<SongEntity>> = _items
+    private val EMPTY = SongListEntity(0L, "", "", 0, "", -1)
+    private val _songList = MutableStateFlow<SongListEntity>(EMPTY)
+    val songList = _songList.asStateFlow()
+
+    private val _songs = MutableStateFlow<List<SongEntity>>(emptyList())
+    val songs: StateFlow<List<SongEntity>> = _songs.asStateFlow()
 
     private val _selectedIds = MutableStateFlow<Set<String>>(emptySet())
-    val selectedIds: StateFlow<Set<String>> = _selectedIds
+    val selectedIds: StateFlow<Set<String>> = _selectedIds.asStateFlow()
 
     private val _isSelectionMode = MutableStateFlow(false)
-    val isSelectionMode: StateFlow<Boolean> = _isSelectionMode
+    val isSelectionMode: StateFlow<Boolean> = _isSelectionMode.asStateFlow()
 
-    init {
+    fun loadData(songListId:Long) {
         // 模拟加载数据
-        viewModelScope.launch(Dispatchers.IO) {
-            _items.value =  db.SongDao().queryAll()
+        viewModelScope.launch {
+            val songListWithSongs = withContext(Dispatchers.IO) {
+                db.SongListDao().getSongsBySongListId(songListId)
+            }
+            _songs.value = songListWithSongs?.songs?:emptyList() // 在 Main 线程更新
+            _songList.value = songListWithSongs?.songList?: EMPTY
         }
     }
 
