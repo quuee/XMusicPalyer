@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
+import kotlinx.coroutines.flow.flow
 
 // 查询字段
 private val LocalAudioColumns = arrayOf(
@@ -62,79 +63,66 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                 val sortOrder = MediaStore.Audio.Media.DEFAULT_SORT_ORDER
                 val uri = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
 
-                var cursor: Cursor? = null
-                try {
-                    cursor = resolver.query(
-                        uri,
-                        LocalAudioColumns,
-                        selection,
-                        selectionArgs,
-                        sortOrder
-                    )
+                val cursor: Cursor? = resolver.query(
+                    uri,
+                    LocalAudioColumns,
+                    selection,
+                    selectionArgs,
+                    sortOrder
+                )
+                cursor?.use {
+                    Log.d("DEBUG", "Total audio files in MediaStore: ${it.count}")
+                    val idColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
+                    val titleColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
+                    val artistColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                    val durationColumn =
+                        it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+                    val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+                    val relativePathColumn =
+                        it.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH)
+                    val albumColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+                    val albumIdColumn =
+                        it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+                    while (it.moveToNext()) {
+                        val id = it.getLong(idColumn)
+                        val title = it.getString(titleColumn)
+                        val artist = it.getString(artistColumn)
+                        val duration = it.getLong(durationColumn)
+                        val size = it.getLong(sizeColumn)
+                        val relativePath = it.getString(relativePathColumn)
+                        val album = it.getString(albumColumn)
+                        val albumId = it.getLong(albumIdColumn)
 
-                    cursor?.let {
-                        Log.d("MusicScanUtilByMediaStore", "Columns: ${it.columnNames.joinToString()}")
-                        val idColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-                        val titleColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-                        val artistColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-                        val durationColumn =
-                            it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-                        val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
-                        val relativePathColumn =
-                            it.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH)
-                        val albumColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-                        val albumIdColumn =
-                            it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
+                        val artworkUri = ContentUris.withAppendedId(
+                            "content://media/external/audio/albumart".toUri(),
+                            albumId
+                        )
 
-                        while (it.moveToNext()) {
-                            val id = it.getLong(idColumn)
-                            val title = it.getString(titleColumn)
-                            val artist = it.getString(artistColumn)
-                            val duration = it.getLong(durationColumn)
-                            val size = it.getLong(sizeColumn)
-                            val relativePath = it.getString(relativePathColumn)
-                            val album = it.getString(albumColumn)
-                            val albumId = it.getLong(albumIdColumn)
+                        // 可用于本地播放的uri
+                        val contentUri = ContentUris.withAppendedId(
+                            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                            id
+                        )
 
-                            val artworkUri = ContentUris.withAppendedId(
-                                "content://media/external/audio/albumart".toUri(),
-                                albumId
+                        val songItem = SongEntity(
+                            type = SongEntity.LOCAL,
+                            songId = id,
+                            title = title,
+                            artist = artist,
+                            duration = duration,
+                            fileSize = size,
+                            path = relativePath,
+                            album = album,
+                            albumId = albumId,
+                            artworkUri = artworkUri.toString(),
+                            uri = contentUri.toString(),
                             )
 
-                            // 可用于本地播放的uri
-                            val contentUri = ContentUris.withAppendedId(
-                                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                id
-                            )
-
-                            val songItem = SongEntity(
-                                type = SongEntity.LOCAL,
-                                songId = id,
-                                title = title,
-                                artist = artist,
-                                duration = duration,
-                                fileSize = size,
-                                path = relativePath,
-                                album = album,
-                                albumId = albumId,
-                                artworkUri = artworkUri.toString(),
-                                uri = contentUri.toString(),
-
-                            )
-
-                            trySend(songItem) // 发送每首歌曲到流
-                        }
+                        trySend(songItem).isSuccess // 发送每首歌曲到流
                     }
-                } catch (e: Exception) {
-                    close(e) // 发生错误时关闭流
-                    e.printStackTrace()
-                } finally {
-                    Log.d("MusicScanUtilByMediaStore", "cursor count: ${cursor?.count}")
-                    cursor?.close()
-                    close() // 扫描完成后关闭流
                 }
+                close()
             }
-            awaitClose() // 等待流关闭
         }
 
     private fun buildSelection(folderUri: Uri?): String {
