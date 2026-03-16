@@ -118,7 +118,8 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                             uri = contentUri.toString(),
                             )
 
-                        trySend(songItem).isSuccess // 发送每首歌曲到流
+                        send(songItem) // 发送每首歌曲到流
+                        // 因为callbackFlow有缓冲区，最大64，导致歌曲扫描后发送失败，数量一直不对
                     }
                 }
                 close()

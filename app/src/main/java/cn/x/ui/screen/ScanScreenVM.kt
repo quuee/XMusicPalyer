@@ -43,7 +43,7 @@ class ScanScreenVM @Inject constructor(
         viewModelScope.launch {
             _scanState.value = ScanState.Scanning
             _musicList.value = emptyList() // 清空之前的列表
-
+//            var count = 0
             try {
                 val flow = musicScanFlow.scanAllMusicAsFlow(minDuration)
 
@@ -51,13 +51,15 @@ class ScanScreenVM @Inject constructor(
                     Log.d(TAG, "startScan: $songItem")
                     // 每收到一首歌就更新歌曲列表
                     _musicList.value += songItem
-                    delay(150)
+//                    count++
+                    delay(10)
                 }
 
                 _currentFolders.value = _musicList.value
                     .groupingBy { it.path }
                     .eachCount().map { FolderEntity(it.key, it.value) }
 
+//                Log.d(TAG, "startScanByMediaStore: count:$count")
                 // *** 关键修改：将数据库操作移到后台线程 ***
                 withContext(Dispatchers.IO) {
                     db.SongDao().insertAll(_musicList.value)
