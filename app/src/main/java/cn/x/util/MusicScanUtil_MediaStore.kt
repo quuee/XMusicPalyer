@@ -4,7 +4,6 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
@@ -14,14 +13,13 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
-import java.io.File
 import androidx.core.net.toUri
 
 // 查询字段
 private val LocalAudioColumns = arrayOf(
     MediaStore.Audio.AudioColumns._ID, // 音频id
     MediaStore.Audio.AudioColumns.RELATIVE_PATH, // 音频相对路径
-    MediaStore.Audio.AudioColumns.DATA, // 文件绝对路径
+//    MediaStore.Audio.AudioColumns.DATA, // 文件绝对路径 老api
     MediaStore.Audio.AudioColumns.SIZE, // 音频字节大小
     MediaStore.Audio.AudioColumns.DISPLAY_NAME, // 音频名称 xxx.amr
     MediaStore.Audio.AudioColumns.TITLE, // 音频标题
@@ -51,18 +49,8 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
      * 扫描设备上所有音乐文件并以流形式返回
      * @param minDuration 最小持续时间(毫秒)，默认60秒
      */
-    fun scanAllMusicAsFlow(minDuration: Long = 60_000): Flow<SongEntity> {
+    fun scanAllMusicAsFlow(minDuration: Long = 30_000): Flow<SongEntity> {
         return scanMusicInternalAsFlow(null, minDuration)
-    }
-
-    /**
-     * 扫描指定文件夹中的音乐文件并以流形式返回
-     * @param folderPath 要扫描的文件夹路径
-     * @param minDuration 最小持续时间(毫秒)，默认60秒
-     */
-    fun scanMusicInFolderAsFlow(folderPath: String, minDuration: Long = 60_000): Flow<SongEntity> {
-        val folderUri = Uri.fromFile(File(folderPath))
-        return scanMusicInternalAsFlow(folderUri, minDuration)
     }
 
     private fun scanMusicInternalAsFlow(folderUri: Uri?, minDuration: Long): Flow<SongEntity> =
@@ -85,7 +73,7 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                     )
 
                     cursor?.let {
-                        Log.d("MusicScan", "Columns: ${it.columnNames.joinToString()}")
+                        Log.d("MusicScanUtilByMediaStore", "Columns: ${it.columnNames.joinToString()}")
                         val idColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
                         val titleColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
                         val artistColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
@@ -94,8 +82,6 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                         val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
                         val relativePathColumn =
                             it.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH)
-                        val pathColumn =
-                            it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
                         val albumColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
                         val albumIdColumn =
                             it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
@@ -107,8 +93,6 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                             val duration = it.getLong(durationColumn)
                             val size = it.getLong(sizeColumn)
                             val relativePath = it.getString(relativePathColumn)
-                            val path = it.getString(pathColumn)
-                            val parentPath = File(path).parent ?: continue
                             val album = it.getString(albumColumn)
                             val albumId = it.getLong(albumIdColumn)
 
@@ -134,9 +118,7 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                                 album = album,
                                 albumId = albumId,
                                 artworkUri = artworkUri.toString(),
-//                                contentUri = contentUri.toString(),
                                 uri = contentUri.toString(),
-                                parentFolder = parentPath
 
                             )
 
@@ -147,7 +129,7 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                     close(e) // 发生错误时关闭流
                     e.printStackTrace()
                 } finally {
-                    Log.d("MusicScan", "cursor count: ${cursor?.count}")
+                    Log.d("MusicScanUtilByMediaStore", "cursor count: ${cursor?.count}")
                     cursor?.close()
                     close() // 扫描完成后关闭流
                 }
@@ -157,8 +139,9 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
 
     private fun buildSelection(folderUri: Uri?): String {
         val selection = StringBuilder()
-        selection.append(" ${MediaStore.Audio.Media.IS_MUSIC}=1")
-        selection.append(" AND ${MediaStore.Audio.Media.DURATION}>=?")
+//        selection.append("(${MediaStore.Audio.Media.IS_MUSIC} != 0 OR ${MediaStore.Audio.Media.IS_MUSIC} IS NULL)")
+//        selection.append(" AND ${MediaStore.Audio.Media.DURATION}>=? ")
+        selection.append(" ${MediaStore.Audio.Media.DURATION} >= ? ")
         folderUri?.let {
             it.path ?: return@let
             selection.append(" AND ${MediaStore.Audio.Media.RELATIVE_PATH} LIKE ?")
@@ -167,12 +150,12 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
     }
 
     private fun buildSelectionArgs(folderUri: Uri?, minDuration: Long): Array<String> {
-        return if (folderUri != null) {
-            val folderPath = "${folderUri.path}%"
-            arrayOf(minDuration.toString(), folderPath)
-        } else {
-            arrayOf(minDuration.toString())
-        }
+        return buildList {
+            add(minDuration.toString())
+            folderUri?.path?.let { path ->
+                add("${path}%")
+            }
+        }.toTypedArray()
     }
 
 }

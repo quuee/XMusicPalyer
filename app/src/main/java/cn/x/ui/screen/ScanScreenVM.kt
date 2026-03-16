@@ -1,6 +1,6 @@
 package cn.x.ui.screen
 
-import android.content.Context
+
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,22 +8,14 @@ import cn.x.data.db.FolderEntity
 import cn.x.data.db.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.util.MusicScanUtilByMediaStoreFlow
-import cn.x.util.MusicScanUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,11 +45,7 @@ class ScanScreenVM @Inject constructor(
             _musicList.value = emptyList() // 清空之前的列表
 
             try {
-                val flow = if (folderPath != null) {
-                    musicScanFlow.scanMusicInFolderAsFlow(folderPath, minDuration)
-                } else {
-                    musicScanFlow.scanAllMusicAsFlow(minDuration)
-                }
+                val flow = musicScanFlow.scanAllMusicAsFlow(minDuration)
 
                 flow.collect { songItem ->
                     Log.d(TAG, "startScan: $songItem")
@@ -67,7 +55,7 @@ class ScanScreenVM @Inject constructor(
                 }
 
                 _currentFolders.value = _musicList.value
-                    .groupingBy { it.parentFolder }
+                    .groupingBy { it.path }
                     .eachCount().map { FolderEntity(it.key, it.value) }
 
                 // *** 关键修改：将数据库操作移到后台线程 ***
@@ -88,40 +76,6 @@ class ScanScreenVM @Inject constructor(
         _scanState.value = ScanState.Idle
     }
 
-    fun startScanByFile( directory: File){
-        viewModelScope.launch {
-            _scanState.value = ScanState.Scanning
-            _musicList.value = emptyList() // 清空之前的列表
-            scanAndParseSongs( directory)
-                .collect { song ->
-                    _musicList.update { it + song }
-                    delay(100)
-                }
-
-            _currentFolders.value = _musicList.value
-                .groupingBy { it.parentFolder }
-                .eachCount().map { FolderEntity(it.key, it.value) }
-
-            withContext(Dispatchers.IO) {
-                db.SongDao().insertAll(_musicList.value)
-                db.FolderDao().insertAll(_currentFolders.value)
-            }
-            _scanState.value = ScanState.Completed
-        }
-    }
-
-    private fun scanAndParseSongs(rootDir: File): Flow<SongEntity> = flow {
-
-        MusicScanUtil.scanAudioFiles(rootDir)
-//            .buffer() // 允许并发处理
-//            .mapLatest { file -> // 防止旧任务堆积（如果用户切换目录）
-//                MusicScanUtil.extractMetadata(context, file)
-//            }
-            .collect { song ->
-                val song = MusicScanUtil.extractMetadata(song) // 串行调用
-                if (song != null) emit(song)
-            }
-    }.flowOn(Dispatchers.IO)
 
 
 }

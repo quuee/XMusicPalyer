@@ -55,7 +55,7 @@ data class SongEntity(
     @ColumnInfo("uri", defaultValue = "")
     var uri: String = "",
 
-    // [本地]文件路径
+    // [本地]文件目录(相对路径。如 Music/)
     @ColumnInfo("path")
     val path: String = "",
 
@@ -71,9 +71,6 @@ data class SongEntity(
 //    @ColumnInfo("content_uri")
 //    var contentUri: String = "",
 
-    // 本地 父级目录
-    @ColumnInfo("parent_folder")
-    val parentFolder: String = "",
 
 //    @ColumnInfo("lyrics")
 //    var lyrics:String="",

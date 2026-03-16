@@ -140,7 +140,6 @@ fun PlayListSongEntity.toSongEntity(): SongEntity {
         fileName,
         fileSize,
 //        contentUri,
-        parentFolder,
         uniqueId
     )
 }
@@ -163,7 +162,6 @@ fun SongEntity.toPlayListSongEntity(): PlayListSongEntity {
         fileName,
         fileSize,
 //        contentUri,
-        parentFolder,
         uniqueId
     )
 }

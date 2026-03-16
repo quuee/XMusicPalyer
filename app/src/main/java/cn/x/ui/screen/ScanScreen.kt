@@ -77,7 +77,6 @@ fun ScanScreen(
     ) { granted ->
         if (granted) {
             scanVM.startScanByMediaStore()
-//            scanVM.startScanByFile( File("/storage/emulated/0/Music"))
         } else {
             Toast.makeText(context, "需要存储权限才能扫描音乐", Toast.LENGTH_SHORT).show()
         }
@@ -120,7 +119,6 @@ fun ScanScreen(
 
                     if (hasPermission) {
                         scanVM.startScanByMediaStore()
-//                        scanVM.startScanByFile( File("/storage/emulated/0/Music"))
                     } else {
                         permissionLauncher.launch(permission)
 
@@ -160,14 +158,6 @@ fun ScanScreen(
 
         ScanningCard(scanState, { scanVM.onDismiss() }, scanVM.musicList)
     }
-
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(8.dp)
-//            .background(colorScheme.primaryContainer)
-//    ) {
-//    }
 
 
 }
