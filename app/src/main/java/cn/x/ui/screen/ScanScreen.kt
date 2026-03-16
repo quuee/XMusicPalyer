@@ -50,6 +50,7 @@ import cn.x.data.db.SongEntity
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 import kotlinx.coroutines.flow.StateFlow
+import java.io.File
 
 @Composable
 fun ScanScreen(
@@ -75,7 +76,8 @@ fun ScanScreen(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            scanVM.startScan()
+            scanVM.startScanByMediaStore()
+//            scanVM.startScanByFile( File("/storage/emulated/0/Music"))
         } else {
             Toast.makeText(context, "需要存储权限才能扫描音乐", Toast.LENGTH_SHORT).show()
         }
@@ -117,7 +119,8 @@ fun ScanScreen(
                 onClick = {
 
                     if (hasPermission) {
-                        scanVM.startScan()
+                        scanVM.startScanByMediaStore()
+//                        scanVM.startScanByFile( File("/storage/emulated/0/Music"))
                     } else {
                         permissionLauncher.launch(permission)
 

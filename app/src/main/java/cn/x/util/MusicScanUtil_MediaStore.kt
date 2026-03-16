@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
@@ -44,7 +45,7 @@ private val LocalAudioColumns = arrayOf(
 /**
  * android mediaStore不会主动将新的音频文件加入音乐库，只能扫描出部分歌曲(试过在文件夹单独点击几首没扫描出的歌曲播放，再去扫描才出现)
  */
-class MusicScanFlow(private val context: Context) {
+class MusicScanUtilByMediaStoreFlow(private val context: Context) {
 
     /**
      * 扫描设备上所有音乐文件并以流形式返回
@@ -156,10 +157,10 @@ class MusicScanFlow(private val context: Context) {
 
     private fun buildSelection(folderUri: Uri?): String {
         val selection = StringBuilder()
-        selection.append("${MediaStore.Audio.Media.IS_MUSIC}=1")
+        selection.append(" ${MediaStore.Audio.Media.IS_MUSIC}=1")
         selection.append(" AND ${MediaStore.Audio.Media.DURATION}>=?")
         folderUri?.let {
-            val folderPath = it.path ?: return@let
+            it.path ?: return@let
             selection.append(" AND ${MediaStore.Audio.Media.RELATIVE_PATH} LIKE ?")
         }
         return selection.toString()
