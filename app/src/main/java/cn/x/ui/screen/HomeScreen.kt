@@ -74,6 +74,8 @@ fun HomeScreen(
     val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "未知艺术家"
     val isPlaylistEmpty = playlist.isEmpty()
 
+    val lastRoute by homeScreenVM.lastTimeRoute.collectAsState()
+
 
     val navHostController = rememberNavController()
 
@@ -85,15 +87,18 @@ fun HomeScreen(
         }
     }
 
+
     val TAG = "HomeScreen"
 
     PushDrawer(
         drawerContent = {
             DrawerContent(naviRouteItem = { routeString ->
-                navHostController.popBackStack() // 替换当前页,不保留路由(栈)历史
-                navHostController.navigate(
-                    routeString
-                )
+                homeScreenVM.updateRoute(routeString) // 记录drawer最后一次路由
+                navHostController.navigate(routeString) {
+                    popUpTo(0){
+                        inclusive = true
+                    } // 清除返回栈
+                }
             })
         },
         content = { drawerControl ->
@@ -117,7 +122,7 @@ fun HomeScreen(
                 ) { innerPadding ->
 
                 NavHost(
-                    startDestination = Screens.Scan.route, // todo LAST open
+                    startDestination = homeScreenVM.lastTimeRoute.value,
                     navController = navHostController,
                     modifier = Modifier.padding(innerPadding)
                 ) {
