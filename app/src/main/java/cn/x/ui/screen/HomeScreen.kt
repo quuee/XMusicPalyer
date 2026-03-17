@@ -122,7 +122,7 @@ fun HomeScreen(
                 ) { innerPadding ->
 
                 NavHost(
-                    startDestination = homeScreenVM.lastTimeRoute.value,
+                    startDestination = lastRoute,
                     navController = navHostController,
                     modifier = Modifier.padding(innerPadding)
                 ) {
