@@ -66,7 +66,6 @@ class SongListSortScreenVM @Inject constructor(
         someoneBottomY: Float //某项底部Y坐标
     ) {
 
-
         val threshold = 1.2
 
         // 通过计算，得出要交换的目标位置
@@ -110,8 +109,7 @@ class SongListSortScreenVM @Inject constructor(
             }
 
             withContext(Dispatchers.IO) {
-                db.SongListDao().clear()
-                db.SongListDao().insertSongListAll(updatedList)
+                db.SongListDao().updateSongListAll(updatedList)
             }
 
             _songLists.value = updatedList // 触发 Compose 重组

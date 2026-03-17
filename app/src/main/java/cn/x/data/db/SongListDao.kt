@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 
 @Dao
 interface SongListDao {
@@ -18,6 +19,9 @@ interface SongListDao {
 
     @Query("SELECT * FROM song_lists order by sort")
     fun getAllSongLists(): List<SongListEntity>
+
+    @Update
+    fun updateSongListAll(list: List<SongListEntity>)
 
     @Delete
     fun delete(entity: SongListEntity)

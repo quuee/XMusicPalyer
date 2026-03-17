@@ -9,12 +9,11 @@ import android.provider.MediaStore
 import android.util.Log
 import cn.x.data.db.SongEntity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
 import androidx.core.net.toUri
-import kotlinx.coroutines.flow.flow
+
 
 // 查询字段
 private val LocalAudioColumns = arrayOf(
