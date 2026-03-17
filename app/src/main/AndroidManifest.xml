@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
+    <!-- 震动 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:name=".XMusicApplication"
         android:allowBackup="true"

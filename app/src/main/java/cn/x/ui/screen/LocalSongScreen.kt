@@ -2,14 +2,17 @@ package cn.x.ui.screen
 
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -35,14 +38,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongListEntity
+import cn.x.ui.componets.AlphabetIndexer
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
+import cn.x.util.Constants
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.launch
 
@@ -61,6 +67,10 @@ fun LocalSongScreen(
     val bottomSheetVisible by localSongScreenVM.bottomSheetVisible.collectAsState()
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val letters = (listOf("#") + Constants.alphabet)
+    val listState = rememberLazyListState()
+
 
     // 只有在 showBottomSheet 为 true 时才显示
     if (bottomSheetVisible) {
@@ -140,21 +150,44 @@ fun LocalSongScreen(
         }
     ) { padding ->
 
-        LazyColumn(modifier = Modifier.padding(padding)) {
-            itemsIndexed(songs) { index, songItem ->
+        Box(modifier = Modifier.fillMaxSize().padding(padding)){
 
-                MultiSelectSongItem(
-                    song = songItem,
-                    isSelected = false,
-                    isSelectionMode = false,
-                    onClick = { localSongScreenVM.play(songItem.toMediaItem()) },
-                    onMenuClick = {
-                        localSongScreenVM.showBottomSheet(songItem)
-                    },
-                    onToggleSelection = { }
-                )
+            LazyColumn() {
+                itemsIndexed(songs) { index, songItem ->
+
+                    MultiSelectSongItem(
+                        song = songItem,
+                        isSelected = false,
+                        isSelectionMode = false,
+                        onClick = { localSongScreenVM.play(songItem.toMediaItem()) },
+                        onMenuClick = {
+                            localSongScreenVM.showBottomSheet(songItem)
+                        },
+                        onToggleSelection = { }
+                    )
+                }
             }
+
+            // 侧边字母索引
+            AlphabetIndexer(
+                onLetterSelected = { letter ->
+                    // 滚动到对应字母的位置
+                    scope.launch {
+                        val firstIndex = letters.indexOfFirst { it == letter }
+                        if (firstIndex != -1) {
+                            // 这里需要根据实际数据结构计算正确的索引
+                            // 简化示例，实际需要更复杂的逻辑
+                            listState.animateScrollToItem(firstIndex)
+                        }
+                    }
+                },
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
+
+
+
+
 
         if (songListDialogVisible) {
             SongListDialog(

@@ -89,7 +89,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material:material-icons-core")
 
-
+    implementation("com.github.promeg:tinypinyin:2.0.3")
 
 
 }
