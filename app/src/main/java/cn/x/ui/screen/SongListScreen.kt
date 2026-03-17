@@ -44,10 +44,9 @@ fun SongListScreen(
     naviRouteItem: (String) -> Unit,
 ) {
     val songLists by songListScreenVM.songLists.collectAsState()
+    val showCreateDialog by songListScreenVM.showCreateDialog.collectAsState()
+    val newSongListName by songListScreenVM.newSongListName.collectAsState()
 
-    // 弹窗状态
-    var showCreateDialog by remember { mutableStateOf(false) }
-    var newSongListName by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         songListScreenVM.loadSongLists()
@@ -60,7 +59,7 @@ fun SongListScreen(
                 drawerToggle = onDrawerToggle,
                 actions = {
                     Actions(
-                        onCreateClick = { showCreateDialog = true },
+                        onCreateClick = {songListScreenVM.openCreateDialog()},
                         naviRouteItem = { naviRouteItem(Screens.SongListSort.route) },
                     )
                 }
@@ -81,15 +80,12 @@ fun SongListScreen(
         if (showCreateDialog) {
             CreateSongListDialog(
                 initialName = newSongListName,
-                onNameChange = { newSongListName = it },
+                onNameChange = { songListScreenVM.onNewSongListNameChange(it) },
                 onConfirm = {
-                    songListScreenVM.createSongList(newSongListName)
-                    showCreateDialog = false
-                    newSongListName = "" // 重置
+                    songListScreenVM.createSongListConfirm()
                 },
                 onDismiss = {
-                    showCreateDialog = false
-                    newSongListName = ""
+                    songListScreenVM.dismissCreateDialog()
                 }
             )
         }
