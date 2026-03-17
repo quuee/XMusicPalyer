@@ -2,7 +2,6 @@ package cn.x.ui.componets
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -14,7 +13,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -23,79 +25,85 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BufferedSlider(
-    currentPosition: Float,      // 当前播放位置（0f ~ duration）
-    bufferedPosition: Float,     // 已缓冲位置（0f ~ duration）
-    duration: Float,             // 总时长
-    onSeek: (Float) -> Unit,     // 拖动结束时回调（或实时回调，按需调整）
+    currentPosition: Float,
+    bufferedPosition: Float,
+    duration: Float,
+    onSeek: (Float) -> Unit, // 这里代表最终确定的 seek 位置
     modifier: Modifier = Modifier,
 ) {
-    // 归一化到 [0f, 1f]
     val progress = if (duration > 0f) (currentPosition / duration).coerceIn(0f, 1f) else 0f
     val bufferedProgress = if (duration > 0f) (bufferedPosition / duration).coerceIn(0f, 1f) else 0f
 
-    // 自定义颜色：通过 trackColorRange 模拟缓冲层
+    // 关键点：引入一个本地状态来存储拖动时的临时进度
+    var draggingProgress by remember { mutableStateOf<Float?>(null) }
+
+    // 决定显示哪个进度：如果在拖动，显示拖动进度；否则显示实际播放进度
+    val displayProgress = draggingProgress ?: progress
+
     val colors = SliderDefaults.colors(
         thumbColor = Color.White,
-        activeTrackColor = Color.Transparent, // 主进度由自定义 track 覆盖
+        activeTrackColor = Color.Transparent,
         inactiveTrackColor = Color.Gray.copy(alpha = 0.3f)
     )
 
     Box(modifier = modifier.height(32.dp)) {
-        // 手动绘制轨道：底层 + 缓冲层 + 播放层
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 14.dp) // 与 thumb 对齐
+                .padding(vertical = 14.dp)
         ) {
             val strokeWidth = 4.dp.toPx()
             val centerY = size.height / 2
 
-            // 底层轨道（灰色）
+            // 底层
             drawLine(
-                color = Color.Gray.copy(alpha = 0.3f),
-                start = Offset(0f, centerY),
-                end = Offset(size.width, centerY),
-                strokeWidth = strokeWidth
+                Color.Gray.copy(alpha = 0.3f),
+                Offset(0f, centerY),
+                Offset(size.width, centerY),
+                strokeWidth
             )
 
-            // 缓冲层（浅灰）
-            val bufferedWidth = bufferedProgress * size.width
+            // 缓冲层
             drawLine(
-                color = Color.Gray.copy(alpha = 0.6f),
-                start = Offset(0f, centerY),
-                end = Offset(bufferedWidth, centerY),
-                strokeWidth = strokeWidth
+                Color.Gray.copy(alpha = 0.6f),
+                Offset(0f, centerY),
+                Offset(bufferedProgress * size.width, centerY),
+                strokeWidth
             )
 
-            // 播放进度（白色）
-            val progressWidth = progress * size.width
+            // 播放层 (使用 displayProgress 保证拖动时跟手)
             drawLine(
-                color = Color.White,
-                start = Offset(0f, centerY),
-                end = Offset(progressWidth, centerY),
-                strokeWidth = strokeWidth
+                Color.White,
+                Offset(0f, centerY),
+                Offset(displayProgress * size.width, centerY),
+                strokeWidth
             )
         }
 
-        // 可拖拽的 Slider（透明轨道，仅用 thumb）
         Slider(
-            value = progress,
-            onValueChange = { newProgress ->
-                // newProgress [0f, 1f]
-                onSeek(newProgress)
+            value = displayProgress,
+            // 1. onValueChange: 仅更新本地 UI 状态，不调用 onSeek (不通知播放器)
+            onValueChange = { newValue ->
+                draggingProgress = newValue
+            },
+            // 2. onValueChangeFinished: 手指抬起时，才真正执行 seek
+            onValueChangeFinished = {
+                draggingProgress?.let {
+                    onSeek(it * duration) // 转换回绝对时间
+                    draggingProgress = null // 重置，交还给 controller 的状态
+                }
             },
             colors = colors,
             modifier = Modifier.fillMaxSize(),
-            // 可选：启用实时拖动（默认就是）
-            interactionSource = remember { MutableInteractionSource() },
             thumb = {
                 Box(
                     modifier = Modifier
                         .size(16.dp)
                         .background(Color.White, CircleShape)
-                        .offset(x = 0.dp, y = (-6).dp) // 微调垂直对齐
+                        .offset(y = (-6).dp)
                 )
             }
         )
     }
 }
+

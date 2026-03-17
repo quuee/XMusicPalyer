@@ -26,13 +26,14 @@ class PlayerScreenVM @Inject constructor(
         playerController.prev()
     }
 
-    fun seekTo(progress: Float) {
+    fun seekTo(msec: Long) {
         // progress 是 0.0 - 1.0
-        val duration = playerController.mediaController.duration
-        if (duration > 0) {
-            val positionMs = (progress * duration).toLong()
-            playerController.seekTo(positionMs.toInt())
-        }
+//        val duration = playerController.mediaController.duration
+//        if (duration > 0) {
+//            val positionMs = (progress * duration).toLong()
+//            playerController.seekTo(positionMs)
+//        }
+        playerController.seekTo(msec)
     }
 
     fun togglePlayMode() {

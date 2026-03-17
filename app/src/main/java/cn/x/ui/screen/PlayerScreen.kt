@@ -328,7 +328,7 @@ private fun SongBufferedSlider(
     progress: Long,
     buffering: Int,
     duration: Long,
-    seekTo: (Float) -> Unit,
+    seekTo: (Long) -> Unit,
     modifier: Modifier
 ) {
     // 格式化时间
@@ -383,7 +383,7 @@ private fun SongBufferedSlider(
             duration = duration.toFloat(),
             onSeek = { newPosition ->
 //                Log.d("PlayerScreen", "PlayerScreen newPosition: $newPosition")
-                seekTo(newPosition)
+                seekTo(newPosition.toLong())
             },
             modifier = Modifier
                 .fillMaxWidth()

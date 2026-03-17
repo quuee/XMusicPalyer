@@ -293,9 +293,9 @@ class PlayerControllerImpl
     }
 
     @MainThread
-    override fun seekTo(msec: Int) {
+    override fun seekTo(msec: Long) {
         if (player.playbackState == Player.STATE_READY) {
-            player.seekTo(msec.toLong())
+            player.seekTo(msec)
         }
     }
 

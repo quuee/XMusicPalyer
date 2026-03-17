@@ -39,7 +39,7 @@ interface PlayerController {
     fun prev()
 
     @MainThread
-    fun seekTo(msec: Int)
+    fun seekTo(msec: Long)
 
     @MainThread
     fun getAudioSessionId(): Int
