@@ -114,15 +114,6 @@ fun MediaMetadata.getFileSize(): Long {
     return extras?.getLong(EXTRA_FILE_SIZE) ?: 0
 }
 
-fun MediaMetadata.Builder.setBaseCover(value: String) = apply {
-    val extras = build().extras ?: bundleOf()
-    extras.putString(EXTRA_BASE_COVER, value)
-    setExtras(extras)
-}
-
-fun MediaMetadata.getBaseCover(): String? {
-    return extras?.getString(EXTRA_BASE_COVER)
-}
 
 fun PlayListSongEntity.toSongEntity(): SongEntity {
     return SongEntity(

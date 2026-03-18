@@ -141,6 +141,9 @@ fun HomeScreen(
                     composable(Screens.LocalSong.route) {
                         LocalSongScreen(onDrawerToggle = { drawerControl.toggle() })
                     }
+                    composable(Screens.Setting.route) {
+                        SettingScreen(onDrawerToggle = { drawerControl.toggle() })
+                    }
                 }
             }
         }

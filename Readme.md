@@ -21,7 +21,11 @@
 ### android 11-16 界面不适配，比如状态栏
 
 ### 重新插入歌曲，歌单中歌曲消失
-@Insert(onConflict = OnConflictStrategy.IGNORE) 不知道行不
+@Insert(onConflict = OnConflictStrategy.IGNORE) 暂时解决
+
+## 想做的功能
+桌面歌词、均衡器、在线获取歌曲封面和歌词
+
 
 
 
