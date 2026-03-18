@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,10 +33,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongListEntity
-import cn.x.ui.componets.AlphabetIndexer
+import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.Constants
@@ -169,7 +165,7 @@ fun LocalSongScreen(
             }
 
             // 侧边字母索引
-            AlphabetIndexer(
+            AlphabetIndexSidebar(
                 onLetterSelected = { letter ->
                     // 滚动到对应字母的位置
                     scope.launch {
@@ -184,8 +180,6 @@ fun LocalSongScreen(
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
-
-
 
 
 
