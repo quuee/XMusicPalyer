@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,6 +42,7 @@ import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -94,7 +98,12 @@ fun PlayerScreen(
     val isPlaylistEmpty = playlist.isEmpty()
 
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.statusBars) // 顶部避开状态栏
+    )
+    {
         // 背景模糊效果
         ImageWidget(
             cover = currentSong?.mediaMetadata?.artworkUri.toString(),
@@ -117,7 +126,6 @@ fun PlayerScreen(
                     .padding(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(8.dp))
                 // 顶部工具栏
                 TopBar(naviBack)
 
@@ -153,7 +161,7 @@ fun PlayerScreen(
                     previous = { playerScreenVM.prev() },
                     playPause = { playerScreenVM.togglePlayPause() },
                     playNext = { playerScreenVM.next() },
-                    togglePlayMode = {playerScreenVM.togglePlayMode()},
+                    togglePlayMode = { playerScreenVM.togglePlayMode() },
                     isPlaying,
                     playMode,
                     modifier = Modifier
@@ -408,7 +416,7 @@ private fun ControlsButton(
     previous: () -> Unit,
     playPause: () -> Unit,
     playNext: () -> Unit,
-    togglePlayMode:()->Unit,
+    togglePlayMode: () -> Unit,
     isPlaying: Boolean,
     playMode: PlayMode,
     modifier: Modifier
@@ -420,7 +428,7 @@ private fun ControlsButton(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // 播放模式
-        IconButton(onClick = {togglePlayMode()}) {
+        IconButton(onClick = { togglePlayMode() }) {
             Icon(
                 imageVector = when (playMode) {
                     PlayMode.Loop -> Icons.Default.Repeat

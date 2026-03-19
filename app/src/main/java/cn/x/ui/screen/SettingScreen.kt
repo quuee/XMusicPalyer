@@ -1,6 +1,5 @@
 package cn.x.ui.screen
 
-import android.graphics.Color
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.MoreVert
@@ -37,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cn.x.ui.componets.CenterTopBar
 
@@ -265,8 +264,7 @@ private fun ModernSelectionCards(
 ) {
     // 定义颜色
     val selectedColor = MaterialTheme.colorScheme.primary
-    val unselectedColor = MaterialTheme.colorScheme.secondaryContainer
-    val borderColor = if (selectedIndex != -1) selectedColor else unselectedColor
+    val unselectedColor = MaterialTheme.colorScheme.outline
 
     Row(
         modifier = Modifier
@@ -282,7 +280,7 @@ private fun ModernSelectionCards(
             Card(
                 modifier = Modifier
                     .weight(1f)
-                    // 【关键】使用 Modifier.border 代替过时的 card border 参数
+                    // 使用 Modifier.border 代替过时的 card border 参数
                     .then(
                         if (isSelected) {
                             Modifier.border(
@@ -298,11 +296,11 @@ private fun ModernSelectionCards(
                             )
                         }
                     ),
-                // 【关键】使用 CardDefaults.cardColors 设置背景色
+                // 使用 CardDefaults.cardColors 设置背景色
                 colors = CardDefaults.cardColors(
                     containerColor = if (isSelected) selectedColor.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surface
                 ),
-                // 【关键】使用 CardDefaults.cardElevation 设置阴影
+                // 使用 CardDefaults.cardElevation 设置阴影
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = if (isSelected) 4.dp else 1.dp
                 ),
@@ -311,12 +309,13 @@ private fun ModernSelectionCards(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 12.dp),
+                        .padding(vertical = 14.dp)
+                            ,
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = label,
-                        // 【关键】动态字体粗细
+                        // 动态字体粗细
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) selectedColor else MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center,
@@ -327,3 +326,13 @@ private fun ModernSelectionCards(
         }
     }
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun Preview111() {
+//    val items = listOf("跟随系统", "白天", "黑夜")
+//    ModernSelectionCards(
+//        options = items,
+//        selectedIndex = 0,
+//        onOptionSelected = { })
+//}

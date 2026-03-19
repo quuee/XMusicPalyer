@@ -6,10 +6,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
@@ -95,7 +101,7 @@ fun HomeScreen(
             DrawerContent(naviRouteItem = { routeString ->
                 homeScreenVM.updateRoute(routeString) // 记录drawer最后一次路由
                 navHostController.navigate(routeString) {
-                    popUpTo(0){
+                    popUpTo(0) {
                         inclusive = true
                     } // 清除返回栈
                 }
@@ -108,23 +114,20 @@ fun HomeScreen(
                 shouldCloseDrawer = false
             }
 
-            Scaffold(
-                bottomBar = {
-                    FloatingPlayerBar(
-                        mediaItem = currentSong,
-                        isPlaying = isPlaying,
-                        onSongClick = { naviRouteItem(Screens.Player.route) },
-                        onNextClick = { controller.next() },
-                        onPreviousClick = { controller.prev() },
-                        onPlayPauseClick = { controller.playPause() })
-                },
-
-                ) { innerPadding ->
-
+            Box(modifier = Modifier.fillMaxSize()) {
                 NavHost(
                     startDestination = lastRoute,
                     navController = navHostController,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .windowInsetsPadding(WindowInsets.navigationBars) // 底部避开系统导航键
+                        // 关键点：手动为底部留出空间，避免被 FloatingPlayerBar 遮挡
+                        // 同时让顶部自然延伸到状态栏下（由 PushDrawer 保证）
+                        .padding(
+                            bottom = if (currentSong != null) 72.dp else 0.dp // 估算一个底部高度，或使用动态计算
+                            // 更精准的做法是使用 WindowInsets 监听，见下方“进阶优化”
+                        )
+
                 ) {
                     composable(Screens.Scan.route) {
                         ScanScreen(onDrawerToggle = { drawerControl.toggle() })
@@ -145,7 +148,44 @@ fun HomeScreen(
                         SettingScreen(onDrawerToggle = { drawerControl.toggle() })
                     }
                 }
+
+                // 直接放置在 Box 的底部
+                if (currentSong != null) {
+                    FloatingPlayerBar(
+                        mediaItem = currentSong,
+                        isPlaying = isPlaying,
+                        onSongClick = { naviRouteItem(Screens.Player.route) },
+                        onNextClick = { controller.next() },
+                        onPreviousClick = { controller.prev() },
+                        onPlayPauseClick = { controller.playPause() },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            //下面这行避免播放器会被导航键遮挡
+                            .windowInsetsPadding(
+                                WindowInsets.navigationBars.only(
+                                    WindowInsetsSides.Bottom
+                                )
+                            )
+                    )
+                }
             }
+
+
+//            Scaffold(
+//                bottomBar = {
+//                    FloatingPlayerBar(
+//                        mediaItem = currentSong,
+//                        isPlaying = isPlaying,
+//                        onSongClick = { naviRouteItem(Screens.Player.route) },
+//                        onNextClick = { controller.next() },
+//                        onPreviousClick = { controller.prev() },
+//                        onPlayPauseClick = { controller.playPause() })
+//                },
+//
+//                ) { innerPadding ->
+//
+//
+//            }
         }
     )
 
@@ -159,14 +199,14 @@ fun FloatingPlayerBar(
     onPlayPauseClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(72.dp)
             .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .padding(horizontal = 8.dp)
             .clickable(onClick = onSongClick),
         verticalAlignment = Alignment.CenterVertically
     ) {

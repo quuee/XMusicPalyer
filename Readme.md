@@ -18,8 +18,6 @@
 
 ## bug
 
-### android 11-16 界面不适配，比如状态栏
-
 ### 重新插入歌曲，歌单中歌曲消失
 @Insert(onConflict = OnConflictStrategy.IGNORE) 暂时解决
 

@@ -3,7 +3,6 @@ package cn.x.ui.componets
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -89,6 +90,7 @@ fun PushDrawer(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.statusBars)
     ) {
         // 🟦 Drawer
         Box(
@@ -195,21 +197,47 @@ fun DrawerContent(
             .padding(8.dp)
 //            .background().verticalScroll()
     ) {
+
+        // 头像身份
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.spacedBy(16.dp), // 自动给子项之间加 24.dp 的间距
+//        ) {
+//            Image(
+//                painter = painterResource(id = R.drawable.music_logo),
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(48.dp)
+//                    .clip(MaterialTheme.shapes.small)
+//            )
+//            Column(
+//                verticalArrangement = Arrangement.spacedBy(8.dp)
+//            ) {
+//                Text(
+//                    text = "xxxxx",
+//                    style = MaterialTheme.typography.bodyMedium,
+//
+//                    )
+//                Text(
+//                    text = "管理员",
+//                    style = MaterialTheme.typography.bodyMedium,
+//
+//                    )
+//            }
+//        }
+
+//        Spacer(modifier = Modifier.height(8.dp))
+
         Row(
-            horizontalArrangement = Arrangement.spacedBy(
-                space = 16.dp,
-                alignment = Alignment.End
-            ),
+            horizontalArrangement = Arrangement.SpaceAround,
             modifier = Modifier
                 .fillMaxWidth() // 确保 Row 占满整行宽度
-                .padding(end = 16.dp) // 可选：添加内边距
         ) {
             IconButton(
                 onClick = {
                     /* 跳转到设置页面 */
                     naviRouteItem(Screens.Setting.route)
                 },
-                modifier = Modifier.size(24.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_drawer_setting),
@@ -218,39 +246,11 @@ fun DrawerContent(
             }
             IconButton(
                 onClick = {},
-                modifier = Modifier.size(24.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_camera_scan),
                     contentDescription = ""
                 )
-            }
-        }
-        // 头像身份
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp), // 自动给子项之间加 24.dp 的间距
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.music_logo),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(MaterialTheme.shapes.small)
-            )
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "xxxxx",
-                    style = MaterialTheme.typography.bodyMedium,
-
-                    )
-                Text(
-                    text = "管理员",
-                    style = MaterialTheme.typography.bodyMedium,
-
-                    )
             }
         }
 
