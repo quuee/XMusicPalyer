@@ -101,7 +101,6 @@ fun PlayerScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.statusBars) // 顶部避开状态栏
     )
     {
         // 背景模糊效果
@@ -117,6 +116,7 @@ fun PlayerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.6f))
+                .windowInsetsPadding(WindowInsets.statusBars) // 顶部避开状态栏
         ) {
 
             // 内容

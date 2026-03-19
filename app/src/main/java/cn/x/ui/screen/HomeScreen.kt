@@ -170,22 +170,6 @@ fun HomeScreen(
                 }
             }
 
-
-//            Scaffold(
-//                bottomBar = {
-//                    FloatingPlayerBar(
-//                        mediaItem = currentSong,
-//                        isPlaying = isPlaying,
-//                        onSongClick = { naviRouteItem(Screens.Player.route) },
-//                        onNextClick = { controller.next() },
-//                        onPreviousClick = { controller.prev() },
-//                        onPlayPauseClick = { controller.playPause() })
-//                },
-//
-//                ) { innerPadding ->
-//
-//
-//            }
         }
     )
 
