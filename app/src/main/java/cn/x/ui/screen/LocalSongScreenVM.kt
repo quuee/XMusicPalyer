@@ -1,31 +1,19 @@
 package cn.x.ui.screen
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
-import cn.x.data.paging.SongPagingSource
 import cn.x.service.PlayerController
 import cn.x.util.toMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,48 +25,43 @@ class LocalSongScreenVM @Inject constructor(
 
 
     private val tag = "LocalSongScreenVM"
-//    private val _songs = MutableStateFlow<List<SongEntity>>(emptyList())
-//    val songs: StateFlow<List<SongEntity>> = _songs.asStateFlow()
+    // 歌曲
+    private val _songs = MutableStateFlow<List<SongEntity>>(emptyList())
+    val songs: StateFlow<List<SongEntity>> = _songs.asStateFlow()
 
+    // 歌单
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
     val songLists: StateFlow<List<SongListEntity>> = _songLists.asStateFlow()
 
+    // 选中的歌曲
     private val _selectSong = MutableStateFlow<SongEntity?>(null)
 //    val selectSong = _selectSong.asStateFlow()
 
+    // 底部开关
     private val _bottomSheetVisible = MutableStateFlow(false)
     val bottomSheetVisible = _bottomSheetVisible.asStateFlow()
 
+    // 选者歌单弹窗开关
     private val _songListDialogVisible = MutableStateFlow(false)
     val songListDialogVisible = _songListDialogVisible.asStateFlow()
 
+    // 搜索关键字
     private val _searchWord = MutableStateFlow<String?>(null)
 
-    // 暴露给 UI 的数据流：PagingData<Song>
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val songsFlow: Flow<PagingData<SongEntity>> = _searchWord
-        .debounce(300) // 防抖：用户停止输入 300ms 后再搜索
-        .flatMapLatest { searchWord ->
-            // 每次查询变化，重新构建 Pager
-            Pager(
-                config = PagingConfig(
-                    pageSize = 10, // 每页 20 条
-                    enablePlaceholders = false,
-                    initialLoadSize = 20
-                ),
-                pagingSourceFactory = {
-                    SongPagingSource(
-                        db.SongDao(),
-                        searchWord = searchWord,
-                        parentPath = null
-                    )
-                }
-            ).flow
-        }
-        .cachedIn(viewModelScope) // 在 ViewModel 作用域内缓存分页数据
 
     init {
+        loadData()
+    }
 
+    fun loadData() {
+        viewModelScope.launch(Dispatchers.IO) { // 使用 IO 调度器以确保在后台线程运行
+            try {
+                _songs.value = db.SongDao().queryAll() // 这行现在在后台线程执行
+                _songLists.value = db.SongListDao().getAllSongLists()
+            } catch (e: Exception) {
+                // 可以在这里设置一个错误状态或空列表
+            }
+        }
     }
 
     fun search(searchWord: String?) {
@@ -89,7 +72,7 @@ class LocalSongScreenVM @Inject constructor(
     }
 
     fun play(song: MediaItem) {
-//        playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
+        playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
     }
 
     fun showBottomSheet(song: SongEntity) {
@@ -104,7 +87,7 @@ class LocalSongScreenVM @Inject constructor(
 
     fun showSongListDialog() {
         _songListDialogVisible.value = true
-        // todo 打开时才加载歌单
+        // 或者 打开时才加载歌单
     }
 
     fun hideSongListDialog() {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,8 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
 import cn.x.data.db.SongListEntity
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.CenterTopBar
@@ -56,7 +55,7 @@ fun LocalSongScreen(
     onDrawerToggle: () -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val songs = localSongScreenVM.songsFlow.collectAsLazyPagingItems()
+    val songs by localSongScreenVM.songs.collectAsState()
     val songLists by localSongScreenVM.songLists.collectAsState()
 
     val songListDialogVisible by localSongScreenVM.songListDialogVisible.collectAsState()
@@ -150,34 +149,17 @@ fun LocalSongScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding)){
 
             LazyColumn() {
-                items(count = songs.itemCount) { index ->
-                    val song = songs[index]
-                    song?.let{
-                        MultiSelectSongItem(
-                            song = song,
-                            isSelected = false,
-                            isSelectionMode = false,
-                            onClick = { localSongScreenVM.play(song.toMediaItem()) },
-                            onMenuClick = {
-                                localSongScreenVM.showBottomSheet(song)
-                            },
-                            onToggleSelection = { }
-                        )
-                    }
-
-                }
-
-                // 处理加载状态
-                when {
-                    songs.loadState.refresh is LoadState.Loading -> {
-                        item { Text("refresh") }
-                    }
-                    songs.loadState.append is LoadState.Loading -> {
-                        item { Text("append") }
-                    }
-                    songs.loadState.refresh is LoadState.Error -> {
-                        item { Text("Error") }
-                    }
+                itemsIndexed(songs) { index, songItem ->
+                    MultiSelectSongItem(
+                        song = songItem,
+                        isSelected = false,
+                        isSelectionMode = false,
+                        onClick = { localSongScreenVM.play(songItem.toMediaItem()) },
+                        onMenuClick = {
+                            localSongScreenVM.showBottomSheet(songItem)
+                        },
+                        onToggleSelection = { }
+                    )
                 }
             }
 
