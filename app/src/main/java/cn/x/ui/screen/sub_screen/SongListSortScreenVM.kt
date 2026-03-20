@@ -1,13 +1,11 @@
-package cn.x.ui.screen
+package cn.x.ui.screen.sub_screen
 
 import android.util.Log
 import androidx.compose.ui.geometry.Offset
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongListEntity
-import cn.x.service.PlayerController
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

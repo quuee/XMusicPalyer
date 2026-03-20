@@ -1,4 +1,4 @@
-package cn.x.ui.screen
+package cn.x.ui.screen.sub_screen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import cn.x.ui.Screens
 import cn.x.ui.componets.MultiSelectSongItem
 
 @OptIn(ExperimentalMaterial3Api::class)

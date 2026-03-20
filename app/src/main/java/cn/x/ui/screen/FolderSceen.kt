@@ -17,7 +17,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.Screens
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
-import cn.x.ui.screen.FolderSongsScreen
 
 @Composable
 fun FolderScreen(

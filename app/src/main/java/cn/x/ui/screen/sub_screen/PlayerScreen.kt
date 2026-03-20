@@ -1,5 +1,6 @@
-package cn.x.ui.screen
+package cn.x.ui.screen.sub_screen
 
+import android.R
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
@@ -38,11 +39,9 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.outlined.Equalizer
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.PlaylistPlay
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -288,8 +287,8 @@ private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
                 .rotate(rotation) // ← 直接旋转图片
                 .clip(CircleShape), // 如果需要圆形裁剪
             contentScale = ContentScale.Crop,
-            placeholder = painterResource(android.R.drawable.ic_menu_gallery),
-            error = painterResource(android.R.drawable.ic_menu_gallery)
+            placeholder = painterResource(R.drawable.ic_menu_gallery),
+            error = painterResource(R.drawable.ic_menu_gallery)
         )
     }
 }

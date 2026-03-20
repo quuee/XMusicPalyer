@@ -1,4 +1,4 @@
-package cn.x.ui.screen
+package cn.x.ui.screen.sub_screen
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle

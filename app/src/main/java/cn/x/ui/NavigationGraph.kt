@@ -6,12 +6,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import cn.x.ui.screen.AddSelectSongScreen
-import cn.x.ui.screen.FolderSongsScreen
+import cn.x.ui.screen.sub_screen.AddSelectSongScreen
+import cn.x.ui.screen.sub_screen.FolderSongsScreen
 import cn.x.ui.screen.HomeScreen
-import cn.x.ui.screen.PlayerScreen
-import cn.x.ui.screen.SongListSortScreen
-import cn.x.ui.screen.SongsScreen
+import cn.x.ui.screen.sub_screen.PlayerScreen
+import cn.x.ui.screen.sub_screen.SongListSortScreen
+import cn.x.ui.screen.sub_screen.SongsScreen
 
 
 /**
