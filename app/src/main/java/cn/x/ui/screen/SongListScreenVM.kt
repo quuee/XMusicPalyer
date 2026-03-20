@@ -2,7 +2,7 @@ package cn.x.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.x.data.db.MusicDatabase
+import cn.x.data.MusicDatabase
 import cn.x.data.db.SongListEntity
 import cn.x.service.PlayerController
 import cn.x.util.getCurrentDateTime

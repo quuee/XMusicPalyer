@@ -1,6 +1,5 @@
 package cn.x.ui.screen
 
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,12 +14,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,7 +44,6 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import cn.x.data.db.SongListEntity
 import cn.x.ui.componets.AlphabetIndexSidebar
-import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.Constants
 import cn.x.util.toMediaItem
@@ -51,17 +51,17 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LocalSongScreen(
-    localSongScreenVM: LocalSongScreenVM = hiltViewModel(),
-    onDrawerToggle: () -> Unit,
+fun FolderSongsScreen(
+    naviBack: () -> Unit,
+    folderSongsScreenVM: FolderSongsScreenVM=hiltViewModel(),
+    path: String
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val songs = localSongScreenVM.songsFlow.collectAsLazyPagingItems()
-    val songLists by localSongScreenVM.songLists.collectAsState()
+    val songs = folderSongsScreenVM.songsFlow.collectAsLazyPagingItems()
+    val songLists by folderSongsScreenVM.songLists.collectAsState()
 
-    val songListDialogVisible by localSongScreenVM.songListDialogVisible.collectAsState()
+    val songListDialogVisible by folderSongsScreenVM.songListDialogVisible.collectAsState()
     // 控制 BottomSheet 是否显示
-    val bottomSheetVisible by localSongScreenVM.bottomSheetVisible.collectAsState()
+    val bottomSheetVisible by folderSongsScreenVM.bottomSheetVisible.collectAsState()
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -73,7 +73,7 @@ fun LocalSongScreen(
     if (bottomSheetVisible) {
         ModalBottomSheet(
             onDismissRequest = {
-                localSongScreenVM.hideBottomSheet()
+                folderSongsScreenVM.hideBottomSheet()
                 // 等待动画结束再移除 UI
                 scope.launch {
                     sheetState.hide()
@@ -90,7 +90,7 @@ fun LocalSongScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .clickable(onClick = { localSongScreenVM.showSongListDialog() })
+                        .clickable(onClick = { folderSongsScreenVM.showSongListDialog() })
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
@@ -133,17 +133,16 @@ fun LocalSongScreen(
 
     Scaffold(
         topBar = {
-            CenterTopBar(
-                "LocalSong",
-                onDrawerToggle,
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = null
-                        )
+            CenterAlignedTopAppBar(
+                title = {Text(path)},
+                navigationIcon = {
+                    IconButton(onClick = {
+                        naviBack()
+                    }) {
+                        Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
                     }
-                })
+                },
+            )
         }
     ) { padding ->
 
@@ -157,9 +156,9 @@ fun LocalSongScreen(
                             song = song,
                             isSelected = false,
                             isSelectionMode = false,
-                            onClick = { localSongScreenVM.play(song.toMediaItem()) },
+                            onClick = { folderSongsScreenVM.play(song.toMediaItem()) },
                             onMenuClick = {
-                                localSongScreenVM.showBottomSheet(song)
+                                folderSongsScreenVM.showBottomSheet(song)
                             },
                             onToggleSelection = { }
                         )
@@ -205,7 +204,7 @@ fun LocalSongScreen(
             SongListDialog(
                 songLists = songLists,
                 onChoose = {},
-                onDismiss = { localSongScreenVM.hideSongListDialog() }
+                onDismiss = { folderSongsScreenVM.hideSongListDialog() }
             )
         }
 

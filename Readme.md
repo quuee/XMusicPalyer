@@ -22,6 +22,7 @@
 @Insert(onConflict = OnConflictStrategy.IGNORE) 暂时解决
 
 ## 想做的功能
+分页加载数据
 桌面歌词、均衡器、在线获取歌曲封面和歌词
 
 

@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import cn.x.ui.screen.AddSelectSongScreen
+import cn.x.ui.screen.FolderSongsScreen
 import cn.x.ui.screen.HomeScreen
 import cn.x.ui.screen.PlayerScreen
 import cn.x.ui.screen.SongListSortScreen
@@ -15,6 +16,7 @@ import cn.x.ui.screen.SongsScreen
 
 /**
  * 根路由
+ * 参数不允许带 '/'
  */
 @Composable
 fun NavigationGraph(
@@ -49,6 +51,21 @@ fun NavigationGraph(
                 naviBack = { navHostController.navigateUp() },
                 naviRouteItem = { routeString -> navHostController.navigate(routeString) },
                 songListId = songListId
+            )
+        }
+
+        composable(
+            route = Screens.FolderSongs.route.plus("?folderPath={folderPath}"),
+            arguments = listOf(
+                navArgument(name = "folderPath") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )) { backStackEntry ->
+            val folderPath = backStackEntry.arguments?.getString("folderPath") ?: ""
+            FolderSongsScreen(
+                naviBack = { navHostController.navigateUp() },
+                path = folderPath
             )
         }
 

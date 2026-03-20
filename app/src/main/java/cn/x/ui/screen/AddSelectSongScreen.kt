@@ -37,7 +37,7 @@ fun AddSelectSongScreen(
 
     // 仅在首次进入该屏幕时加载数据
     LaunchedEffect(Unit) {
-        addSelectSongScreenVM.loadData(songListId)
+        addSelectSongScreenVM.loadData()
     }
 
     Scaffold(

@@ -5,7 +5,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.x.data.db.MusicDatabase
+import cn.x.data.MusicDatabase
 import cn.x.data.db.SongListEntity
 import cn.x.service.PlayerController
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SongListSortScreenVM @Inject constructor(
     private val db: MusicDatabase,
-//    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val TAG = "SongListSortVM"
 

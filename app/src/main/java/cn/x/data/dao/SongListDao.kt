@@ -1,4 +1,4 @@
-package cn.x.data.db
+package cn.x.data.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -7,6 +7,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import cn.x.data.db.SongListEntity
+import cn.x.data.db.SongListWithSongEntity
+import cn.x.data.db.SongListWithSongs
 
 @Dao
 interface SongListDao {

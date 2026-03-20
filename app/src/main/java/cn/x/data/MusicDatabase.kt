@@ -1,7 +1,16 @@
-package cn.x.data.db
+package cn.x.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import cn.x.data.dao.FolderDao
+import cn.x.data.dao.PlayListDao
+import cn.x.data.dao.SongDao
+import cn.x.data.dao.SongListDao
+import cn.x.data.db.FolderEntity
+import cn.x.data.db.PlayListSongEntity
+import cn.x.data.db.SongEntity
+import cn.x.data.db.SongListEntity
+import cn.x.data.db.SongListWithSongEntity
 
 @Database(
     entities = [

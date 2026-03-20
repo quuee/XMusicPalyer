@@ -14,31 +14,26 @@ import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
 import cn.x.data.paging.SongPagingSource
 import cn.x.service.PlayerController
-import cn.x.util.toMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LocalSongScreenVM @Inject constructor(
+class FolderSongsScreenVM @Inject constructor(
     private val db: MusicDatabase,
     private val playerController: PlayerController,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
 
     private val tag = "LocalSongScreenVM"
-//    private val _songs = MutableStateFlow<List<SongEntity>>(emptyList())
-//    val songs: StateFlow<List<SongEntity>> = _songs.asStateFlow()
 
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
     val songLists: StateFlow<List<SongListEntity>> = _songLists.asStateFlow()
@@ -52,6 +47,7 @@ class LocalSongScreenVM @Inject constructor(
     private val _songListDialogVisible = MutableStateFlow(false)
     val songListDialogVisible = _songListDialogVisible.asStateFlow()
 
+    private val parentPath: String? = savedStateHandle["folderPath"]
     private val _searchWord = MutableStateFlow<String?>(null)
 
     // 暴露给 UI 的数据流：PagingData<Song>
@@ -70,7 +66,7 @@ class LocalSongScreenVM @Inject constructor(
                     SongPagingSource(
                         db.SongDao(),
                         searchWord = searchWord,
-                        parentPath = null
+                        parentPath = parentPath
                     )
                 }
             ).flow
@@ -79,6 +75,7 @@ class LocalSongScreenVM @Inject constructor(
 
     init {
 
+        Log.d("DEBUG", "$parentPath ")
     }
 
     fun search(searchWord: String?) {

@@ -2,7 +2,7 @@ package cn.x.di
 
 import android.app.Application
 import androidx.media3.session.MediaController
-import cn.x.data.db.MusicDatabase
+import cn.x.data.MusicDatabase
 import cn.x.service.PlayerController
 import cn.x.service.PlayerControllerImpl
 import cn.x.util.SPUtil

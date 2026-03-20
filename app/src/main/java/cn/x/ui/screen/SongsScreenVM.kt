@@ -3,7 +3,7 @@ package cn.x.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.x.data.db.MusicDatabase
+import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SongsScreenVM @Inject constructor(
     private val db: MusicDatabase,
-
 ) : ViewModel() {
 
     private val EMPTY = SongListEntity(0L, "", "", 0, "", -1)
@@ -38,6 +37,7 @@ class SongsScreenVM @Inject constructor(
         // 模拟加载数据
         viewModelScope.launch {
             val songListWithSongs = withContext(Dispatchers.IO) {
+                // todo 查询歌单 查询歌曲 独立进行 不然后续不好分页
                 db.SongListDao().getSongsBySongListId(songListId)
             }
             _songs.value = songListWithSongs?.songs?:emptyList() // 在 Main 线程更新

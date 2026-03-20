@@ -12,6 +12,7 @@ import cn.x.util.generateUniqueId
  */
 @Entity("songs",
     indices = [Index("title"), Index("artist"), Index("album")]
+//    indices = [Index(value = ["title", "artist", "album"])]
 )
 data class SongEntity(
 

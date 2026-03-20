@@ -91,6 +91,9 @@ dependencies {
 
     implementation("com.github.promeg:tinypinyin:2.0.3")
 
+    implementation("androidx.paging:paging-compose:3.3.6")
+    implementation("androidx.paging:paging-runtime:3.3.6")
+
 
 }
 

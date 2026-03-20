@@ -12,6 +12,7 @@ sealed class Screens(val route: String) {
 
     object Scan : Screens("Scan")
     object Folder : Screens("Folder")
+    object FolderSongs : Screens("FolderSongs")
     object LocalSong : Screens("LocalSong")
 
     object SongList : Screens("SongList")

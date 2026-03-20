@@ -1,8 +1,9 @@
 package cn.x.ui.screen
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.x.data.db.MusicDatabase
+import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListWithSongEntity
 import cn.x.ui.Screens
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddSelectSongScreenVM @Inject constructor(
     private val db: MusicDatabase,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     // 非歌单歌曲
@@ -26,7 +28,9 @@ class AddSelectSongScreenVM @Inject constructor(
     private val _selectedIds = MutableStateFlow<Set<String>>(emptySet())
     val selectedIds: StateFlow<Set<String>> = _selectedIds
 
-    fun loadData(songListId: Long) {
+    private val songListId: Long = savedStateHandle["songListId"] ?: 0L
+
+    fun loadData() {
         // 进入歌单页面 加载数据
         viewModelScope.launch {
             val songs = withContext(Dispatchers.IO) {

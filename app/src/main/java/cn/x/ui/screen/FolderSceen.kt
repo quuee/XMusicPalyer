@@ -14,13 +14,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.ui.Screens
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
+import cn.x.ui.screen.FolderSongsScreen
 
 @Composable
 fun FolderScreen(
     folderScreenVM: FolderScreenVM = hiltViewModel(),
-    onDrawerToggle: () -> Unit
+    onDrawerToggle: () -> Unit,
+    naviRouteItem: (String) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val currentFolders by folderScreenVM.currentFolders.collectAsState()
@@ -45,7 +48,7 @@ fun FolderScreen(
                 FolderCard(
                     folder.folderPath,
                     folder.songCount,
-                    onClick = {} // todo 点击后跳转到LocalSongScreen
+                    onClick = {naviRouteItem(Screens.FolderSongs.route.plus("?folderPath=${folder.folderPath}"))}
                 )
             }
         }

@@ -2,7 +2,7 @@ package cn.x.di
 
 import android.app.Application
 import androidx.room.Room
-import cn.x.data.db.MusicDatabase
+import cn.x.data.MusicDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.db.FolderEntity
-import cn.x.data.db.MusicDatabase
+import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.util.MusicScanUtilByMediaStoreFlow
 import dagger.hilt.android.lifecycle.HiltViewModel

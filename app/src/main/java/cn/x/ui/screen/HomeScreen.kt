@@ -133,7 +133,10 @@ fun HomeScreen(
                         ScanScreen(onDrawerToggle = { drawerControl.toggle() })
                     }
                     composable(Screens.Folder.route) {
-                        FolderScreen(onDrawerToggle = { drawerControl.toggle() })
+                        FolderScreen(
+                            onDrawerToggle = { drawerControl.toggle() },
+                            naviRouteItem = naviRouteItem,
+                        )
                     }
                     composable(Screens.SongList.route) {
                         SongListScreen(
