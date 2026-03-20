@@ -68,9 +68,8 @@ import cn.x.ui.componets.MultiSelectSongItem
 
 
 /**
- * 用于展示文件夹歌曲 歌单歌曲的页面
+ * 用于展示歌单歌曲的页面
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongsScreen(

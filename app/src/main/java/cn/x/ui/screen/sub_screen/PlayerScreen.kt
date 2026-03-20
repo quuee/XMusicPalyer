@@ -1,6 +1,5 @@
 package cn.x.ui.screen.sub_screen
 
-import android.R
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
@@ -62,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.MediaItem
+import cn.x.R
 import cn.x.service.PlayMode
 import cn.x.service.PlayState
 import cn.x.ui.componets.BufferedSlider
@@ -71,7 +71,9 @@ import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
 import coil3.compose.AsyncImage
 
-
+/**
+ * 播放页面
+ */
 @Composable
 fun PlayerScreen(
     playerScreenVM: PlayerScreenVM = hiltViewModel(),
@@ -287,8 +289,8 @@ private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
                 .rotate(rotation) // ← 直接旋转图片
                 .clip(CircleShape), // 如果需要圆形裁剪
             contentScale = ContentScale.Crop,
-            placeholder = painterResource(R.drawable.ic_menu_gallery),
-            error = painterResource(R.drawable.ic_menu_gallery)
+            placeholder = painterResource(R.drawable.icon_placeholder),//占位图
+            error = painterResource(R.drawable.music_logo)//错误图
         )
     }
 }

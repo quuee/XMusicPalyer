@@ -19,7 +19,17 @@ interface SongDao {
     @Query("SELECT * FROM songs")
     fun queryAll(): List<SongEntity>
 
-
+    @Query(
+        """
+        SELECT * FROM songs 
+    WHERE (:searchWord IS NULL 
+           OR INSTR(title, :searchWord) > 0 
+           OR INSTR(artist, :searchWord) > 0 
+           OR INSTR(album, :searchWord) > 0)
+    ORDER BY title ASC
+    """
+    )
+    fun queryLike(searchWord: String?): List<SongEntity>
     @Query(
         """
         SELECT * FROM songs 

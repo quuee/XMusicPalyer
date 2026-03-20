@@ -37,6 +37,9 @@ import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FloatingDropdownMenu
 import cn.x.ui.componets.SongListItemWidget
 
+/**
+ * 歌单列表
+ */
 @Composable
 fun SongListScreen(
     songListScreenVM: SongListScreenVM = hiltViewModel(),

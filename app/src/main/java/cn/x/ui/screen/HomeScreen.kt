@@ -55,7 +55,9 @@ import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MarqueeText
 import cn.x.ui.componets.PushDrawer
 
-
+/**
+ * 主页面
+ */
 @Composable
 fun HomeScreen(
     homeScreenVM: HomeScreenVM = hiltViewModel(),

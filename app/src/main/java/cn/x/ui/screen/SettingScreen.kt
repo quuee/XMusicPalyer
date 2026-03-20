@@ -39,6 +39,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cn.x.ui.componets.CenterTopBar
 
+/**
+ * 设置
+ */
 @Composable
 fun SettingScreen(onDrawerToggle: () -> Unit) {
 

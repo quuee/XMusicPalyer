@@ -80,7 +80,7 @@ class FolderSongsScreenVM @Inject constructor(
 
     fun search(searchWord: String?) {
         // 处理空字符串为 null，触发“忽略条件”逻辑
-        val normalizedQuery = if (searchWord.isNullOrBlank()) null else "%${searchWord}%"
+        val normalizedQuery = if (searchWord.isNullOrBlank()) null else "%${searchWord}%" // SQLite 默认的 LIKE 运算符对多字节字符（如中文）的支持有限
         _searchWord.value = normalizedQuery
 
     }

@@ -48,6 +48,9 @@ import cn.x.util.Constants
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.launch
 
+/**
+ * 展示不同文件夹下的歌曲
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FolderSongsScreen(

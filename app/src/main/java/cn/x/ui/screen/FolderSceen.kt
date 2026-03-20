@@ -18,6 +18,9 @@ import cn.x.ui.Screens
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 
+/**
+ * 歌曲文件夹列表
+ */
 @Composable
 fun FolderScreen(
     folderScreenVM: FolderScreenVM = hiltViewModel(),

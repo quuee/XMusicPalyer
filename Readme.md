@@ -19,6 +19,8 @@
 
 ### 重新插入歌曲，歌单中歌曲消失
 @Insert(onConflict = OnConflictStrategy.IGNORE) 暂时解决
+### SQLite 默认的 LIKE 运算符对多字节字符（如中文）的支持有限
+FTS5 (全文搜索) (适合大量数据)
 
 ## 想做的功能 TODO
 ### 分页加载数据。

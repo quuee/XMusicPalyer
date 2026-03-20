@@ -52,6 +52,9 @@ import cn.x.ui.componets.FolderCard
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
 
+/**
+ * 扫描歌曲
+ */
 @Composable
 fun ScanScreen(
     scanVM: ScanScreenVM = hiltViewModel(),

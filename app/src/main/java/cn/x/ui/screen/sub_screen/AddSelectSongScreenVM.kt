@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -27,19 +28,29 @@ class AddSelectSongScreenVM @Inject constructor(
     private val _selectedIds = MutableStateFlow<Set<String>>(emptySet())
     val selectedIds: StateFlow<Set<String>> = _selectedIds
 
+    private val _searchWord = MutableStateFlow<String?>(null)
+    val searchWord = _searchWord.asStateFlow()
+
     private val songListId: Long = savedStateHandle["songListId"] ?: 0L
+
+    init {
+        loadData()
+    }
 
     fun loadData() {
         // 进入歌单页面 加载数据
         viewModelScope.launch {
             val songs = withContext(Dispatchers.IO) {
+                // 查询歌单歌曲
                 db.SongListDao().getSongsBySongListId(songListId)?.songs ?: emptyList()
             }
-            // 添加歌曲页：加载未选中的歌曲
+
             val selectedSongIds = songs.map { it.uniqueId }.toSet() // 在 Main 线程获取快照
 
             val unselectedSongs = withContext(Dispatchers.IO) {
+                // 查询所有歌曲
                 val allSongs = db.SongDao().queryAll()
+                // 过滤已有歌曲
                 allSongs.filter { it.uniqueId !in selectedSongIds }
             }
 
@@ -67,6 +78,27 @@ class AddSelectSongScreenVM @Inject constructor(
             }
 
         }
+    }
 
+    fun changeSearchWord(word:String?){
+        _searchWord.value = word
+
+        viewModelScope.launch {
+            val songs = withContext(Dispatchers.IO) {
+                // 查询歌单歌曲
+                db.SongListDao().getSongsBySongListId(songListId)?.songs ?: emptyList()
+            }
+
+            val selectedSongIds = songs.map { it.uniqueId }.toSet() // 在 Main 线程获取快照
+
+            val unselectedSongs = withContext(Dispatchers.IO) {
+                // 查询所有歌曲
+                val allSongs = db.SongDao().queryLike(word)
+                // 过滤已有歌曲
+                allSongs.filter { it.uniqueId !in selectedSongIds }
+            }
+
+            _unselectSongs.value = unselectedSongs // 在 Main 线程更新
+        }
     }
 }
