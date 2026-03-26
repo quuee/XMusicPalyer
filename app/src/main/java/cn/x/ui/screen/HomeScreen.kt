@@ -51,6 +51,7 @@ import cn.x.R
 import cn.x.service.PlayState
 import cn.x.ui.Screens
 import cn.x.ui.componets.DrawerContent
+import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MarqueeText
 import cn.x.ui.componets.PushDrawer
@@ -159,7 +160,7 @@ fun HomeScreen(
 
                 // 直接放置在 Box 的底部
                 if (currentSong != null) {
-                    FloatingPlayerBar(
+                    FloatingBottomPlayerBar(
                         mediaItem = currentSong,
                         isPlaying = isPlaying,
                         onSongClick = { naviRouteItem(Screens.Player.route) },
@@ -183,105 +184,7 @@ fun HomeScreen(
 
 }
 
-@Composable
-fun FloatingPlayerBar(
-    mediaItem: MediaItem?,
-    isPlaying: Boolean,
-    onSongClick: () -> Unit,
-    onPlayPauseClick: () -> Unit,
-    onPreviousClick: () -> Unit,
-    onNextClick: () -> Unit,
-    modifier: Modifier
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(72.dp)
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 8.dp)
-            .clickable(onClick = onSongClick),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            // 歌曲封面
-            ImageWidget(
-                cover = mediaItem?.mediaMetadata?.artworkUri.toString(),
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(MaterialTheme.shapes.small),
-                contentScale = ContentScale.Crop
-            )
-        }
 
-        // 歌曲名(带滚动效果)
-        MarqueeText(
-            text = mediaItem?.mediaMetadata?.title.toString(),
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 16.dp),
-            textStyle = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
-            ),
-            initialDelay = 1000,
-            delay = 2000,
-            velocity = 40.dp
-        )
-
-        // 控制按钮
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        )
-        {
-            // 上一首按钮
-            Icon(
-                imageVector = Icons.Default.SkipPrevious,
-                contentDescription = stringResource(R.string.play_previous),
-                modifier = Modifier
-                    .size(32.dp)
-                    .clickable(onClick = onPreviousClick),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            // 播放/暂停按钮
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-
-            ) {
-                IconButton(
-                    onClick = onPlayPauseClick
-                ) {
-                    Icon(
-                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(
-                            R.string.play
-                        ),
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-            }
-
-            // 下一首按钮
-            Icon(
-                imageVector = Icons.Default.SkipNext,
-                contentDescription = stringResource(R.string.play_next),
-                modifier = Modifier
-                    .size(32.dp)
-                    .clickable(onClick = onNextClick),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-
-    }
-}
 
 
 

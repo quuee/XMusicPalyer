@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,11 +33,9 @@ import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
-import androidx.compose.material.icons.filled.RestoreFromTrash
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,7 +46,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -62,9 +62,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongListEntity
+import cn.x.service.PlayState
 import cn.x.ui.Screens
+import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MultiSelectSongItem
+import cn.x.util.toMediaItem
 
 
 /**
@@ -108,10 +111,11 @@ fun SongsScreen(
         }
     }
 
-    // 仅在首次进入该屏幕时加载数据
-    LaunchedEffect(Unit) {
-        songsScreenVM.loadData(songListId)
-    }
+    val controller = songsScreenVM.playerController
+    // 1. 直接收集各个 StateFlow
+    val currentSong by controller.currentSong.collectAsState()
+    val playState by controller.playState.collectAsState()
+    val isPlaying = playState == PlayState.Playing
 
 
     Scaffold(
@@ -143,22 +147,37 @@ fun SongsScreen(
                         }
                     }
 
-                    if (isSelectionMode) {
-                        IconButton(onClick = { songsScreenVM.clearSelection() }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
-                        }
-                    }
-                    IconButton(onClick = { songsScreenVM.toggleSelectionMode() }) {
-                        Icon(
-                            imageVector = if (isSelectionMode) Icons.Default.Done else Icons.Default.Checklist,
-                            contentDescription = if (isSelectionMode) "Done" else "Select"
-                        )
-                    }
+//                    if (isSelectionMode) {
+//                        IconButton(onClick = { songsScreenVM.clearSelection() }) {
+//                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+//                        }
+//                    }
+//                    IconButton(onClick = { songsScreenVM.toggleSelectionMode() }) {
+//                        Icon(
+//                            imageVector = if (isSelectionMode) Icons.Default.Done else Icons.Default.Checklist,
+//                            contentDescription = if (isSelectionMode) "Done" else "Select"
+//                        )
+//                    }
                 }
             )
         },
+        bottomBar = {
+            FloatingBottomPlayerBar(
+                mediaItem = currentSong,
+                isPlaying = isPlaying,
+                onSongClick = { naviRouteItem(Screens.Player.route) },
+                onNextClick = { controller.next() },
+                onPreviousClick = { controller.prev() },
+                onPlayPauseClick = { controller.playPause() },
+                modifier = Modifier.windowInsetsPadding(
+                    WindowInsets.navigationBars.only(
+                        WindowInsetsSides.Bottom
+                    )
+                )
+            )
+        }
 
-        ) { padding ->
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -181,6 +200,10 @@ fun SongsScreen(
 
                 stickyHeader {
                     Toolbar(
+                        isSelectionMode = isSelectionMode,
+                        clearSelection = { songsScreenVM.clearSelection() },
+                        toggleSelectionMode = { songsScreenVM.toggleSelectionMode() },
+                        refresh = { songsScreenVM.loadData() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
@@ -193,7 +216,7 @@ fun SongsScreen(
                         song = song,
                         isSelected = selectedIds.contains(song.uniqueId),
                         isSelectionMode = isSelectionMode,
-                        onClick = {},
+                        onClick = { if (!isSelectionMode) songsScreenVM.play(song.toMediaItem()) },
                         onMenuClick = {},
                         onToggleSelection = { songsScreenVM.toggleSelection(song.uniqueId) }
                     )
@@ -219,7 +242,10 @@ fun SongsScreen(
 
 @Composable
 private fun Toolbar(
-
+    isSelectionMode: Boolean,
+    clearSelection: () -> Unit,
+    toggleSelectionMode: () -> Unit,
+    refresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -227,33 +253,44 @@ private fun Toolbar(
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = {}) {
-            Icon(
-                imageVector = Icons.Default.Shuffle,
-                contentDescription = null
-            )
+
+        if (isSelectionMode) {
+            IconButton(onClick = clearSelection) {
+                Icon(Icons.Default.Clear, contentDescription = "Clear")
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = toggleSelectionMode) {
+                Icon(
+                    imageVector = Icons.Default.Done,
+                    contentDescription = null
+                )
+            }
+        } else {
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Default.Shuffle,
+                    contentDescription = null
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+
+            IconButton(onClick = toggleSelectionMode) {
+                Icon(
+                    imageVector = Icons.Default.Checklist,
+                    contentDescription = null
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = refresh) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null
+                )
+            }
         }
-        Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = {}) {
-            Icon(
-                imageVector = Icons.Default.Download,
-                contentDescription = null
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = {}) {
-            Icon(
-                imageVector = Icons.Default.RestoreFromTrash,
-                contentDescription = null
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { /* 分享 */ }) {
-            Icon(
-                imageVector = Icons.Default.Share,
-                contentDescription = "分享"
-            )
-        }
+
+
     }
 }
 

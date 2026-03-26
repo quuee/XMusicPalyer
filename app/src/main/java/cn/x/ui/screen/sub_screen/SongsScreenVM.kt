@@ -1,11 +1,15 @@
 package cn.x.ui.screen.sub_screen
 
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
+import cn.x.service.PlayerController
+import cn.x.util.toMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +22,12 @@ import javax.inject.Inject
 @HiltViewModel
 class SongsScreenVM @Inject constructor(
     private val db: MusicDatabase,
+    val playerController: PlayerController,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val EMPTY = SongListEntity(0L, "", "", 0, "", -1)
-    private val _songList = MutableStateFlow<SongListEntity>(EMPTY)
+    private val _songList = MutableStateFlow(EMPTY)
     val songList = _songList.asStateFlow()
 
     private val _songs = MutableStateFlow<List<SongEntity>>(emptyList())
@@ -33,11 +39,21 @@ class SongsScreenVM @Inject constructor(
     private val _isSelectionMode = MutableStateFlow(false)
     val isSelectionMode: StateFlow<Boolean> = _isSelectionMode.asStateFlow()
 
-    fun loadData(songListId:Long) {
+    private val songListId: Long = savedStateHandle["songListId"] ?: 0L
+
+    init {
+
+        // todo 在添加歌曲后返回该页面,这种方式不会重新加载歌曲
+        // 先用refresh吧
+        loadData()
+    }
+
+    fun loadData() {
         // 模拟加载数据
         viewModelScope.launch {
             val songListWithSongs = withContext(Dispatchers.IO) {
-                // todo 查询歌单 查询歌曲 独立进行 不然后续不好分页
+                // 查询歌单 查询歌曲 独立进行 不然后续不好分页
+                // 先不分页了
                 db.SongListDao().getSongsBySongListId(songListId)
             }
             _songs.value = songListWithSongs?.songs?:emptyList() // 在 Main 线程更新
@@ -68,5 +84,10 @@ class SongsScreenVM @Inject constructor(
     }
 
     fun isSelected(id: String): Boolean = id in _selectedIds.value
+
+
+    fun play(song: MediaItem) {
+        playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
+    }
 
 }
