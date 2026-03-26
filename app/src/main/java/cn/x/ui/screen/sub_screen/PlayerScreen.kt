@@ -2,8 +2,9 @@ package cn.x.ui.screen.sub_screen
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,8 +52,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -265,11 +267,13 @@ private fun CoverLyricsPager(
 
 }
 
-// todo 不旋转
+
 @Composable
 private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
-    val rotation by animateFloatAsState(
-        targetValue = if (isPlaying) 360f else 0f,
+    val infiniteTransition = rememberInfiniteTransition()
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 20000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
@@ -286,14 +290,18 @@ private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
             contentDescription = "Album Art",
             modifier = Modifier
                 .size(300.dp)
-                .rotate(rotation) // ← 直接旋转图片
-                .clip(CircleShape), // 如果需要圆形裁剪
+                .graphicsLayer {
+                    rotationZ = if (isPlaying) rotation else 0f
+                    transformOrigin = TransformOrigin(0.5f, 0.5f)
+                }
+                .clip(CircleShape),
             contentScale = ContentScale.Crop,
-            placeholder = painterResource(R.drawable.icon_placeholder),//占位图
-            error = painterResource(R.drawable.music_logo)//错误图
+            placeholder = painterResource(R.drawable.icon_placeholder),
+            error = painterResource(R.drawable.music_logo)
         )
     }
 }
+
 
 @Composable
 private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
