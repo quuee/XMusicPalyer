@@ -111,7 +111,7 @@ fun FloatingBottomPlayerBar(
                             R.string.play
                         ),
                         modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
 
