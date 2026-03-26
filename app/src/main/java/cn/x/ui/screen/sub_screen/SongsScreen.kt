@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -67,6 +68,8 @@ import cn.x.ui.Screens
 import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MultiSelectSongItem
+import cn.x.util.getFileName
+import cn.x.util.getSongId
 import cn.x.util.toMediaItem
 
 
@@ -175,7 +178,13 @@ fun SongsScreen(
                     )
                 )
             )
-        }
+        },
+        // todo 和我的歌曲按钮有冲突
+//        floatingActionButton = {
+//            IconButton(onClick = {}) {
+//                Icon(imageVector = Icons.Default.MyLocation, contentDescription = null)
+//            }
+//        }
 
     ) { padding ->
         Box(
@@ -216,6 +225,7 @@ fun SongsScreen(
                         song = song,
                         isSelected = selectedIds.contains(song.uniqueId),
                         isSelectionMode = isSelectionMode,
+                        isCurrent = currentSong?.getSongId() == song.songId,
                         onClick = { if (!isSelectionMode) songsScreenVM.play(song.toMediaItem()) },
                         onMenuClick = {},
                         onToggleSelection = { songsScreenVM.toggleSelection(song.uniqueId) }

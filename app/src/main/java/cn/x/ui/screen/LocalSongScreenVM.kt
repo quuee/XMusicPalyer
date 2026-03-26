@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LocalSongScreenVM @Inject constructor(
     private val db: MusicDatabase,
-    private val playerController: PlayerController,
+    val playerController: PlayerController,
 ) : ViewModel() {
 
 

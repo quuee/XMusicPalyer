@@ -84,6 +84,7 @@ fun AddSelectSongScreen(
                         song = song,
                         isSelected = selectedIds.contains(song.uniqueId),
                         isSelectionMode = true,
+                        isCurrent = false,
                         onClick = {},
                         onMenuClick = {},
                         onToggleSelection = { addSelectSongScreenVM.toggleSelection(song.uniqueId) }

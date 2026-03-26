@@ -41,11 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongListEntity
+import cn.x.service.PlayState
 import cn.x.ui.Screens
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.Constants
+import cn.x.util.getSongId
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.launch
 
@@ -72,6 +74,8 @@ fun LocalSongScreen(
     val letters = (listOf("#") + Constants.alphabet)
     val listState = rememberLazyListState()
 
+    val controller = localSongScreenVM.playerController
+    val currentSong by controller.currentSong.collectAsState()
 
     // 只有在 showBottomSheet 为 true 时才显示
     if (bottomSheetVisible) {
@@ -161,6 +165,7 @@ fun LocalSongScreen(
                         song = songItem,
                         isSelected = false,
                         isSelectionMode = false,
+                        isCurrent = currentSong?.getSongId() == songItem.songId,
                         onClick = { localSongScreenVM.play(songItem.toMediaItem()) },
                         onMenuClick = {
                             localSongScreenVM.showBottomSheet(songItem)

@@ -78,6 +78,7 @@ fun SearchScreen(
                         song = song,
                         isSelected = false,
                         isSelectionMode = false,
+                        isCurrent = false,
                         onClick = {},
                         onMenuClick = {},
                         onToggleSelection = { }

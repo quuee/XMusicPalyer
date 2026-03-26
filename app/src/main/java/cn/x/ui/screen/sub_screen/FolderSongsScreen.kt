@@ -158,6 +158,7 @@ fun FolderSongsScreen(
                             song = song,
                             isSelected = false,
                             isSelectionMode = false,
+                            isCurrent = false,
                             onClick = { folderSongsScreenVM.play(song.toMediaItem()) },
                             onMenuClick = {
                                 folderSongsScreenVM.showBottomSheet(song)

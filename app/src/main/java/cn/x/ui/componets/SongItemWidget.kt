@@ -36,6 +36,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,6 +51,7 @@ fun MultiSelectSongItem(
     song: SongEntity,
     isSelected: Boolean,
     isSelectionMode: Boolean,
+    isCurrent: Boolean, // TODO 正在播放的歌曲高亮
     onToggleSelection: () -> Unit,
     onClick: () -> Unit,
     onMenuClick: () -> Unit,
@@ -73,12 +75,12 @@ fun MultiSelectSongItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = 8.dp, vertical = 2.dp)
             .graphicsLayer {
                 scaleX = animatedScale
                 scaleY = animatedScale
             }
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(8.dp))
             .background(animatedBackgroundColor)
             .alpha(animatedAlpha)
             .combinedClickable(
@@ -96,7 +98,6 @@ fun MultiSelectSongItem(
                     }
                 }
             )
-            .padding(12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -141,18 +142,34 @@ fun MultiSelectSongItem(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                Box(contentAlignment = Alignment.Center) {
+                    // 歌曲封面
+                    ImageWidget(
+                        cover = song.artworkUri,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(all = 4.dp)
+                            .clip(MaterialTheme.shapes.small),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = song.title,
                         style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1
+                        maxLines = 1,
+                        color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
                         text = song.artist,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        maxLines = 1
+                        color = if (isCurrent) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = 0.7f
+                        ),
+                        maxLines = 1,
                     )
                 }
 

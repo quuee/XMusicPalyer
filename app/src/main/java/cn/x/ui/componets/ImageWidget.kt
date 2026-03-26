@@ -21,7 +21,6 @@ fun ImageWidget(
     contentScale: ContentScale = ContentScale.Fit,
 ) {
 
-    val finalModifier = modifier.size(56.dp)
 
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
@@ -32,7 +31,7 @@ fun ImageWidget(
             .size(Size.ORIGINAL)
             .build(),
         contentDescription = "image",
-        modifier = finalModifier,
+        modifier = modifier,
         contentScale = contentScale,
         placeholder = painterResource(R.drawable.music_logo),
         error = painterResource(R.drawable.music_logo)
