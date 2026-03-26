@@ -10,6 +10,7 @@ import cn.x.ui.screen.sub_screen.AddSelectSongScreen
 import cn.x.ui.screen.sub_screen.FolderSongsScreen
 import cn.x.ui.screen.HomeScreen
 import cn.x.ui.screen.sub_screen.PlayerScreen
+import cn.x.ui.screen.sub_screen.SearchScreen
 import cn.x.ui.screen.sub_screen.SongListSortScreen
 import cn.x.ui.screen.sub_screen.SongsScreen
 
@@ -86,6 +87,12 @@ fun NavigationGraph(
                 naviBack = { navHostController.navigateUp() },
                 songListId = songListId
             )
+        }
+
+        composable(
+            route = Screens.Search.route,
+        ) {
+            SearchScreen(naviBack = { navHostController.navigateUp() })
         }
 
     }

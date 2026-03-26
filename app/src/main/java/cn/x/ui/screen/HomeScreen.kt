@@ -147,7 +147,10 @@ fun HomeScreen(
                         )
                     }
                     composable(Screens.LocalSong.route) {
-                        LocalSongScreen(onDrawerToggle = { drawerControl.toggle() })
+                        LocalSongScreen(
+                            onDrawerToggle = { drawerControl.toggle() },
+                            naviRouteItem = naviRouteItem,
+                        )
                     }
                     composable(Screens.Setting.route) {
                         SettingScreen(onDrawerToggle = { drawerControl.toggle() })

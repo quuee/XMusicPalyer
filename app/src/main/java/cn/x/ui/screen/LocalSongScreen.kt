@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongListEntity
+import cn.x.ui.Screens
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
@@ -56,6 +57,7 @@ import kotlinx.coroutines.launch
 fun LocalSongScreen(
     localSongScreenVM: LocalSongScreenVM = hiltViewModel(),
     onDrawerToggle: () -> Unit,
+    naviRouteItem: (String) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val songs by localSongScreenVM.songs.collectAsState()
@@ -139,7 +141,7 @@ fun LocalSongScreen(
                 "LocalSong",
                 onDrawerToggle,
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = { naviRouteItem(Screens.Search.route) }) {
                         Icon(
                             Icons.Default.Search,
                             contentDescription = null
@@ -149,7 +151,9 @@ fun LocalSongScreen(
         }
     ) { padding ->
 
-        Box(modifier = Modifier.fillMaxSize().padding(padding)){
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
 
             LazyColumn() {
                 itemsIndexed(songs) { index, songItem ->
