@@ -55,7 +55,7 @@ fun FloatingBottomPlayerBar(
             ImageWidget(
                 cover = mediaItem?.mediaMetadata?.artworkUri.toString(),
                 modifier = Modifier
-                    .size(56.dp)
+                    .size(58.dp)
                     .clip(MaterialTheme.shapes.small),
                 contentScale = ContentScale.Crop
             )
@@ -65,22 +65,22 @@ fun FloatingBottomPlayerBar(
         MarqueeText(
             text = mediaItem?.mediaMetadata?.title.toString(),
             modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 8.dp)
+                .weight(1f),
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             ),
             initialDelay = 1000,
-            delay = 2000,
+            delay = 1000,
             velocity = 40.dp
         )
 
         // 控制按钮
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         )
         {
             // 上一首按钮
@@ -97,7 +97,7 @@ fun FloatingBottomPlayerBar(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(42.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary)
 

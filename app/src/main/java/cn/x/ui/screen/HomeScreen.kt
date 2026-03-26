@@ -1,31 +1,14 @@
 package cn.x.ui.screen
 
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,25 +18,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.media3.common.MediaItem
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import cn.x.R
 import cn.x.service.PlayState
 import cn.x.ui.Screens
 import cn.x.ui.componets.DrawerContent
 import cn.x.ui.componets.FloatingBottomPlayerBar
-import cn.x.ui.componets.ImageWidget
-import cn.x.ui.componets.MarqueeText
 import cn.x.ui.componets.PushDrawer
 
 /**
@@ -79,9 +52,6 @@ fun HomeScreen(
 
     // 3. 在本地计算派生状态 (Local Derived State)
     val isPlaying = playState == PlayState.Playing
-    val songTitle = currentSong?.mediaMetadata?.title?.toString() ?: "未知曲目"
-    val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "未知艺术家"
-    val isPlaylistEmpty = playlist.isEmpty()
 
     val lastRoute by homeScreenVM.lastTimeRoute.collectAsState()
 

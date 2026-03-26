@@ -1,111 +1,120 @@
 package cn.x.ui.componets
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
+
 
 @Composable
 fun MarqueeText(
     text: String,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     textStyle: TextStyle = TextStyle.Default,
-    delay: Int = 1000, // 开始滚动前的延迟(毫秒)
-    initialDelay: Int = 0, // 初始延迟(毫秒)
-    velocity: Dp = 30.dp // 滚动速度
+    delay: Long = 1000,
+    initialDelay: Long = 0,
+    velocity: Dp = 30.dp
 ) {
     val density = LocalDensity.current
-    val textWidth = remember { mutableFloatStateOf(0f) }
-    val containerWidth = remember { mutableFloatStateOf(0f) }
-    val offsetX = remember { mutableFloatStateOf(0f) }
-    val coroutineScope = rememberCoroutineScope()
+    var textWidth by remember { mutableFloatStateOf(0f) }
+    var containerWidth by remember { mutableFloatStateOf(0f) }
+    val animatedOffset = remember { Animatable(0f) }
     val velocityPx = with(density) { velocity.toPx() }
 
-    // 是否需要滚动(文本宽度大于容器宽度)
-    val needMarquee = remember(textWidth.floatValue, containerWidth.floatValue) {
-        textWidth.floatValue > containerWidth.floatValue
+    val needMarquee = remember(textWidth, containerWidth) {
+        textWidth > containerWidth && textWidth > 0 && containerWidth > 0
     }
 
     LaunchedEffect(needMarquee, text) {
         if (!needMarquee) {
-            offsetX.floatValue = 0f
+            animatedOffset.snapTo(0f)
             return@LaunchedEffect
         }
 
-        delay(initialDelay.toLong())
+        delay(initialDelay)
+
+        val scrollDistance = textWidth - containerWidth
+        val scrollDuration = (scrollDistance / velocityPx * 1000).toLong()
 
         while (true) {
-            // 从右向左滚动
-            val duration = ((textWidth.floatValue + offsetX.floatValue) / velocityPx * 1000).toLong()
-            offsetX.floatValue = 0f
-            coroutineScope.launch {
-                animate(
-                    initialValue = 0f,
-                    targetValue = -textWidth.floatValue,
-                    animationSpec = tween(duration.toInt(), easing = LinearEasing),
-                ) { value, _ ->
-                    offsetX.floatValue = value
-                }
-            }
+            animatedOffset.animateTo(
+                targetValue = -scrollDistance,
+                animationSpec = tween(
+                    durationMillis = scrollDuration.toInt(),
+                    easing = LinearEasing
+                )
+            )
+            delay(delay)
 
-            // 等待滚动完成+延迟
-            delay(duration + delay)
-
-            // 从左向右滚动
-            val returnDuration = (textWidth.floatValue / velocityPx * 1000).toLong()
-            coroutineScope.launch {
-                animate(
-                    initialValue = -textWidth.floatValue,
-                    targetValue = 0f,
-                    animationSpec = tween(returnDuration.toInt(), easing = LinearEasing),
-                ) { value, _ ->
-                    offsetX.floatValue = value
-                }
-            }
-
-            // 等待返回完成+延迟
-            delay(returnDuration + delay)
+            animatedOffset.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    durationMillis = scrollDuration.toInt(),
+                    easing = LinearEasing
+                )
+            )
+            delay(delay)
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .then(if (needMarquee) Modifier else Modifier),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Box(
-            modifier = Modifier
-                .onSizeChanged { containerWidth.floatValue = it.width.toFloat() }
-                .clipToBounds()
-        ) {
+    // 使用 Layout 来完全控制测量和放置
+    Layout(
+        content = {
             Text(
                 text = text,
                 style = textStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
                 modifier = Modifier
-                    .offset(x = with(density) { offsetX.floatValue.toDp() })
-                    .onSizeChanged { textWidth.floatValue = it.width.toFloat() }
+                    .graphicsLayer {
+                        translationX = animatedOffset.value
+                    }
+            )
+        },
+        modifier = modifier
+            .fillMaxWidth()
+            .clipToBounds()
+            .onSizeChanged { containerWidth = it.width.toFloat() }
+    ) { measurables, constraints ->
+        // 关键：测量文本时不限制最大宽度
+        val textPlaceable = measurables[0].measure(
+            Constraints(
+                minWidth = 0,
+                maxWidth = Int.MAX_VALUE,  // 不限制最大宽度
+                minHeight = 0,
+                maxHeight = constraints.maxHeight
+            )
+        )
+
+        // 更新文本宽度
+        textWidth = textPlaceable.width.toFloat()
+
+        // 容器宽度使用父布局给的约束
+        val width = constraints.maxWidth
+        layout(width, textPlaceable.height) {
+            textPlaceable.placeRelative(
+                x = animatedOffset.value.roundToInt(),
+                y = 0
             )
         }
     }
