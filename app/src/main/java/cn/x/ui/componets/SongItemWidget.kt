@@ -50,8 +50,8 @@ import cn.x.util.formatTime
 fun MultiSelectSongItem(
     song: SongEntity,
     isSelected: Boolean,
-    isSelectionMode: Boolean,
-    isCurrent: Boolean, // TODO 正在播放的歌曲高亮
+    isSelectionMode: Boolean, // 是否进入选择模式
+    isCurrent: Boolean, // 正在播放的歌曲高亮
     onToggleSelection: () -> Unit,
     onClick: () -> Unit,
     onMenuClick: () -> Unit,
@@ -87,9 +87,11 @@ fun MultiSelectSongItem(
                 onClick = {
                     if (isSelectionMode) {
                         onToggleSelection()
+                    } else {
+                        // 否则可处理普通点击逻辑
+                        onClick() // play song
                     }
-                    // 否则可处理普通点击逻辑
-                    onClick() // play song
+
                 },
                 // 长按逻辑
                 onLongClick = {

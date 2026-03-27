@@ -226,7 +226,7 @@ fun SongsScreen(
                         isSelected = selectedIds.contains(song.uniqueId),
                         isSelectionMode = isSelectionMode,
                         isCurrent = currentSong?.getSongId() == song.songId,
-                        onClick = { if (!isSelectionMode) songsScreenVM.play(song.toMediaItem()) },
+                        onClick = { songsScreenVM.play(song.toMediaItem()) },
                         onMenuClick = {},
                         onToggleSelection = { songsScreenVM.toggleSelection(song.uniqueId) }
                     )
