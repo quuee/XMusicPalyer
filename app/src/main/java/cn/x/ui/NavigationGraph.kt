@@ -13,6 +13,7 @@ import cn.x.ui.screen.sub_screen.PlayerScreen
 import cn.x.ui.screen.sub_screen.SearchScreen
 import cn.x.ui.screen.sub_screen.SongListSortScreen
 import cn.x.ui.screen.sub_screen.SongsScreen
+import cn.x.util.Constants
 
 
 /**
@@ -40,14 +41,14 @@ fun NavigationGraph(
         }
 
         composable(
-            route = Screens.Songs.route.plus("/{songListId}"),
+            route = Screens.Songs.route.plus("/{${Constants.SongListId}}"),
             arguments = listOf(
                 navArgument(name = "songListId") {
                     type = NavType.LongType
                     defaultValue = 0L
                 }
             )) { backStackEntry ->
-            val songListId = backStackEntry.arguments?.getLong("songListId") ?: 0L
+            val songListId = backStackEntry.arguments?.getLong(Constants.SongListId) ?: 0L
             SongsScreen(
                 naviBack = { navHostController.navigateUp() },
                 naviRouteItem = { routeString -> navHostController.navigate(routeString) },
@@ -56,14 +57,14 @@ fun NavigationGraph(
         }
 
         composable(
-            route = Screens.FolderSongs.route.plus("?folderPath={folderPath}"),
+            route = Screens.FolderSongs.route.plus("?${Constants.FolderPath}={${Constants.FolderPath}}"),
             arguments = listOf(
-                navArgument(name = "folderPath") {
+                navArgument(name = Constants.FolderPath) {
                     type = NavType.StringType
                     defaultValue = ""
                 }
             )) { backStackEntry ->
-            val folderPath = backStackEntry.arguments?.getString("folderPath") ?: ""
+            val folderPath = backStackEntry.arguments?.getString(Constants.FolderPath) ?: ""
             FolderSongsScreen(
                 naviBack = { navHostController.navigateUp() },
                 path = folderPath
@@ -75,14 +76,14 @@ fun NavigationGraph(
         }
 
         composable(
-            route = Screens.AddSelectSong.route.plus("/{songListId}"),
+            route = Screens.AddSelectSong.route.plus("/{${Constants.SongListId}}"),
             arguments = listOf(
-                navArgument(name = "songListId") {
+                navArgument(name = Constants.SongListId) {
                     type = NavType.LongType
                     defaultValue = 0L
                 }
             )) { backStackEntry ->
-            val songListId = backStackEntry.arguments?.getLong("songListId") ?: 0L
+            val songListId = backStackEntry.arguments?.getLong(Constants.SongListId) ?: 0L
             AddSelectSongScreen(
                 naviBack = { navHostController.navigateUp() },
                 songListId = songListId

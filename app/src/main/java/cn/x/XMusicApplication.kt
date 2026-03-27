@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.compose.rememberNavController
@@ -27,9 +28,12 @@ import cn.x.di.PlayServiceModule
 import cn.x.service.MusicPlaybackService
 import cn.x.ui.NavigationGraph
 import cn.x.ui.Screens
+import cn.x.ui.theme.AppThemeMode
 import cn.x.ui.theme.XMusicPlayerTheme
+import cn.x.util.SPUtil
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class XMusicApplication : Application() {
@@ -51,10 +55,14 @@ class XMusicApplication : Application() {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun XMusicApplicationApp() {
+fun XMusicApplicationApp (
+
+) {
     val isReady by PlayServiceModule.isPlayerReady.collectAsState()
 
-    XMusicPlayerTheme {
+    XMusicPlayerTheme(
+        themeMode = AppThemeMode.SYSTEM
+    ) {
         if (isReady) {
             Scaffold(
                 modifier = Modifier.fillMaxSize()
@@ -73,7 +81,7 @@ fun XMusicApplicationApp() {
 }
 
 @Composable
-fun LoadingScreen() {
+private fun LoadingScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()

@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,20 +36,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.componets.CenterTopBar
+import cn.x.ui.theme.AppThemeMode
 
 /**
  * 设置
  */
 @Composable
-fun SettingScreen(onDrawerToggle: () -> Unit) {
+fun SettingScreen(onDrawerToggle: () -> Unit, settingScreenVM: SettingScreenVM = hiltViewModel()) {
 
     var expanded by remember { mutableStateOf(false) }
+    val themeMode = settingScreenVM.themeMode.collectAsState()
+//    var selected by remember { mutableStateOf(AppThemeMode.SYSTEM) }
 
-    var selected by remember { mutableStateOf(0) }
-    val items = listOf("跟随系统", "白天", "黑夜")
 
     Scaffold(
         topBar = {
@@ -95,9 +97,9 @@ fun SettingScreen(onDrawerToggle: () -> Unit) {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             ModernSelectionCards(
-                                options = items,
-                                selectedIndex = selected,
-                                onOptionSelected = { selected = it }
+                                options = AppThemeMode.entries.toTypedArray(),
+                                selectedIndex = themeMode.value,
+                                onOptionSelected = { settingScreenVM.saveThemeMode(it) }
                             )
                         }
 
@@ -261,9 +263,9 @@ fun SettingScreen(onDrawerToggle: () -> Unit) {
 
 @Composable
 private fun ModernSelectionCards(
-    options: List<String>,
-    selectedIndex: Int,
-    onOptionSelected: (Int) -> Unit
+    options: Array<AppThemeMode>,
+    selectedIndex: AppThemeMode,
+    onOptionSelected: (AppThemeMode) -> Unit
 ) {
     // 定义颜色
     val selectedColor = MaterialTheme.colorScheme.primary
@@ -277,8 +279,8 @@ private fun ModernSelectionCards(
             .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        options.forEachIndexed { index, label ->
-            val isSelected = index == selectedIndex
+        options.forEach { mode ->
+            val isSelected = mode == selectedIndex
 
             Card(
                 modifier = Modifier
@@ -307,17 +309,16 @@ private fun ModernSelectionCards(
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = if (isSelected) 4.dp else 1.dp
                 ),
-                onClick = { onOptionSelected(index) }
+                onClick = { onOptionSelected(mode) }
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 14.dp)
-                            ,
+                        .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = label,
+                        text = mode.name,
                         // 动态字体粗细
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) selectedColor else MaterialTheme.colorScheme.onSurface,
@@ -330,12 +331,3 @@ private fun ModernSelectionCards(
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun Preview111() {
-//    val items = listOf("跟随系统", "白天", "黑夜")
-//    ModernSelectionCards(
-//        options = items,
-//        selectedIndex = 0,
-//        onOptionSelected = { })
-//}

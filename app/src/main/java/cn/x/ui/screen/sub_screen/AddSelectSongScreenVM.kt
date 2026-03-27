@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListWithSongEntity
+import cn.x.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +32,7 @@ class AddSelectSongScreenVM @Inject constructor(
     private val _searchWord = MutableStateFlow<String?>(null)
     val searchWord = _searchWord.asStateFlow()
 
-    private val songListId: Long = savedStateHandle["songListId"] ?: 0L
+    private val songListId: Long = savedStateHandle[Constants.SongListId] ?: 0L
 
     init {
         loadData()

@@ -14,6 +14,7 @@ import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
 import cn.x.data.paging.SongPagingSource
 import cn.x.service.PlayerController
+import cn.x.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -47,7 +48,7 @@ class FolderSongsScreenVM @Inject constructor(
     private val _songListDialogVisible = MutableStateFlow(false)
     val songListDialogVisible = _songListDialogVisible.asStateFlow()
 
-    private val parentPath: String? = savedStateHandle["folderPath"]
+    private val parentPath: String? = savedStateHandle[Constants.FolderPath]
     private val _searchWord = MutableStateFlow<String?>(null)
 
     // 暴露给 UI 的数据流：PagingData<Song>

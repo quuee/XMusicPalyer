@@ -17,6 +17,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.Screens
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
+import cn.x.util.Constants
 
 /**
  * 歌曲文件夹列表
@@ -50,7 +51,7 @@ fun FolderScreen(
                 FolderCard(
                     folder.folderPath,
                     folder.songCount,
-                    onClick = {naviRouteItem(Screens.FolderSongs.route.plus("?folderPath=${folder.folderPath}"))}
+                    onClick = {naviRouteItem(Screens.FolderSongs.route.plus("?${Constants.FolderPath}=${folder.folderPath}"))}
                 )
             }
         }

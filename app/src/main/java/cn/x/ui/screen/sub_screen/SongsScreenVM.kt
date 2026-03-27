@@ -10,6 +10,7 @@ import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
 import cn.x.data.db.SongListWithSongEntity
 import cn.x.service.PlayerController
+import cn.x.util.Constants
 import cn.x.util.toMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,7 @@ class SongsScreenVM @Inject constructor(
     private val _isSelectionMode = MutableStateFlow(false)
     val isSelectionMode: StateFlow<Boolean> = _isSelectionMode.asStateFlow()
 
-    private val songListId: Long = savedStateHandle["songListId"] ?: 0L
+    private val songListId: Long = savedStateHandle[Constants.SongListId] ?: 0L
 
     init {
 
