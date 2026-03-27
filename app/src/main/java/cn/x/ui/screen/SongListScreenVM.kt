@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongListEntity
-import cn.x.service.PlayerController
 import cn.x.util.getCurrentDateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -22,11 +21,22 @@ class SongListScreenVM @Inject constructor(
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
     val songLists = _songLists.asStateFlow()
 
-    private val _showCreateDialog = MutableStateFlow(false)
-    val showCreateDialog = _showCreateDialog.asStateFlow()
+    private val _showDialog = MutableStateFlow(false)
+    val showDialog = _showDialog.asStateFlow()
 
-    private val _newSongListName = MutableStateFlow("")
-    val newSongListName = _newSongListName.asStateFlow()
+
+    private val EmptySongList = SongListEntity(
+        id = 0L,
+        name = "",
+        cover = "",
+        count = 0,
+        createDate = "",
+        sort = 1
+    )
+    private val _createOrRenameSongList = MutableStateFlow(
+        EmptySongList
+    )
+    val createOrRenameSongList = _createOrRenameSongList.asStateFlow()
 
     fun loadSongLists() {
         // 从 repository 加载歌单列表
@@ -35,34 +45,65 @@ class SongListScreenVM @Inject constructor(
         }
     }
 
-    fun openCreateDialog(){
-        _showCreateDialog.value = true
+    fun openDialog(songListId: Long?) {
+        _showDialog.value = true
+        if (songListId != null && songListId != 0L) {
+            val item = _songLists.value.first { songList -> songList.id == songListId }
+            _createOrRenameSongList.value = item
+        }
+
     }
 
-    fun dismissCreateDialog() {
-        _showCreateDialog.value = false
-        _newSongListName.value = ""
+    fun dismissDialog() {
+        _showDialog.value = false
+        _createOrRenameSongList.value = EmptySongList.copy()
     }
+
 
     // 更新输入框内容
     fun onNewSongListNameChange(name: String) {
-        _newSongListName.value = name
+        _createOrRenameSongList.value = EmptySongList.copy(
+            id = _createOrRenameSongList.value.id,
+            name = name,
+            createDate = getCurrentDateTime()
+        )
     }
 
     // 确认创建
-    fun createSongListConfirm() {
-        val name = _newSongListName.value.trim()
+    fun songListConfirm(songListId: Long?) {
+        val name = _createOrRenameSongList.value.name.trim()
         if (name.isEmpty()) return // 简单校验
+        viewModelScope.launch {
+            if (songListId == null || songListId == 0L) {
+                // create
+                withContext(Dispatchers.IO) {
+                    db.SongListDao().insertSongList(_createOrRenameSongList.value)
+                    loadSongLists() // 刷新列表
+                }
+            } else {
+                // update
+                val oldItem = _songLists.value.first { songList -> songList.id == songListId }
+                val newItem = oldItem.copy(name = _createOrRenameSongList.value.name)
+                withContext(Dispatchers.IO) {
+                    db.SongListDao().updateSongList(newItem)
+                    loadSongLists() // 刷新列表
+                }
+            }
+            dismissDialog() // 这里是异步,防止dismissDialog把状态重置,只能放里面
+            // todo 但是为什么不关闭菜单呢
+        }
+    }
 
-        val s = SongListEntity(0, name, "", 0, getCurrentDateTime(),1)
+    fun delete(songListId: Long) {
+        val item = _songLists.value.first { songList -> songList.id == songListId }
         viewModelScope.launch {
             // 调用实际的业务逻辑
             withContext(Dispatchers.IO) {
-                db.SongListDao().insertSongList(s)
+                db.SongListDao().delete(item)
+                db.SongListDao().deleteAllBySongListId(songListId)
                 loadSongLists() // 刷新列表
             }
-            // 成功后关闭弹窗并重置
-            dismissCreateDialog()
+            dismissDialog()
         }
     }
 }

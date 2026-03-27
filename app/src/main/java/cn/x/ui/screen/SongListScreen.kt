@@ -64,8 +64,8 @@ fun SongListScreen(
     naviRouteItem: (String) -> Unit,
 ) {
     val songLists by songListScreenVM.songLists.collectAsState()
-    val showCreateDialog by songListScreenVM.showCreateDialog.collectAsState()
-    val newSongListName by songListScreenVM.newSongListName.collectAsState()
+    val showDialog by songListScreenVM.showDialog.collectAsState()
+    val createOrRenameSongList by songListScreenVM.createOrRenameSongList.collectAsState()
 
 
     LaunchedEffect(Unit) {
@@ -79,7 +79,7 @@ fun SongListScreen(
                 drawerToggle = onDrawerToggle,
                 actions = {
                     Actions(
-                        onCreateClick = {songListScreenVM.openCreateDialog()},
+                        onCreateClick = { songListScreenVM.openDialog(null) },
                         naviRouteItem = { naviRouteItem(Screens.SongListSort.route) },
                     )
                 }
@@ -92,20 +92,24 @@ fun SongListScreen(
                     songListItem,
                     onClick = {
                         naviRouteItem(Screens.Songs.route.plus("/${songListItem.id}"))
-                    })
+                    },
+                    onRenameClick = { songListScreenVM.openDialog(songListItem.id) },
+                    onDeleteClick = { songListScreenVM.delete(songListItem.id) }
+                )
+
             }
         }
 
-        // 创建歌单的弹窗
-        if (showCreateDialog) {
-            CreateSongListDialog(
-                initialName = newSongListName,
+        // 创建或编辑歌单的弹窗
+        if (showDialog) {
+            CreateRenameSongListDialog(
+                songList = createOrRenameSongList,
                 onNameChange = { songListScreenVM.onNewSongListNameChange(it) },
                 onConfirm = {
-                    songListScreenVM.createSongListConfirm()
+                    songListScreenVM.songListConfirm(it)
                 },
                 onDismiss = {
-                    songListScreenVM.dismissCreateDialog()
+                    songListScreenVM.dismissDialog()
                 }
             )
         }
@@ -179,17 +183,27 @@ private fun Actions(onCreateClick: () -> Unit, naviRouteItem: () -> Unit) {
 }
 
 @Composable
-private fun CreateSongListDialog(
-    initialName: String,
+private fun CreateRenameSongListDialog(
+    songList: SongListEntity,
     onNameChange: (String) -> Unit,
-    onConfirm: () -> Unit,
+    onConfirm: (Long?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var name by remember { mutableStateOf(initialName) }
+    var name by remember { mutableStateOf(songList.name) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.createSongList)) },
+        title = {
+            Text(
+                stringResource(
+                    if (songList.name.isBlank()) {
+                        R.string.createSongList
+                    } else {
+                        R.string.rename
+                    }
+                )
+            )
+        },
         text = {
             OutlinedTextField(
                 value = name,
@@ -199,7 +213,7 @@ private fun CreateSongListDialog(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(
-                    onDone = { if (name.isNotBlank()) onConfirm() }
+                    onDone = { if (name.isNotBlank()) onConfirm(songList.id) }
                 )
             )
         },
@@ -207,7 +221,7 @@ private fun CreateSongListDialog(
             TextButton(
                 onClick = {
                     if (name.isNotBlank()) {
-                        onConfirm()
+                        onConfirm(songList.id)
                     }
                 },
                 enabled = name.isNotBlank()
@@ -228,6 +242,8 @@ private fun CreateSongListDialog(
 private fun SongListItemWidget(
     songList: SongListEntity,
     onClick: () -> Unit,
+    onRenameClick: () -> Unit,
+    onDeleteClick: () -> Unit,
 ) {
 
     Card(
@@ -273,7 +289,7 @@ private fun SongListItemWidget(
                 )
             }
 
-            FloatingDropdownMenu {
+            FloatingDropdownMenu { onDismiss ->
                 DropdownMenuItem(
                     text = {
                         Text(
@@ -281,7 +297,10 @@ private fun SongListItemWidget(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     },
-                    onClick = { },
+                    onClick = {
+                        onRenameClick()
+                        onDismiss()
+                    },
                     leadingIcon = {
                         Icon(
                             Icons.Default.DriveFileRenameOutline,
@@ -316,7 +335,10 @@ private fun SongListItemWidget(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     },
-                    onClick = { },
+                    onClick = {
+                        onDeleteClick()
+                        onDismiss()
+                    },
                     leadingIcon = {
                         Icon(Icons.Default.Delete, null, modifier = Modifier.padding(end = 8.dp))
                     }

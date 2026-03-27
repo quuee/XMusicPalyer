@@ -24,6 +24,9 @@ interface SongListDao {
     fun getAllSongLists(): List<SongListEntity>
 
     @Update
+    fun updateSongList(entity: SongListEntity)
+
+    @Update
     fun updateSongListAll(list: List<SongListEntity>)
 
     @Delete
