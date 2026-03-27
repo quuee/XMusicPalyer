@@ -7,7 +7,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingScreenVM @Inject constructor(
-    private val spUtil: SPUtil,
 ) : ViewModel() {
 
 }

@@ -39,10 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import cn.x.AppVM
 import cn.x.R
+import cn.x.di.SettingModule
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.theme.AppThemeMode
+
 
 /**
  * 设置
@@ -51,12 +52,10 @@ import cn.x.ui.theme.AppThemeMode
 fun SettingScreen(
     onDrawerToggle: () -> Unit,
     settingScreenVM: SettingScreenVM = hiltViewModel(),
-    appVM: AppVM = hiltViewModel()
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    val themeMode = appVM.themeMode.collectAsState()
-
+    val themeMode by SettingModule.themeMode.collectAsState()
 
     Scaffold(
         topBar = {
@@ -104,8 +103,8 @@ fun SettingScreen(
                         ) {
                             ModernSelectionCards(
                                 options = AppThemeMode.entries.toTypedArray(),
-                                selectedIndex = themeMode.value,
-                                onOptionSelected = { appVM.saveThemeMode(it) }
+                                selectedIndex = themeMode,
+                                onOptionSelected = { SettingModule.saveThemeMode(it) }
                             )
                         }
 

@@ -31,10 +31,10 @@ object PlayServiceModule {
     }
 
     @Provides
-    fun providerPlayerController(db: MusicDatabase, spUtil: SPUtil): PlayerController {
+    fun providerPlayerController(db: MusicDatabase): PlayerController {
         return playerController ?: run {
             val player = player ?: throw IllegalStateException("Player not prepared!")
-            PlayerControllerImpl(player, db, spUtil).also {
+            PlayerControllerImpl(player, db).also {
                 playerController = it
             }
         }

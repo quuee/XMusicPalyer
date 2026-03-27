@@ -20,9 +20,4 @@ object AppleModule {
         return MusicScanUtilByMediaStoreFlow(application)
     }
 
-    @Singleton
-    @Provides
-    fun provideSPUtil(application: Application): SPUtil {
-        return SPUtil(application)
-    }
 }

@@ -1,6 +1,7 @@
 package cn.x.ui.theme
 
 
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -66,14 +67,15 @@ fun XMusicPlayerTheme(
     themeMode: AppThemeMode,
     content: @Composable () -> Unit
 ) {
+    Log.d("ThemeDebug", "XMusicPlayerTheme recomposed with mode: $themeMode")
 
-    val darkTheme = when (themeMode) {
+    val useDarkTheme = when (themeMode) {
         AppThemeMode.LIGHT -> false
         AppThemeMode.DARK -> true
         AppThemeMode.SYSTEM -> isSystemInDarkTheme()
     }
 
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = if (useDarkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

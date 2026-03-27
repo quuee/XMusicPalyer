@@ -14,7 +14,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeScreenVM @Inject constructor(
     val playerController: PlayerController,
-    private val spUtil: SPUtil,
 ) : ViewModel() {
 
 
@@ -24,13 +23,13 @@ class HomeScreenVM @Inject constructor(
     init {
         // 协程作用域中读取 (如果 SPUtil 是同步的可以直接读，如果是异步的需 launch)
         // 假设 SPUtil 是同步读取
-        val savedRoute = spUtil.getString(Constants.LastTimeRoute, Screens.Scan.route)
+        val savedRoute = SPUtil.getString(Constants.LastTimeRoute, Screens.Scan.route)
         _lastTimeRoute.value = savedRoute
     }
 
     fun updateRoute(newRoute: String) {
         _lastTimeRoute.value = newRoute
         // 立即持久化
-        spUtil.putString(Constants.LastTimeRoute, newRoute)
+        SPUtil.putString(Constants.LastTimeRoute, newRoute)
     }
 }

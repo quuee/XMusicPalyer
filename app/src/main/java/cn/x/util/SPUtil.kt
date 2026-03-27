@@ -4,10 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 
-class SPUtil (private val context: Context) {
+object SPUtil {
 
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("xmusic_prefs", Context.MODE_PRIVATE)
+
+    private lateinit var prefs: SharedPreferences
+
+    /**
+     * 初始化 PrefsManager，建议在 Application 的 onCreate 中调用
+     */
+    fun init(context: Context) {
+        prefs = context.getSharedPreferences("x_music_app_prefs", Context.MODE_PRIVATE)
+    }
 
     // === String ===
     fun getString(key: String, defaultValue: String = ""): String =

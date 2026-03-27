@@ -30,7 +30,6 @@ class PlayerControllerImpl
     (
     private val player: MediaController,
     private val db: MusicDatabase,
-    private val spUtil: SPUtil,
 ) : PlayerController, CoroutineScope by MainScope() {
 
     override val mediaController: MediaController
@@ -51,7 +50,7 @@ class PlayerControllerImpl
     private val _bufferingPercent = MutableStateFlow(0)
     override val bufferingPercent = _bufferingPercent.asStateFlow()
 
-    private val _playMode = MutableStateFlow(PlayMode.valueOf(spUtil.getInt(Constants.PlayMode)))
+    private val _playMode = MutableStateFlow(PlayMode.valueOf(SPUtil.getInt(Constants.PlayMode)))
     override val playMode: StateFlow<PlayMode> = _playMode.asStateFlow()
 
     private var audioSessionId = 0
@@ -111,7 +110,7 @@ class PlayerControllerImpl
             }
         })
 
-        setPlayMode(PlayMode.valueOf(spUtil.getInt(Constants.PlayMode)))
+        setPlayMode(PlayMode.valueOf(SPUtil.getInt(Constants.PlayMode)))
 
         launch(Dispatchers.Main.immediate) {
             val playlist = withContext(Dispatchers.IO) {
@@ -130,7 +129,7 @@ class PlayerControllerImpl
             if (playlist.isNotEmpty()) {
                 _playlist.value = playlist
                 player.setMediaItems(playlist)
-                val currentSongId = spUtil.getString(Constants.CurrentSongId)
+                val currentSongId = SPUtil.getString(Constants.CurrentSongId)
                 if (currentSongId.isNotEmpty()) {
                     val currentSongIndex = playlist.indexOfFirst {
                         it.mediaId == currentSongId
@@ -141,7 +140,7 @@ class PlayerControllerImpl
             }
 
             _currentSong.collectLatest {
-                spUtil.putString(Constants.CurrentSongId,it?.mediaId ?: "")
+                SPUtil.putString(Constants.CurrentSongId,it?.mediaId ?: "")
             }
         }
 
@@ -306,7 +305,7 @@ class PlayerControllerImpl
 
     @MainThread
     override fun setPlayMode(mode: PlayMode) {
-        spUtil.putInt(Constants.PlayMode,mode.value)
+        SPUtil.putInt(Constants.PlayMode,mode.value)
         _playMode.value = mode
         when (mode) {
             PlayMode.Loop -> {
