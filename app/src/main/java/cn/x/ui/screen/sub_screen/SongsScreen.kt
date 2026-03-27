@@ -149,18 +149,6 @@ fun SongsScreen(
                             )
                         }
                     }
-
-//                    if (isSelectionMode) {
-//                        IconButton(onClick = { songsScreenVM.clearSelection() }) {
-//                            Icon(Icons.Default.Clear, contentDescription = "Clear")
-//                        }
-//                    }
-//                    IconButton(onClick = { songsScreenVM.toggleSelectionMode() }) {
-//                        Icon(
-//                            imageVector = if (isSelectionMode) Icons.Default.Done else Icons.Default.Checklist,
-//                            contentDescription = if (isSelectionMode) "Done" else "Select"
-//                        )
-//                    }
                 }
             )
         },
@@ -241,7 +229,7 @@ fun SongsScreen(
             ) {
                 MultiSelectBottomBar(
                     onDeleteClick = { },
-                    onMoveClick = { },
+                    onMoveClick = { songsScreenVM.remove()},
                     onAddToClick = { }
                 )
             }

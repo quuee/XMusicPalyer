@@ -8,6 +8,7 @@ import androidx.media3.common.MediaItem
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
+import cn.x.data.db.SongListWithSongEntity
 import cn.x.service.PlayerController
 import cn.x.util.toMediaItem
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -90,4 +91,14 @@ class SongsScreenVM @Inject constructor(
         playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
     }
 
+    fun remove(){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO){
+                val removeList = _selectedIds.value.map { SongListWithSongEntity(songlistId = songListId, songId = it) }
+                db.SongListDao().deleteSongFromSongList(removeList)
+            }
+            _songs.value = _songs.value.filter { it.uniqueId !in _selectedIds.value }
+            clearSelection()
+        }
+    }
 }

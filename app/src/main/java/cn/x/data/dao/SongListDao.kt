@@ -40,7 +40,7 @@ interface SongListDao {
     fun insertSongsToSongList(songs: List<SongListWithSongEntity>)
 
     @Delete
-    fun deleteSongFromSongList(songlistSong: SongListWithSongEntity)
+    fun deleteSongFromSongList(songlistSongs: List<SongListWithSongEntity>)
 
     @Transaction
     @Query("SELECT * FROM song_lists WHERE id = :songlistId")
