@@ -34,10 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.AppVM
+import cn.x.R
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.theme.AppThemeMode
 
@@ -45,17 +48,20 @@ import cn.x.ui.theme.AppThemeMode
  * 设置
  */
 @Composable
-fun SettingScreen(onDrawerToggle: () -> Unit, settingScreenVM: SettingScreenVM = hiltViewModel()) {
+fun SettingScreen(
+    onDrawerToggle: () -> Unit,
+    settingScreenVM: SettingScreenVM = hiltViewModel(),
+    appVM: AppVM = hiltViewModel()
+) {
 
     var expanded by remember { mutableStateOf(false) }
-    val themeMode = settingScreenVM.themeMode.collectAsState()
-//    var selected by remember { mutableStateOf(AppThemeMode.SYSTEM) }
+    val themeMode = appVM.themeMode.collectAsState()
 
 
     Scaffold(
         topBar = {
             CenterTopBar(
-                title = "Setting",
+                title = stringResource(R.string.setting),
                 onDrawerToggle,
                 actions = {
                     IconButton(onClick = {}) {
@@ -99,7 +105,7 @@ fun SettingScreen(onDrawerToggle: () -> Unit, settingScreenVM: SettingScreenVM =
                             ModernSelectionCards(
                                 options = AppThemeMode.entries.toTypedArray(),
                                 selectedIndex = themeMode.value,
-                                onOptionSelected = { settingScreenVM.saveThemeMode(it) }
+                                onOptionSelected = { appVM.saveThemeMode(it) }
                             )
                         }
 

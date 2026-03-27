@@ -75,7 +75,7 @@ fun SongListScreen(
     Scaffold(
         topBar = {
             CenterTopBar(
-                title = "SongList",
+                title = stringResource(R.string.songList),
                 drawerToggle = onDrawerToggle,
                 actions = {
                     Actions(

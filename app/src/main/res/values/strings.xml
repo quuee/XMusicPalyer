@@ -31,5 +31,8 @@
     <string name="refreshSongList">刷新歌单</string>
     <string name="songListName">歌单名称</string>
 
+    <string name="songList">歌单</string>
+    <string name="setting">设置</string>
+
     <string name="more">更多</string>
 </resources>

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ComponentName
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.compose.rememberNavController
@@ -30,9 +32,13 @@ import cn.x.ui.NavigationGraph
 import cn.x.ui.Screens
 import cn.x.ui.theme.AppThemeMode
 import cn.x.ui.theme.XMusicPlayerTheme
+import cn.x.util.Constants
 import cn.x.util.SPUtil
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -53,15 +59,16 @@ class XMusicApplication : Application() {
     }
 }
 
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun XMusicApplicationApp (
-
+fun XMusicApplicationApp(
+    appVM: AppVM = hiltViewModel()
 ) {
     val isReady by PlayServiceModule.isPlayerReady.collectAsState()
 
     XMusicPlayerTheme(
-        themeMode = AppThemeMode.SYSTEM
+        themeMode = appVM.themeMode.collectAsState().value
     ) {
         if (isReady) {
             Scaffold(
@@ -93,5 +100,47 @@ private fun LoadingScreen() {
             Spacer(modifier = Modifier.height(16.dp))
             Text("正在启动音乐服务...", color = MaterialTheme.colorScheme.onBackground)
         }
+    }
+}
+
+@HiltViewModel
+class AppVM @Inject constructor(
+    private val spUtil: SPUtil,
+) : ViewModel() {
+
+    private val _themeMode = MutableStateFlow(AppThemeMode.SYSTEM)
+    val themeMode = _themeMode.asStateFlow()
+
+
+    init {
+        val themeName = spUtil.getString(Constants.AppMode)
+        val mode = when (themeName) {
+            AppThemeMode.LIGHT.name -> AppThemeMode.LIGHT
+            AppThemeMode.DARK.name -> AppThemeMode.DARK
+            AppThemeMode.SYSTEM.name -> AppThemeMode.SYSTEM
+            else -> {
+                AppThemeMode.SYSTEM
+            }
+        }
+        _themeMode.value = mode
+    }
+
+    // 保存主题模式
+    fun saveThemeMode(mode: AppThemeMode) {
+        spUtil.putString(Constants.AppMode, mode.name)
+        _themeMode.value = mode
+        // 立即应用新设置的主题
+        applyThemeMode(mode)
+    }
+
+    // 应用主题模式
+    private fun applyThemeMode(mode: AppThemeMode) {
+        val nightMode = when (mode) {
+            AppThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+            AppThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+            AppThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        // TODO 不起作用
+        AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 }

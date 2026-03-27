@@ -43,7 +43,7 @@ fun NavigationGraph(
         composable(
             route = Screens.Songs.route.plus("/{${Constants.SongListId}}"),
             arguments = listOf(
-                navArgument(name = "songListId") {
+                navArgument(name = Constants.SongListId) {
                     type = NavType.LongType
                     defaultValue = 0L
                 }

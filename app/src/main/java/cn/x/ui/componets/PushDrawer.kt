@@ -241,7 +241,7 @@ fun DrawerContent(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_drawer_setting),
-                    contentDescription = ""
+                    contentDescription = R.string.setting.toString()
                 )
             }
             IconButton(
