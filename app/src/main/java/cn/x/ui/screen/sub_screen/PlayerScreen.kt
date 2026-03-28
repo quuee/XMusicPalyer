@@ -38,6 +38,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
@@ -80,7 +81,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -103,6 +103,7 @@ import cn.x.util.LyricLine
 import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
 import coil3.compose.AsyncImage
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -135,11 +136,19 @@ fun PlayerScreen(
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
     val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+    val screenHeight = configuration.screenHeightDp.dp
 
     val sheetOffsetY by animateDpAsState(
         targetValue = if (playerScreenVM.isSheetOpen) 0.dp else with(density) { screenHeightPx.toDp() },
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "sheet_offset"
+    )
+
+    // 主界面向上推的偏移量（Sheet 打开时向上推，关闭时恢复）
+    val mainContentOffsetY by animateDpAsState(
+        targetValue = if (playerScreenVM.isSheetOpen) -screenHeight * 0.3f else 0.dp,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label = "main_offset"
     )
 
 
@@ -158,8 +167,12 @@ fun PlayerScreen(
         togglePlayMode = { playerScreenVM.togglePlayMode() },
         next = { playerScreenVM.next() },
         togglePlayPause = { playerScreenVM.togglePlayPause() },
-        openSheet = { playerScreenVM.openSheet() }
+        openSheet = { playerScreenVM.openSheet() },
+        modifier = Modifier
+            .fillMaxSize()
+            .offset { IntOffset(0, mainContentOffsetY.roundToPx()) }
     )
+
 
     if (playerScreenVM.isSheetOpen) {
         GestureBottomSheet(
@@ -189,11 +202,10 @@ private fun MainContent(
     next: () -> Unit,
     togglePlayMode: () -> Unit,
     openSheet: () -> Unit,
-
-    ) {
+    modifier: Modifier
+) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
     )
     {
         // 背景模糊效果
@@ -216,7 +228,19 @@ private fun MainContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    //手势检测遮罩区域 - 用于从底部向上滑动打开 Sheet
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures(
+                            onVerticalDrag = { change, dragAmount ->
+                                // 向上滑动 (dragAmount < 0) 且滑动距离足够时打开
+                                if (dragAmount < 0 && abs(dragAmount) > 50f) {
+                                    openSheet()
+                                }
+                                change.consume()
+                            }
+                        )
+                    },
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 顶部工具栏
@@ -255,9 +279,7 @@ private fun MainContent(
                     playPause = { togglePlayPause() },
                     playNext = { next() },
                     togglePlayMode = { togglePlayMode() },
-                    playList = {
-                        openSheet()
-                    },
+                    playList = { openSheet() },
                     isPlaying,
                     playMode,
                     modifier = Modifier
