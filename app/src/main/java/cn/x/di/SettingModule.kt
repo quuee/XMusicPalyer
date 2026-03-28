@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * 打算用于全局系统配置
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object SettingModule {

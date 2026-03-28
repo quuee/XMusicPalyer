@@ -241,7 +241,7 @@ fun DrawerContent(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_drawer_setting),
-                    contentDescription = R.string.setting.toString()
+                    contentDescription = stringResource(R.string.setting)
                 )
             }
             IconButton(
@@ -249,7 +249,7 @@ fun DrawerContent(
             ) {
                 Icon(
                     painter = painterResource(R.drawable.icon_camera_scan),
-                    contentDescription = ""
+                    contentDescription = "camera scan"
                 )
             }
         }

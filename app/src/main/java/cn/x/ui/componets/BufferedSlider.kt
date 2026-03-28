@@ -34,7 +34,7 @@ fun BufferedSlider(
     val progress = if (duration > 0f) (currentPosition / duration).coerceIn(0f, 1f) else 0f
     val bufferedProgress = if (duration > 0f) (bufferedPosition / duration).coerceIn(0f, 1f) else 0f
 
-    // 关键点：引入一个本地状态来存储拖动时的临时进度
+    // 引入一个本地状态来存储拖动时的临时进度
     var draggingProgress by remember { mutableStateOf<Float?>(null) }
 
     // 决定显示哪个进度：如果在拖动，显示拖动进度；否则显示实际播放进度

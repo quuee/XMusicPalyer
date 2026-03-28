@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -96,8 +97,8 @@ fun PlayerScreen(
 
     // 3. 在本地计算派生状态 (Local Derived State)
     val isPlaying = playState == PlayState.Playing
-    val songTitle = currentSong?.mediaMetadata?.title?.toString() ?: "未知曲目"
-    val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "未知艺术家"
+    val songTitle = currentSong?.mediaMetadata?.title?.toString() ?: "unknown"
+    val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "unknown"
     val isPlaylistEmpty = playlist.isEmpty()
 
 
@@ -194,7 +195,7 @@ private fun TopBar(
         }
 
         Text(
-            text = "正在播放",
+            text = "",
             color = Color.White,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
@@ -203,7 +204,7 @@ private fun TopBar(
         IconButton(onClick = { /* 更多选项 */ }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = "More",
+                contentDescription = stringResource(R.string.more),
                 tint = Color.White
             )
         }

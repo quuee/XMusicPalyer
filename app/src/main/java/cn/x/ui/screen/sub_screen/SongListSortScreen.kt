@@ -33,11 +33,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.R
 import cn.x.ui.componets.ImageWidget
 import kotlin.math.roundToInt
 
@@ -64,7 +66,7 @@ fun SongListSortScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "song list sort",
+                        text = stringResource(R.string.songListSort),
                         textAlign = TextAlign.Center
                     )
                 },
@@ -174,7 +176,7 @@ private fun DragHandle(
 //        Icon(modifier = Modifier.align(Alignment.CenterVertically))(
         Icon(
             imageVector = Icons.Default.DragHandle,
-            contentDescription = "拖动排序"
+            contentDescription = "drag sort"
         )
     }
 }

@@ -49,7 +49,7 @@ fun FolderCard(
         ) {
             Spacer(modifier = Modifier.width(0.dp))
             Icon(
-                imageVector = Icons.Default.FolderOpen, contentDescription = ""
+                imageVector = Icons.Default.FolderOpen, contentDescription = "open folder"
             )
 
             Column {
@@ -64,7 +64,7 @@ fun FolderCard(
 
                 }
             ) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "")
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = stringResource(R.string.more))
             }
         }
     }

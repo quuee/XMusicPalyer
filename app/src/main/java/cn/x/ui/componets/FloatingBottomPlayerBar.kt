@@ -64,6 +64,7 @@ fun FloatingBottomPlayerBar(
         // 歌曲名(带滚动效果)
         MarqueeText(
             text = mediaItem?.mediaMetadata?.title.toString(),
+//            text = mediaItem?.mediaMetadata?.title?.toString() ?: "未知曲目",
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .weight(1f),

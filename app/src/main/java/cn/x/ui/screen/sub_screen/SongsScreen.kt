@@ -59,11 +59,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.R
 import cn.x.data.db.SongListEntity
 import cn.x.service.PlayState
 import cn.x.ui.Screens
@@ -98,7 +100,7 @@ fun SongsScreen(
     val listState = rememberLazyListState()
 
     // 计算顶部区域是否还在可见范围内
-    val topSectionHeightDp = with(LocalConfiguration.current) { screenHeightDp.dp / 3 }
+    val topSectionHeightDp = with(LocalConfiguration.current) { screenHeightDp.dp / 5 }
     val density = LocalDensity.current
 
     // 获取顶部区域是否被滚出：如果 firstVisibleItemIndex > 0，说明顶部已完全滚出
@@ -335,7 +337,7 @@ private fun CoverSection(
 
             ImageWidget(
                 cover = songList.cover,
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier.size(120.dp)
             )
 
             Column() {
@@ -390,17 +392,17 @@ private fun MultiSelectBottomBar(
             ) {
                 BottomBarItem(
                     icon = Icons.Default.Delete,
-                    text = "删除",
+                    text = stringResource(R.string.song_delete),
                     onClick = onDeleteClick
                 )
                 BottomBarItem(
                     icon = Icons.Default.ExitToApp,
-                    text = "移出",
+                    text = stringResource(R.string.song_remove),
                     onClick = onMoveClick
                 )
                 BottomBarItem(
                     icon = Icons.Default.LibraryAdd,
-                    text = "添加到",
+                    text = stringResource(R.string.song_addTo_songList),
                     onClick = onAddToClick
                 )
             }

@@ -115,7 +115,7 @@ private fun TopSearchBar(
         IconButton(onClick = naviBack) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "返回上级"
+                contentDescription = "back"
             )
         }
 
@@ -135,7 +135,7 @@ private fun TopSearchBar(
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
-            placeholder = { Text("搜索歌曲...") },
+            placeholder = { Text("Search...") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
@@ -157,7 +157,7 @@ private fun TopSearchBar(
             }) {
                 Icon(
                     imageVector = Icons.Default.Clear,
-                    contentDescription = "清除内容",
+                    contentDescription = "clear content",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

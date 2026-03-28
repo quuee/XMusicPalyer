@@ -36,11 +36,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import cn.x.R
 import cn.x.data.db.SongListEntity
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.MultiSelectSongItem
@@ -96,7 +98,7 @@ fun FolderSongsScreen(
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("添加到歌单")
+                    Text(stringResource(R.string.song_addTo_songList))
                 }
                 Row(
                     modifier = Modifier
@@ -105,7 +107,7 @@ fun FolderSongsScreen(
                 ) {
                     Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("分享")
+                    Text(stringResource(R.string.song_share))
                 }
                 Row(
                     modifier = Modifier
@@ -114,7 +116,7 @@ fun FolderSongsScreen(
                 ) {
                     Icon(imageVector = Icons.Default.Info, contentDescription = null)
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("歌曲信息")
+                    Text(stringResource(R.string.song_info))
                 }
                 Row(
                     modifier = Modifier
@@ -127,7 +129,7 @@ fun FolderSongsScreen(
                         tint = Color.Red
                     )
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("永久删除")
+                    Text(stringResource(R.string.song_delete))
                 }
             }
         }
