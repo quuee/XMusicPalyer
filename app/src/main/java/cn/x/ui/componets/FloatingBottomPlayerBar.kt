@@ -35,7 +35,7 @@ import cn.x.R
 fun FloatingBottomPlayerBar(
     mediaItem: MediaItem?,
     isPlaying: Boolean,
-    onSongClick: () -> Unit,
+    onClick: () -> Unit,
     onPlayPauseClick: () -> Unit,
     onPreviousClick: () -> Unit,
     onNextClick: () -> Unit,
@@ -47,7 +47,7 @@ fun FloatingBottomPlayerBar(
             .height(72.dp)
             .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 8.dp)
-            .clickable(onClick = onSongClick),
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(contentAlignment = Alignment.Center) {

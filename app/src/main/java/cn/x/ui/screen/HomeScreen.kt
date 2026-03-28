@@ -1,6 +1,7 @@
 package cn.x.ui.screen
 
 
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -42,7 +43,6 @@ fun HomeScreen(
     // 1. 直接收集各个 StateFlow
     val currentSong by controller.currentSong.collectAsState()
     val playState by controller.playState.collectAsState()
-    val progress by controller.playProgress.collectAsState()
     val buffering by controller.bufferingPercent.collectAsState()
     val playMode by controller.playMode.collectAsState()
     val playlist by controller.playlist.collectAsState()
@@ -67,7 +67,6 @@ fun HomeScreen(
     }
 
 
-    val TAG = "HomeScreen"
 
     PushDrawer(
         drawerContent = {
@@ -133,7 +132,7 @@ fun HomeScreen(
                     FloatingBottomPlayerBar(
                         mediaItem = currentSong,
                         isPlaying = isPlaying,
-                        onSongClick = { naviRouteItem(Screens.Player.route) },
+                        onClick = { naviRouteItem(Screens.Player.route) },
                         onNextClick = { controller.next() },
                         onPreviousClick = { controller.prev() },
                         onPlayPauseClick = { controller.playPause() },
@@ -153,10 +152,4 @@ fun HomeScreen(
     )
 
 }
-
-
-
-
-
-
 

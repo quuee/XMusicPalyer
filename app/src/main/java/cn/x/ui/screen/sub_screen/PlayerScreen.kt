@@ -1,12 +1,17 @@
 package cn.x.ui.screen.sub_screen
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -18,6 +23,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -28,8 +34,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -41,8 +50,12 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.outlined.Equalizer
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.List
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,20 +63,27 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -77,6 +97,8 @@ import cn.x.util.LyricLine
 import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * 播放页面
@@ -91,7 +113,7 @@ fun PlayerScreen(
     // 1. 直接收集各个 StateFlow
     val currentSong by controller.currentSong.collectAsState()
     val playState by controller.playState.collectAsState()
-    val progress by controller.playProgress.collectAsState()
+    val playProgress by controller.playProgress.collectAsState()
     val buffering by controller.bufferingPercent.collectAsState()
     val playMode by controller.playMode.collectAsState()
     val playlist by controller.playlist.collectAsState()
@@ -106,6 +128,49 @@ fun PlayerScreen(
     val isPlaylistEmpty = playlist.isEmpty()
 
     val lyrics by playerScreenVM.lyrics.collectAsState()
+
+    val density = LocalDensity.current
+    val screenHeightPx = with(density) {
+        LocalWindowInfo.current.containerSize.height.dp.toPx()
+    }
+
+    val isVisible by playerScreenVM.isVisible.collectAsState()
+    val offsetY by playerScreenVM.offsetY.collectAsState()
+    val progress by playerScreenVM.progress.collectAsState()
+
+    // 动画目标值
+    val targetOffset = if (isVisible) 0f else screenHeightPx
+
+    // 在 Composable 中创建 Animatable（这里会自动获得 MonotonicFrameClock）
+    val animatable = remember { Animatable(offsetY) }
+
+    // 使用 Compose 的协程作用域执行动画
+    val coroutineScope = rememberCoroutineScope()
+
+    // 监听目标值变化并执行动画
+    LaunchedEffect(targetOffset) {
+        coroutineScope.launch {
+            try {
+                animatable.animateTo(
+                    targetOffset,
+                    animationSpec = if (isVisible) spring() else tween(300)
+                )
+            } catch (e: Exception) {
+                // 处理动画异常
+                e.printStackTrace()
+            }
+        }
+    }
+
+    // 监听动画值变化并更新 ViewModel
+    LaunchedEffect(animatable.value) {
+        playerScreenVM.updateOffset(animatable.value)
+    }
+
+    // 设置屏幕高度
+    LaunchedEffect(screenHeightPx) {
+        playerScreenVM.setScreenHeight(screenHeightPx)
+    }
 
     Box(
         modifier = Modifier
@@ -136,7 +201,7 @@ fun PlayerScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 顶部工具栏
-                TopBar(naviBack)
+                TopBar(naviBack, title = songTitle)
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -144,7 +209,7 @@ fun PlayerScreen(
                 CoverLyricsPager(
                     currentSong,
                     lyrics,
-                    progress,
+                    playProgress,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(3f)
@@ -154,7 +219,7 @@ fun PlayerScreen(
                 // 歌曲信息 播放进度
                 SongBufferedSlider(
                     currentSong,
-                    progress,
+                    playProgress,
                     buffering,
                     duration,
                     seekTo = { p -> playerScreenVM.seekTo(p) },
@@ -171,11 +236,44 @@ fun PlayerScreen(
                     playPause = { playerScreenVM.togglePlayPause() },
                     playNext = { playerScreenVM.next() },
                     togglePlayMode = { playerScreenVM.togglePlayMode() },
+                    playList = { playerScreenVM.toggleFullPlayer() },
                     isPlaying,
                     playMode,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
+                )
+            }
+
+            // 全屏播放界面
+            if (isVisible || offsetY < screenHeightPx) {
+                FullPlayerSheet(
+                    offsetY = offsetY,
+//                    screenHeight = screenHeightPx,
+                    progress = progress,
+                    onDrag = { deltaY ->
+                        coroutineScope.launch {
+                            val newOffset = (animatable.value - deltaY)
+                                .coerceIn(0f, screenHeightPx)
+                            playerScreenVM.updateOffset(newOffset)
+                            animatable.snapTo(newOffset)
+                        }
+                    },
+                    onDragEnd = { velocity ->
+                        val shouldClose = playerScreenVM.shouldCloseOnDrag(offsetY, velocity)
+                        val shouldOpen = playerScreenVM.shouldOpenOnDrag(offsetY, velocity)
+
+                        if (isVisible && shouldClose) {
+                            playerScreenVM.closeFullPlayer()
+                        } else if (!isVisible && shouldOpen) {
+                            playerScreenVM.openFullPlayer()
+                        } else {
+                            playerScreenVM.toggleFullPlayer()
+                        }
+                    },
+                    onClose = {
+                        playerScreenVM.closeFullPlayer()
+                    }
                 )
             }
         }
@@ -184,7 +282,8 @@ fun PlayerScreen(
 
 @Composable
 private fun TopBar(
-    naviBack: () -> Unit
+    naviBack: () -> Unit,
+    title: String
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -200,7 +299,7 @@ private fun TopBar(
         }
 
         Text(
-            text = "",
+            text = title,
             color = Color.White,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
@@ -309,7 +408,6 @@ private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
 }
 
 
-
 @Composable
 private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
     val listState = rememberLazyListState()
@@ -353,7 +451,6 @@ private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
         }
     }
 }
-
 
 
 @Composable
@@ -443,6 +540,7 @@ private fun ControlsButton(
     playPause: () -> Unit,
     playNext: () -> Unit,
     togglePlayMode: () -> Unit,
+    playList: () -> Unit,
     isPlaying: Boolean,
     playMode: PlayMode,
     modifier: Modifier
@@ -507,12 +605,169 @@ private fun ControlsButton(
         }
 
         // 播放列表
-        IconButton(onClick = { }) {
+        IconButton(onClick = playList) {
             Icon(
-                imageVector = Icons.Outlined.Equalizer,
-                contentDescription = "Equalizer",
+                imageVector = Icons.Default.List,
+                contentDescription = "playlist",
                 tint = Color.White
             )
+        }
+    }
+}
+
+@Composable
+private fun FullPlayerSheet(
+    offsetY: Float,
+//    screenHeight: Float,
+    progress: Float,
+    onDrag: (Float) -> Unit,
+    onDragEnd: (velocity: Float) -> Unit,
+    onClose: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .offset { IntOffset(0, offsetY.roundToInt()) }
+            .background(
+                color = MaterialTheme.colorScheme.surface.copy(
+                    alpha = progress.coerceIn(0f, 1f)
+                )
+            )
+            .clip(
+                RoundedCornerShape(
+                    topStart = 0.dp,
+                    topEnd = 0.dp,
+                    bottomStart = if (offsetY > 0) 0.dp else 0.dp,
+                    bottomEnd = if (offsetY > 0) 0.dp else 0.dp
+                )
+            )
+            .pointerInput(Unit) {
+                val velocityTracker = VelocityTracker()
+
+                detectVerticalDragGestures(
+                    onDragStart = { offset ->
+                        velocityTracker.resetTracking()
+                    },
+                    onVerticalDrag = { change, dragAmount ->
+                        change.consume()
+                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        onDrag(dragAmount)
+                    },
+                    onDragEnd = {
+                        val velocity = velocityTracker.calculateVelocity().y
+                        onDragEnd(velocity)
+                    },
+                    onDragCancel = {
+                        onDragEnd(0f)
+                    }
+                )
+            }
+    ) {
+        FullPlayerContent(
+            progress = progress,
+            onClose = onClose
+        )
+    }
+}
+
+@Composable
+private fun FullPlayerContent(
+    progress: Float,
+    onClose: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 48.dp, bottom = 80.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = "Close",
+                modifier = Modifier
+                    .size(32.dp)
+                    .clickable { onClose() }
+                    .alpha(progress),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+
+            val scale = 0.5f + (progress * 0.5f)
+            Card(
+                modifier = Modifier
+                    .size(280.dp)
+                    .scale(scale),
+                elevation = CardDefaults.cardElevation(8.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(
+                        text = "Album Art",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.alpha(progress)
+            ) {
+                Text(
+                    text = "歌曲名称",
+                    style = MaterialTheme.typography.headlineMedium
+                )
+                Text(
+                    text = "艺术家名称",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+                    .alpha(progress),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.SkipPrevious, contentDescription = "Previous")
+                }
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.PlayArrow, contentDescription = "Play")
+                }
+                IconButton(onClick = {}) {
+                    Icon(Icons.Default.SkipNext, contentDescription = "Next")
+                }
+            }
+
+            if (progress > 0.5f) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp)
+                        .animateContentSize()
+                ) {
+                    LinearProgressIndicator(
+                        progress = 0.3f,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("1:23", style = MaterialTheme.typography.bodySmall)
+                        Text("4:56", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
         }
     }
 }

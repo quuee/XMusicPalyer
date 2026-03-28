@@ -17,6 +17,7 @@ class HomeScreenVM @Inject constructor(
 ) : ViewModel() {
 
 
+    // 最后一次路由
     private val _lastTimeRoute = MutableStateFlow<String>(Screens.Scan.route)
     val lastTimeRoute: StateFlow<String> = _lastTimeRoute.asStateFlow()
 
@@ -25,6 +26,7 @@ class HomeScreenVM @Inject constructor(
         // 假设 SPUtil 是同步读取
         val savedRoute = SPUtil.getString(Constants.LastTimeRoute, Screens.Scan.route)
         _lastTimeRoute.value = savedRoute
+
     }
 
     fun updateRoute(newRoute: String) {
@@ -32,4 +34,23 @@ class HomeScreenVM @Inject constructor(
         // 立即持久化
         SPUtil.putString(Constants.LastTimeRoute, newRoute)
     }
+
+
 }
+
+//data class FullPlayerUiState(
+//    val isVisible: Boolean = false,
+//    val offsetY: Float = 0f,
+//    val progress: Float = 0f,
+//    val isAnimating: Boolean = false,
+//    val screenHeight: Float = 0f
+//)
+//
+//sealed class FullPlayerEvent {
+//    data class Drag(val deltaY: Float) : FullPlayerEvent()
+//    data class DragEnd(val velocity: Float = 0f) : FullPlayerEvent()
+//    object Open : FullPlayerEvent()
+//    object Close : FullPlayerEvent()
+//    object Toggle : FullPlayerEvent()
+//    data class SetScreenHeight(val height: Float) : FullPlayerEvent()
+//}

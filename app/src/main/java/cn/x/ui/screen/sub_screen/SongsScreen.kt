@@ -34,10 +34,8 @@ import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
-import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -72,7 +70,6 @@ import cn.x.ui.Screens
 import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MultiSelectSongItem
-import cn.x.util.getFileName
 import cn.x.util.getSongId
 import cn.x.util.toMediaItem
 
@@ -162,7 +159,7 @@ fun SongsScreen(
             FloatingBottomPlayerBar(
                 mediaItem = currentSong,
                 isPlaying = isPlaying,
-                onSongClick = { naviRouteItem(Screens.Player.route) },
+                onClick = { naviRouteItem(Screens.Player.route) },
                 onNextClick = { controller.next() },
                 onPreviousClick = { controller.prev() },
                 onPlayPauseClick = { controller.playPause() },
