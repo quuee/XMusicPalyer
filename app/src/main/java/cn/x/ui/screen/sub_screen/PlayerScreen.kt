@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -56,9 +57,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -261,7 +264,7 @@ private fun CoverLyricsPager(
                         .fillMaxSize()
                         .padding(horizontal = 16.dp)
                 ) {
-                    LyricsScroller(lyrics, currentPosition + 500L)
+                    LyricsScroller(lyrics, currentPosition + 200L)
                 }
             }
         }
@@ -305,6 +308,7 @@ private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
 }
 
 
+
 @Composable
 private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
     val listState = rememberLazyListState()
@@ -312,34 +316,44 @@ private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
         findCurrentLyricIndex(lyrics, currentPosition)
     }
 
-    // 自动滚动到当前行并居中
+    // 自动滚动到当前行并居中显示
     LaunchedEffect(currentLine) {
         if (currentLine >= 0) {
+            // 使用中心偏移量，让当前项显示在列表中央
             listState.animateScrollToItem(
                 index = currentLine,
-                scrollOffset = 0,
+                scrollOffset = 0
             )
         }
     }
 
     val typography = MaterialTheme.typography
     val colorScheme = MaterialTheme.colorScheme
-
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        // 添加内边距，确保首尾歌词也能滚动到中间
+        // 目前是固定值,不适合匹配不同尺寸屏幕
+        contentPadding = PaddingValues(vertical = 160.dp)
     ) {
         itemsIndexed(lyrics) { index, line ->
+            val isCurrentLine = index == currentLine
+
             Text(
                 text = line.content,
-                style = typography.bodyLarge,
-                color = if (index == currentLine) colorScheme.primary else Color.Gray,
-                modifier = Modifier.padding(8.dp)
+                style = if (isCurrentLine) typography.headlineMedium else typography.bodyLarge,
+                color = if (isCurrentLine) colorScheme.primary else Color.Gray,
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
         }
     }
 }
+
+
 
 @Composable
 private fun SongBufferedSlider(
