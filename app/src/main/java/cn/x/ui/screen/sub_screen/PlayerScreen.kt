@@ -1,16 +1,17 @@
 package cn.x.ui.screen.sub_screen
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -34,10 +36,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
@@ -47,43 +47,47 @@ import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.outlined.Equalizer
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -93,22 +97,23 @@ import cn.x.service.PlayMode
 import cn.x.service.PlayState
 import cn.x.ui.componets.BufferedSlider
 import cn.x.ui.componets.ImageWidget
+import cn.x.ui.componets.MarqueeText
 import cn.x.util.LyricLine
 import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
 import coil3.compose.AsyncImage
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
  * 播放页面
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
     playerScreenVM: PlayerScreenVM = hiltViewModel(),
     naviBack: () -> Unit
 ) {
-    val colorScheme = MaterialTheme.colorScheme
+
     val controller = playerScreenVM.playerController
     // 1. 直接收集各个 StateFlow
     val currentSong by controller.currentSong.collectAsState()
@@ -123,55 +128,67 @@ fun PlayerScreen(
 
     // 3. 在本地计算派生状态 (Local Derived State)
     val isPlaying = playState == PlayState.Playing
-    val songTitle = currentSong?.mediaMetadata?.title?.toString() ?: "unknown"
-    val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "unknown"
-    val isPlaylistEmpty = playlist.isEmpty()
 
     val lyrics by playerScreenVM.lyrics.collectAsState()
 
     val density = LocalDensity.current
-    val screenHeightPx = with(density) {
-        LocalWindowInfo.current.containerSize.height.dp.toPx()
+    val screenHeightPx = with(density) { LocalWindowInfo.current.containerSize.height.dp.toPx() }
+
+    val sheetOffsetY by animateDpAsState(
+        targetValue = if (playerScreenVM.isSheetOpen) 0.dp else with(density) { screenHeightPx.toDp() },
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label = "sheet_offset"
+    )
+
+
+
+    MainContent(
+        naviBack,
+        currentSong,
+        lyrics,
+        playProgress,
+        buffering,
+        duration,
+        isPlaying,
+        playMode,
+        seekTo = { playerScreenVM.seekTo(it) },
+        prev = { playerScreenVM.prev() },
+        togglePlayMode = { playerScreenVM.togglePlayMode() },
+        next = { playerScreenVM.next() },
+        togglePlayPause = { playerScreenVM.togglePlayPause() },
+        openSheet = { playerScreenVM.openSheet() }
+    )
+
+    if (playerScreenVM.isSheetOpen) {
+        GestureBottomSheet(
+            modifier = Modifier
+                .offset { IntOffset(0, sheetOffsetY.roundToPx()) }
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars),
+            onDismiss = { playerScreenVM.closeSheet() }
+        )
     }
 
-    val isVisible by playerScreenVM.isVisible.collectAsState()
-    val offsetY by playerScreenVM.offsetY.collectAsState()
-    val progress by playerScreenVM.progress.collectAsState()
+}
 
-    // 动画目标值
-    val targetOffset = if (isVisible) 0f else screenHeightPx
+@Composable
+private fun MainContent(
+    naviBack: () -> Unit,
+    currentSong: MediaItem?,
+    lyrics: List<LyricLine>,
+    playProgress: Long,
+    buffering: Int,
+    duration: Long,
+    isPlaying: Boolean,
+    playMode: PlayMode,
+    seekTo: (Long) -> Unit,
+    prev: () -> Unit,
+    togglePlayPause: () -> Unit,
+    next: () -> Unit,
+    togglePlayMode: () -> Unit,
+    openSheet: () -> Unit,
 
-    // 在 Composable 中创建 Animatable（这里会自动获得 MonotonicFrameClock）
-    val animatable = remember { Animatable(offsetY) }
-
-    // 使用 Compose 的协程作用域执行动画
-    val coroutineScope = rememberCoroutineScope()
-
-    // 监听目标值变化并执行动画
-    LaunchedEffect(targetOffset) {
-        coroutineScope.launch {
-            try {
-                animatable.animateTo(
-                    targetOffset,
-                    animationSpec = if (isVisible) spring() else tween(300)
-                )
-            } catch (e: Exception) {
-                // 处理动画异常
-                e.printStackTrace()
-            }
-        }
-    }
-
-    // 监听动画值变化并更新 ViewModel
-    LaunchedEffect(animatable.value) {
-        playerScreenVM.updateOffset(animatable.value)
-    }
-
-    // 设置屏幕高度
-    LaunchedEffect(screenHeightPx) {
-        playerScreenVM.setScreenHeight(screenHeightPx)
-    }
-
+    ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -201,7 +218,7 @@ fun PlayerScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 顶部工具栏
-                TopBar(naviBack, title = songTitle)
+                TopBar(naviBack, title = currentSong?.mediaMetadata?.title.toString())
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -222,7 +239,7 @@ fun PlayerScreen(
                     playProgress,
                     buffering,
                     duration,
-                    seekTo = { p -> playerScreenVM.seekTo(p) },
+                    seekTo = { p -> seekTo(p) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 8.dp)
@@ -232,48 +249,18 @@ fun PlayerScreen(
 
                 // 控制按钮
                 ControlsButton(
-                    previous = { playerScreenVM.prev() },
-                    playPause = { playerScreenVM.togglePlayPause() },
-                    playNext = { playerScreenVM.next() },
-                    togglePlayMode = { playerScreenVM.togglePlayMode() },
-                    playList = { playerScreenVM.toggleFullPlayer() },
+                    previous = { prev() },
+                    playPause = { togglePlayPause() },
+                    playNext = { next() },
+                    togglePlayMode = { togglePlayMode() },
+                    playList = {
+                        openSheet()
+                    },
                     isPlaying,
                     playMode,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                )
-            }
-
-            // 全屏播放界面
-            if (isVisible || offsetY < screenHeightPx) {
-                FullPlayerSheet(
-                    offsetY = offsetY,
-//                    screenHeight = screenHeightPx,
-                    progress = progress,
-                    onDrag = { deltaY ->
-                        coroutineScope.launch {
-                            val newOffset = (animatable.value - deltaY)
-                                .coerceIn(0f, screenHeightPx)
-                            playerScreenVM.updateOffset(newOffset)
-                            animatable.snapTo(newOffset)
-                        }
-                    },
-                    onDragEnd = { velocity ->
-                        val shouldClose = playerScreenVM.shouldCloseOnDrag(offsetY, velocity)
-                        val shouldOpen = playerScreenVM.shouldOpenOnDrag(offsetY, velocity)
-
-                        if (isVisible && shouldClose) {
-                            playerScreenVM.closeFullPlayer()
-                        } else if (!isVisible && shouldOpen) {
-                            playerScreenVM.openFullPlayer()
-                        } else {
-                            playerScreenVM.toggleFullPlayer()
-                        }
-                    },
-                    onClose = {
-                        playerScreenVM.closeFullPlayer()
-                    }
                 )
             }
         }
@@ -298,11 +285,19 @@ private fun TopBar(
             )
         }
 
-        Text(
+        MarqueeText(
             text = title,
-            color = Color.White,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .weight(1f),
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            ),
+            initialDelay = 1000,
+            delay = 1000,
+            velocity = 40.dp
         )
 
         IconButton(onClick = { /* 更多选项 */ }) {
@@ -615,158 +610,139 @@ private fun ControlsButton(
     }
 }
 
-@Composable
-private fun FullPlayerSheet(
-    offsetY: Float,
-//    screenHeight: Float,
-    progress: Float,
-    onDrag: (Float) -> Unit,
-    onDragEnd: (velocity: Float) -> Unit,
-    onClose: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .offset { IntOffset(0, offsetY.roundToInt()) }
-            .background(
-                color = MaterialTheme.colorScheme.surface.copy(
-                    alpha = progress.coerceIn(0f, 1f)
-                )
-            )
-            .clip(
-                RoundedCornerShape(
-                    topStart = 0.dp,
-                    topEnd = 0.dp,
-                    bottomStart = if (offsetY > 0) 0.dp else 0.dp,
-                    bottomEnd = if (offsetY > 0) 0.dp else 0.dp
-                )
-            )
-            .pointerInput(Unit) {
-                val velocityTracker = VelocityTracker()
 
-                detectVerticalDragGestures(
-                    onDragStart = { offset ->
-                        velocityTracker.resetTracking()
-                    },
-                    onVerticalDrag = { change, dragAmount ->
-                        change.consume()
-                        velocityTracker.addPosition(change.uptimeMillis, change.position)
-                        onDrag(dragAmount)
-                    },
-                    onDragEnd = {
-                        val velocity = velocityTracker.calculateVelocity().y
-                        onDragEnd(velocity)
-                    },
-                    onDragCancel = {
-                        onDragEnd(0f)
-                    }
-                )
-            }
-    ) {
-        FullPlayerContent(
-            progress = progress,
-            onClose = onClose
-        )
+@Composable
+fun GestureBottomSheet(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit
+) {
+    val density = LocalDensity.current
+    val screenHeightPx = with(density) { LocalWindowInfo.current.containerSize.height.dp.toPx() }
+
+    // Sheet 的偏移量（0 = 完全显示，正数 = 向下偏移）
+    var sheetOffset by remember { mutableStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+
+    // LazyColumn 的状态
+    val listState = rememberLazyListState()
+    val isAtTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
+        }
     }
-}
 
-@Composable
-private fun FullPlayerContent(
-    progress: Float,
-    onClose: () -> Unit
-) {
-    Box(
-        modifier = Modifier.fillMaxSize()
+    // 动画偏移
+    val animatedOffset by animateFloatAsState(
+        targetValue = if (isDragging) sheetOffset else 0f,
+        animationSpec = spring(
+            stiffness = Spring.StiffnessMediumLow,
+            dampingRatio = Spring.DampingRatioMediumBouncy
+        ),
+        label = "sheet_offset_anim"
+    )
+
+    // 处理拖拽结束
+    LaunchedEffect(isDragging) {
+        if (!isDragging && sheetOffset > 0) {
+            if (sheetOffset > screenHeightPx * 0.3f) {
+                onDismiss()
+            }
+            sheetOffset = 0f
+        }
+    }
+
+    // 为 LazyColumn 创建嵌套滚动连接
+    val lazyColumnNestedScroll = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                // 只在列表在顶部且向下滑动时拦截
+                if (available.y > 0 && isAtTop) {
+                    if (!isDragging) {
+                        isDragging = true
+                    }
+                    val newOffset = (sheetOffset + available.y).coerceIn(0f, screenHeightPx)
+                    sheetOffset = newOffset
+                    return available // 消费掉滚动事件
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                if (isDragging && available.y > 500f) {
+                    onDismiss()
+                    isDragging = false
+                    sheetOffset = 0f
+                    return available
+                }
+                return Velocity.Zero
+            }
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .offset { IntOffset(0, animatedOffset.roundToInt()) }
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
-        Column(
+        // 顶部拖拽区域 - 独立手势处理
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onDragStart = {
+                            isDragging = true
+                        },
+                        onVerticalDrag = { change, dragAmount ->
+                            change.consume()
+                            val newOffset = (sheetOffset + dragAmount).coerceIn(0f, screenHeightPx)
+                            sheetOffset = newOffset
+                        },
+                        onDragEnd = {
+                            isDragging = false
+                        },
+                        onDragCancel = {
+                            isDragging = false
+                        }
+                    )
+                }
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier.width(40.dp).height(4.dp),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                shape = MaterialTheme.shapes.small
+            ) {}
+        }
+
+        Text(
+            text = "底部弹窗",
+            fontSize = 20.sp,
+            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+        )
+
+        Text(
+            text = "↓ 向下滑动关闭 ↓",
+            fontSize = 12.sp,
+            modifier = Modifier.padding(start = 16.dp, bottom = 16.dp),
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        // LazyColumn 区域 - 使用嵌套滚动
+        LazyColumn(
+            state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 48.dp, bottom = 80.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+                .nestedScroll(lazyColumnNestedScroll)
         ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Close",
-                modifier = Modifier
-                    .size(32.dp)
-                    .clickable { onClose() }
-                    .alpha(progress),
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-
-            val scale = 0.5f + (progress * 0.5f)
-            Card(
-                modifier = Modifier
-                    .size(280.dp)
-                    .scale(scale),
-                elevation = CardDefaults.cardElevation(8.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.primary)
-                ) {
-                    Text(
-                        text = "Album Art",
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.alpha(progress)
-            ) {
-                Text(
-                    text = "歌曲名称",
-                    style = MaterialTheme.typography.headlineMedium
+            itemsIndexed((1..50).toList()) { _,item ->
+                ListItem(
+                    headlineContent = { Text("列表项 $item") },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
-                Text(
-                    text = "艺术家名称",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-                    .alpha(progress),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.SkipPrevious, contentDescription = "Previous")
-                }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = "Play")
-                }
-                IconButton(onClick = {}) {
-                    Icon(Icons.Default.SkipNext, contentDescription = "Next")
-                }
-            }
-
-            if (progress > 0.5f) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp)
-                        .animateContentSize()
-                ) {
-                    LinearProgressIndicator(
-                        progress = 0.3f,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("1:23", style = MaterialTheme.typography.bodySmall)
-                        Text("4:56", style = MaterialTheme.typography.bodySmall)
-                    }
-                }
+                Divider()
             }
         }
     }
