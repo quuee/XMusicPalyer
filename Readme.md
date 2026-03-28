@@ -78,3 +78,12 @@
         songList = newSongList
 //    }
 ```
+
+## 高度
+| 特性 | `LocalConfiguration.current.screenHeightDp` | `LocalWindowInfo.current.containerSize` |
+| :--- | :--- | :--- |
+| 数据范围 | 整个物理屏幕 | 应用窗口的内容区域 |
+| 是否受系统UI影响 | 否 | 是 (会排除状态栏、导航栏等) |
+| 主要用途 | 响应式布局，根据设备尺寸做宏观调整 | 精确布局，让元素适应实际可用空间 |<websource>source_group_web_4</websource>
+
+

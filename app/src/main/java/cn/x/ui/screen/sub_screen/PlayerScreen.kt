@@ -78,6 +78,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -132,7 +133,8 @@ fun PlayerScreen(
     val lyrics by playerScreenVM.lyrics.collectAsState()
 
     val density = LocalDensity.current
-    val screenHeightPx = with(density) { LocalWindowInfo.current.containerSize.height.dp.toPx() }
+    val configuration = LocalConfiguration.current
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
     val sheetOffsetY by animateDpAsState(
         targetValue = if (playerScreenVM.isSheetOpen) 0.dp else with(density) { screenHeightPx.toDp() },
@@ -617,7 +619,8 @@ fun GestureBottomSheet(
     onDismiss: () -> Unit
 ) {
     val density = LocalDensity.current
-    val screenHeightPx = with(density) { LocalWindowInfo.current.containerSize.height.dp.toPx() }
+    val configuration = LocalConfiguration.current
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
     // Sheet 的偏移量（0 = 完全显示，正数 = 向下偏移）
     var sheetOffset by remember { mutableStateOf(0f) }
@@ -682,7 +685,6 @@ fun GestureBottomSheet(
     Column(
         modifier = modifier
             .offset { IntOffset(0, animatedOffset.roundToInt()) }
-            .clip(MaterialTheme.shapes.large)
             .background(MaterialTheme.colorScheme.surface)
     ) {
         // 顶部拖拽区域 - 独立手势处理
@@ -695,8 +697,10 @@ fun GestureBottomSheet(
                             isDragging = true
                         },
                         onVerticalDrag = { change, dragAmount ->
-                            change.consume()
-                            val newOffset = (sheetOffset + dragAmount).coerceIn(0f, screenHeightPx)
+                            change.consume()// 消费掉这个手势事件，防止它被其他手势处理器再次处理
+                            // 计算新的偏移量：(当前偏移量 + 本次拖拽的增量)，并确保结果在 0 到屏幕高度之间
+                            val newOffset =
+                                (sheetOffset + dragAmount * 3).coerceIn(0f, screenHeightPx)
                             sheetOffset = newOffset
                         },
                         onDragEnd = {
@@ -711,7 +715,9 @@ fun GestureBottomSheet(
             contentAlignment = Alignment.Center
         ) {
             Surface(
-                modifier = Modifier.width(40.dp).height(4.dp),
+                modifier = Modifier
+                    .width(40.dp)
+                    .height(4.dp),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                 shape = MaterialTheme.shapes.small
             ) {}
@@ -737,7 +743,7 @@ fun GestureBottomSheet(
                 .fillMaxSize()
                 .nestedScroll(lazyColumnNestedScroll)
         ) {
-            itemsIndexed((1..50).toList()) { _,item ->
+            itemsIndexed((1..50).toList()) { _, item ->
                 ListItem(
                     headlineContent = { Text("列表项 $item") },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
