@@ -52,9 +52,11 @@ data class PlayListSongEntity(
     @ColumnInfo("uri", defaultValue = "")
     var uri: String = "",
 
-    // [本地]文件路径
-    @ColumnInfo("path")
-    val path: String = "",
+    @ColumnInfo("relative_path")
+    val relativePath: String = "",
+
+    @ColumnInfo("absolute_path")
+    val absolutePath: String = "",
 
     // [本地]文件名
     @ColumnInfo("file_name")

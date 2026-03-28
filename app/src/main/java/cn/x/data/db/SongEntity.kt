@@ -10,7 +10,8 @@ import cn.x.util.generateUniqueId
 /**
  * 我的所有歌曲,包括本地和在线
  */
-@Entity("songs",
+@Entity(
+    "songs",
     indices = [Index("title"), Index("artist"), Index("album")]
 //    indices = [Index(value = ["title", "artist", "album"])]
 )
@@ -57,8 +58,11 @@ data class SongEntity(
     var uri: String = "",
 
     // [本地]文件目录(相对路径。如 Music/)
-    @ColumnInfo("path")
-    val path: String = "",
+    @ColumnInfo("relative_path")
+    val relativePath: String = "",
+
+    @ColumnInfo("absolute_path")
+    val absolutePath: String = "",
 
     // [本地]文件名
     @ColumnInfo("file_name")
@@ -67,10 +71,6 @@ data class SongEntity(
     // [本地]文件大小
     @ColumnInfo("file_size")
     val fileSize: Long = 0,
-
-    // 本地路径 拼接后可播放的uri
-//    @ColumnInfo("content_uri")
-//    var contentUri: String = "",
 
 
 //    @ColumnInfo("lyrics")

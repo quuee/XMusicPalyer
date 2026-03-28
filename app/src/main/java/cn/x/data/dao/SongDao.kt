@@ -36,7 +36,7 @@ interface SongDao {
         WHERE (:searchWord IS NULL OR title LIKE :searchWord)
           AND (:searchWord IS NULL OR artist LIKE :searchWord)
           AND (:searchWord IS NULL OR album LIKE :searchWord)
-          AND (:parentPath IS NULL OR path = :parentPath)
+          AND (:parentPath IS NULL OR relative_path = :parentPath)
         ORDER BY title ASC
         LIMIT :limit OFFSET :offset
     """
@@ -48,7 +48,7 @@ interface SongDao {
          WHERE (:searchWord IS NULL OR title LIKE :searchWord)
           AND (:searchWord IS NULL OR artist LIKE :searchWord)
           AND (:searchWord IS NULL OR album LIKE :searchWord)
-          AND (:parentPath IS NULL OR path = :parentPath)
+          AND (:parentPath IS NULL OR relative_path = :parentPath)
     """)
     fun queryLikeCount(searchWord: String?,parentPath: String?): Int
 

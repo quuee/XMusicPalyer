@@ -30,7 +30,7 @@ fun SongEntity.toMediaItem(): MediaItem {
                 .setArtworkUri(artworkUri.toUri())
 //                .setBaseCover(albumCover)
                 .setDuration(duration)
-                .setFilePath(path)
+                .setFilePath(absolutePath)
                 .setFileName(fileName)
                 .setFileSize(fileSize)
                 .build()
@@ -51,7 +51,7 @@ fun MediaItem.toSongEntity(): SongEntity {
         artworkUri = mediaMetadata.artworkUri?.toString() ?:"",
         duration = mediaMetadata.getDuration(),
         uri = localConfiguration?.uri?.toString() ?: "",
-        path = mediaMetadata.getFilePath(),
+        absolutePath = mediaMetadata.getFilePath(),
         fileName = mediaMetadata.getFileName(),
         fileSize = mediaMetadata.getFileSize()
     )
@@ -127,7 +127,8 @@ fun PlayListSongEntity.toSongEntity(): SongEntity {
         artworkUri,
         duration,
         uri,
-        path,
+        relativePath,
+        absolutePath,
         fileName,
         fileSize,
 //        contentUri,
@@ -149,7 +150,8 @@ fun SongEntity.toPlayListSongEntity(): PlayListSongEntity {
         artworkUri,
         duration,
         uri,
-        path,
+        relativePath,
+        absolutePath,
         fileName,
         fileSize,
 //        contentUri,

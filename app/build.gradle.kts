@@ -94,6 +94,7 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.3.6")
     implementation("androidx.paging:paging-runtime:3.3.6")
 
+    implementation("net.jthink:jaudiotagger:3.0.1")
 
 }
 

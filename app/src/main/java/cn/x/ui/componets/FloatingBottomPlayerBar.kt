@@ -108,7 +108,7 @@ fun FloatingBottomPlayerBar(
                 ) {
                     Icon(
                         imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                        contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(
+                        contentDescription = if (isPlaying) stringResource(R.string.play_pause) else stringResource(
                             R.string.play
                         ),
                         modifier = Modifier.size(24.dp),

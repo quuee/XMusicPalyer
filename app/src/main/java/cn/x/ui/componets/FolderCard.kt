@@ -54,7 +54,7 @@ fun FolderCard(
 
             Column {
                 Text(folderName)
-                Text(stringResource(R.string.songListCount, count))
+                Text(stringResource(R.string.songList_count, count))
             }
 
             Spacer(modifier = Modifier.weight(1f))

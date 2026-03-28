@@ -162,7 +162,7 @@ private fun Actions(onCreateClick: () -> Unit, naviRouteItem: () -> Unit) {
         DropdownMenuItem(
             text = {
                 Text(
-                    stringResource(R.string.sortSongList),
+                    stringResource(R.string.songListSort),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             },
@@ -199,7 +199,7 @@ private fun CreateRenameSongListDialog(
                     if (songList.name.isBlank()) {
                         R.string.createSongList
                     } else {
-                        R.string.rename
+                        R.string.songList_rename
                     }
                 )
             )
@@ -283,7 +283,7 @@ private fun SongListItemWidget(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = stringResource(R.string.songListCount, songList.count),
+                    text = stringResource(R.string.songList_count, songList.count),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
@@ -293,7 +293,7 @@ private fun SongListItemWidget(
                 DropdownMenuItem(
                     text = {
                         Text(
-                            stringResource(R.string.rename),
+                            stringResource(R.string.songList_rename),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     },

@@ -56,7 +56,7 @@ class ScanScreenVM @Inject constructor(
                 }
 
                 _currentFolders.value = _musicList.value
-                    .groupingBy { it.path }
+                    .groupingBy { it.relativePath }
                     .eachCount().map { FolderEntity(it.key, it.value) }
 
 //                Log.d(TAG, "startScanByMediaStore: count:$count")

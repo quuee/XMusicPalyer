@@ -101,6 +101,7 @@ fun PlayerScreen(
     val songArtist = currentSong?.mediaMetadata?.artist?.toString() ?: "unknown"
     val isPlaylistEmpty = playlist.isEmpty()
 
+    val lyrics by playerScreenVM.lyrics.collectAsState()
 
     Box(
         modifier = Modifier
@@ -138,7 +139,7 @@ fun PlayerScreen(
                 // 封面 lyric 滑动区域
                 CoverLyricsPager(
                     currentSong,
-                    listOf(LyricLine(0L, "no lyric")),
+                    lyrics,
                     progress,
                     modifier = Modifier
                         .fillMaxWidth()

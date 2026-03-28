@@ -19,10 +19,11 @@ import androidx.core.net.toUri
 private val LocalAudioColumns = arrayOf(
     MediaStore.Audio.AudioColumns._ID, // 音频id
     MediaStore.Audio.AudioColumns.RELATIVE_PATH, // 音频相对路径
-//    MediaStore.Audio.AudioColumns.DATA, // 文件绝对路径 老api
+    MediaStore.Audio.AudioColumns.DATA, // 文件绝对路径 老api
     MediaStore.Audio.AudioColumns.SIZE, // 音频字节大小
     MediaStore.Audio.AudioColumns.DISPLAY_NAME, // 音频名称 xxx.amr
     MediaStore.Audio.AudioColumns.TITLE, // 音频标题
+    MediaStore.Audio.AudioColumns.DISPLAY_NAME, // 文件名
     MediaStore.Audio.AudioColumns.DATE_ADDED, // 音频添加到MediaProvider的时间
     MediaStore.Audio.AudioColumns.DATE_MODIFIED, // 上次修改时间，该列用于内部MediaScanner扫描，外部不要修改
     MediaStore.Audio.AudioColumns.MIME_TYPE, // 音频类型
@@ -79,6 +80,10 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                     val sizeColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
                     val relativePathColumn =
                         it.getColumnIndexOrThrow(MediaStore.Audio.Media.RELATIVE_PATH)
+                    val absPathColumn =
+                        it.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
+                    val displayNameColumn =
+                        it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
                     val albumColumn = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
                     val albumIdColumn =
                         it.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
@@ -89,6 +94,8 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                         val duration = it.getLong(durationColumn)
                         val size = it.getLong(sizeColumn)
                         val relativePath = it.getString(relativePathColumn)
+                        val absPath = it.getString(absPathColumn)
+                        val displayName = it.getString(displayNameColumn)
                         val album = it.getString(albumColumn)
                         val albumId = it.getLong(albumIdColumn)
 
@@ -110,12 +117,14 @@ class MusicScanUtilByMediaStoreFlow(private val context: Context) {
                             artist = artist,
                             duration = duration,
                             fileSize = size,
-                            path = relativePath,
+                            relativePath = relativePath,
+                            absolutePath = absPath,
+                            fileName = displayName,
                             album = album,
                             albumId = albumId,
                             artworkUri = artworkUri.toString(),
                             uri = contentUri.toString(),
-                            )
+                        )
 
                         send(songItem) // 发送每首歌曲到流
                         // 因为callbackFlow有缓冲区，最大64，导致歌曲扫描后发送失败，数量一直不对
