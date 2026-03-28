@@ -58,8 +58,8 @@ class SongsScreenVM @Inject constructor(
                 // 先不分页了
                 db.SongListDao().getSongsBySongListId(songListId)
             }
-            _songs.value = songListWithSongs?.songs?:emptyList() // 在 Main 线程更新
-            _songList.value = songListWithSongs?.songList?: EMPTY
+            _songs.value = songListWithSongs?.songs ?: emptyList() // 在 Main 线程更新
+            _songList.value = songListWithSongs?.songList ?: EMPTY
         }
     }
 
@@ -67,7 +67,7 @@ class SongsScreenVM @Inject constructor(
         val newMode = !_isSelectionMode.value
         _isSelectionMode.value = newMode
         if (!newMode) {
-            clearSelection()
+            _selectedIds.value = emptySet()
         }
     }
 
@@ -81,25 +81,33 @@ class SongsScreenVM @Inject constructor(
         _selectedIds.value = current
     }
 
+    fun allSelection() {
+//        _selectedIds.value = emptySet()
+        _selectedIds.value = _songs.value.map { it.uniqueId }.toMutableSet()
+    }
+
     fun clearSelection() {
         _selectedIds.value = emptySet()
     }
-
-    fun isSelected(id: String): Boolean = id in _selectedIds.value
 
 
     fun play(song: MediaItem) {
         playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
     }
 
-    fun remove(){
+    fun remove() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                val removeList = _selectedIds.value.map { SongListWithSongEntity(songlistId = songListId, songId = it) }
+            withContext(Dispatchers.IO) {
+                val removeList = _selectedIds.value.map {
+                    SongListWithSongEntity(
+                        songlistId = songListId,
+                        songId = it
+                    )
+                }
                 db.SongListDao().deleteSongFromSongList(removeList)
             }
             _songs.value = _songs.value.filter { it.uniqueId !in _selectedIds.value }
-            clearSelection()
+            _selectedIds.value = emptySet()
         }
     }
 }

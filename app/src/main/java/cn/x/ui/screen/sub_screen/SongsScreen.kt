@@ -29,6 +29,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.CheckBox
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
@@ -89,6 +91,8 @@ fun SongsScreen(
     val songList by songsScreenVM.songList.collectAsState()
     val selectedIds by songsScreenVM.selectedIds.collectAsState()
     val isSelectionMode by songsScreenVM.isSelectionMode.collectAsState()
+
+    val isAllSelection = items.size == selectedIds.size
 
     val colorScheme = MaterialTheme.colorScheme
     val listState = rememberLazyListState()
@@ -199,8 +203,10 @@ fun SongsScreen(
                     Toolbar(
                         isSelectionMode = isSelectionMode,
                         clearSelection = { songsScreenVM.clearSelection() },
+                        allSelection = { songsScreenVM.allSelection() },
                         toggleSelectionMode = { songsScreenVM.toggleSelectionMode() },
                         refresh = { songsScreenVM.loadData() },
+                        isAllSelection = isAllSelection,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp)
@@ -229,7 +235,7 @@ fun SongsScreen(
             ) {
                 MultiSelectBottomBar(
                     onDeleteClick = { },
-                    onMoveClick = { songsScreenVM.remove()},
+                    onMoveClick = { songsScreenVM.remove() },
                     onAddToClick = { }
                 )
             }
@@ -242,8 +248,10 @@ fun SongsScreen(
 private fun Toolbar(
     isSelectionMode: Boolean,
     clearSelection: () -> Unit,
+    allSelection: () -> Unit,
     toggleSelectionMode: () -> Unit,
     refresh: () -> Unit,
+    isAllSelection: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -253,13 +261,28 @@ private fun Toolbar(
     ) {
 
         if (isSelectionMode) {
-            IconButton(onClick = clearSelection) {
-                Icon(Icons.Default.Clear, contentDescription = "Clear")
+            // 全选 / 全不选
+            IconButton(onClick = {
+                if (isAllSelection) {
+                    clearSelection()
+                } else {
+                    allSelection()
+                }
+            }) {
+                Icon(
+                    if (isAllSelection) {
+                        Icons.Default.CheckBox
+                    } else {
+                        Icons.Default.CheckBoxOutlineBlank
+                    },
+
+                    contentDescription = null
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = toggleSelectionMode) {
                 Icon(
-                    imageVector = Icons.Default.Done,
+                    imageVector = Icons.Default.Clear,
                     contentDescription = null
                 )
             }

@@ -41,7 +41,7 @@ class XMusicApplication : Application() {
         super.onCreate()
 
         SPUtil.init(this)
-
+        SettingModule.load()
         Log.d("XMusicApplication", "onCreate: init mediaController")
         val sessionToken =
             SessionToken(this, ComponentName(this, MusicPlaybackService::class.java))
