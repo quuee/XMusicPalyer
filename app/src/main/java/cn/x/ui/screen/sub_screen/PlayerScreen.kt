@@ -205,7 +205,17 @@ private fun MainContent(
     modifier: Modifier
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier.pointerInput(Unit) {
+            detectVerticalDragGestures(
+                onVerticalDrag = { change, dragAmount ->
+                    // 向上滑动 (dragAmount < 0) 且滑动距离足够时打开
+                    if (dragAmount < 0 && abs(dragAmount) > 50f) {
+                        openSheet()
+                    }
+                    change.consume()
+                }
+            )
+        }
     )
     {
         // 背景模糊效果
@@ -229,18 +239,8 @@ private fun MainContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(8.dp)
-                    //手势检测遮罩区域 - 用于从底部向上滑动打开 Sheet
-                    .pointerInput(Unit) {
-                        detectVerticalDragGestures(
-                            onVerticalDrag = { change, dragAmount ->
-                                // 向上滑动 (dragAmount < 0) 且滑动距离足够时打开
-                                if (dragAmount < 0 && abs(dragAmount) > 50f) {
-                                    openSheet()
-                                }
-                                change.consume()
-                            }
-                        )
-                    },
+                //手势检测遮罩区域 - 用于从底部向上滑动打开 Sheet
+                ,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 顶部工具栏
