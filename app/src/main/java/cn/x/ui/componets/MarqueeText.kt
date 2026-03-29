@@ -2,7 +2,9 @@ package cn.x.ui.componets
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -24,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
+
 
 
 @Composable
@@ -57,6 +61,7 @@ fun MarqueeText(
         val scrollDuration = (scrollDistance / velocityPx * 1000).toLong()
 
         while (true) {
+            // 从左向右滚动：从 0 到 -scrollDistance
             animatedOffset.animateTo(
                 targetValue = -scrollDistance,
                 animationSpec = tween(
@@ -66,6 +71,7 @@ fun MarqueeText(
             )
             delay(delay)
 
+            // 从右向左滚动：从 -scrollDistance 到 0
             animatedOffset.animateTo(
                 targetValue = 0f,
                 animationSpec = tween(
@@ -77,7 +83,6 @@ fun MarqueeText(
         }
     }
 
-    // 使用 Layout 来完全控制测量和放置
     Layout(
         content = {
             Text(
@@ -85,10 +90,10 @@ fun MarqueeText(
                 style = textStyle,
                 maxLines = 1,
                 overflow = TextOverflow.Clip,
-                modifier = Modifier
-                    .graphicsLayer {
-                        translationX = animatedOffset.value
-                    }
+                modifier = Modifier.graphicsLayer {
+                    // 使用 graphicsLayer 的 translationX 实现滚动
+                    translationX = animatedOffset.value
+                }
             )
         },
         modifier = modifier
@@ -96,26 +101,21 @@ fun MarqueeText(
             .clipToBounds()
             .onSizeChanged { containerWidth = it.width.toFloat() }
     ) { measurables, constraints ->
-        // 关键：测量文本时不限制最大宽度
         val textPlaceable = measurables[0].measure(
             Constraints(
                 minWidth = 0,
-                maxWidth = Int.MAX_VALUE,  // 不限制最大宽度
+                maxWidth = Int.MAX_VALUE,
                 minHeight = 0,
                 maxHeight = constraints.maxHeight
             )
         )
 
-        // 更新文本宽度
         textWidth = textPlaceable.width.toFloat()
-
-        // 容器宽度使用父布局给的约束
         val width = constraints.maxWidth
+
         layout(width, textPlaceable.height) {
-            textPlaceable.placeRelative(
-                x = animatedOffset.value.roundToInt(),
-                y = 0
-            )
+            // 不需要手动设置 x 坐标，因为已经通过 graphicsLayer 的 translationX 处理了
+            textPlaceable.placeRelative(x = 0, y = 0)
         }
     }
 }

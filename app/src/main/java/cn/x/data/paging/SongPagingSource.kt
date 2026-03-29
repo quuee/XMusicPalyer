@@ -6,6 +6,9 @@ import cn.x.data.dao.SongDao
 import cn.x.data.db.SongEntity
 import kotlinx.coroutines.flow.first
 
+/**
+ * 歌曲分页查询, 但是涉及播放队列等不好弄,先放着
+ */
 class SongPagingSource(
     private val songDao: SongDao,
     private val searchWord: String?,

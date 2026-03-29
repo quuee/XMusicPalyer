@@ -1,7 +1,7 @@
 package cn.x.di
 
 import android.app.Application
-import cn.x.util.MusicScanUtilByMediaStoreFlow
+import cn.x.util.MediaStoreScanUtil
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,8 +15,8 @@ object AppleModule {
 
     @Singleton
     @Provides
-    fun provideMusicScanFlow(application: Application): MusicScanUtilByMediaStoreFlow {
-        return MusicScanUtilByMediaStoreFlow(application)
+    fun provideMusicScanFlow(application: Application): MediaStoreScanUtil {
+        return MediaStoreScanUtil(application)
     }
 
 }

@@ -35,7 +35,9 @@ data class SongListWithSongEntity(
     val songId: String
 )
 
-
+/**
+ * 查询时字段映射的实体类
+ */
 data class SongListWithSongs(
     @Embedded val songList: SongListEntity,
     @Relation(

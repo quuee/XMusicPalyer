@@ -41,10 +41,7 @@ private val LocalAudioColumns = arrayOf(
 
 )
 
-/**
- * android mediaStore不会主动将新的音频文件加入音乐库，只能扫描出部分歌曲(试过在文件夹单独点击几首没扫描出的歌曲播放，再去扫描才出现)
- */
-class MusicScanUtilByMediaStoreFlow(private val context: Context) {
+class MediaStoreScanUtil(private val context: Context) {
 
     /**
      * 扫描设备上所有音乐文件并以流形式返回

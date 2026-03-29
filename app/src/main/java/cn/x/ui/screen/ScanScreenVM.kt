@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import cn.x.data.db.FolderEntity
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
-import cn.x.util.MusicScanUtilByMediaStoreFlow
+import cn.x.util.MediaStoreScanUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ScanScreenVM @Inject constructor(
-    private val musicScanFlow: MusicScanUtilByMediaStoreFlow,
+    private val mediaStoreScanUtil: MediaStoreScanUtil,
     private val db: MusicDatabase,
 ) : ViewModel() {
 
@@ -45,7 +45,7 @@ class ScanScreenVM @Inject constructor(
             _musicList.value = emptyList() // 清空之前的列表
 //            var count = 0
             try {
-                val flow = musicScanFlow.scanAllMusicAsFlow(minDuration)
+                val flow = mediaStoreScanUtil.scanAllMusicAsFlow(minDuration)
 
                 flow.collect { songItem ->
                     Log.d(TAG, "startScan: $songItem")
