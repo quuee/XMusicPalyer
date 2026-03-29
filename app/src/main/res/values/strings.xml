@@ -41,8 +41,10 @@
 
     <string name="songList">歌单</string>
     <string name="setting">设置</string>
+    <string name="local_song">本地歌曲</string>
 
     <string name="more">更多</string>
 
-    <string name="system_music_server_launch">正在启动音乐服务...</string>
+    <string name="system_music_server_launch">正在启动音乐服务…</string>
+    <string name="system_cache_limit">%1$d GB</string>
 </resources>

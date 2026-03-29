@@ -7,6 +7,7 @@ import java.util.regex.Pattern
 data class LyricLine(val time: Long, val content: String)
 
 class LyricUtil{
+    // companion object 类似 java的static，直接类名调用
     companion object{
         //其中“(.+)”是匹配任意长度字符，“//”d是匹配0-9任一数字，“//d{2,3}”是匹配2位或者3位数字
         private val PATTERN_LINE = Pattern.compile("((\\[\\d\\d:\\d\\d\\.\\d{2,3}\\])+)(.+)")

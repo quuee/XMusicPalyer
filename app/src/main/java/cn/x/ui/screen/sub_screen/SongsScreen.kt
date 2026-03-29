@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.Refresh
@@ -146,11 +147,21 @@ fun SongsScreen(
                 },
                 actions = {
                     if (!isSelectionMode) {
+                        // 去添加歌曲
                         IconButton(onClick = {
                             naviRouteItem(Screens.AddSelectSong.route.plus("/${songListId}"))
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Add,
+                                contentDescription = null
+                            )
+                        }
+                        // 编辑歌单 名称 封面
+                        IconButton(onClick = {
+
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
                                 contentDescription = null
                             )
                         }

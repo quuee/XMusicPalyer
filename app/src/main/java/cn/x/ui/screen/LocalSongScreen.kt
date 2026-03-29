@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,7 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
@@ -37,11 +40,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import cn.x.R
 import cn.x.data.db.SongListEntity
-import cn.x.service.PlayState
 import cn.x.ui.Screens
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.CenterTopBar
@@ -118,9 +127,27 @@ fun LocalSongScreen(
                         .fillMaxWidth()
                         .padding(8.dp)
                 ) {
+                    Icon(imageVector = Icons.Default.PlaylistAdd, contentDescription = null)
+                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    Text("下一首播放")
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
                     Icon(imageVector = Icons.Default.Info, contentDescription = null)
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                     Text("歌曲信息")
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    Text("编辑元信息")
                 }
                 Row(
                     modifier = Modifier
@@ -142,7 +169,7 @@ fun LocalSongScreen(
     Scaffold(
         topBar = {
             CenterTopBar(
-                "LocalSong",
+                stringResource(R.string.local_song),
                 onDrawerToggle,
                 actions = {
                     IconButton(onClick = { naviRouteItem(Screens.Search.route) }) {
@@ -155,9 +182,11 @@ fun LocalSongScreen(
         }
     ) { padding ->
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
 
             LazyColumn() {
                 itemsIndexed(songs) { index, songItem ->
@@ -213,28 +242,40 @@ private fun SongListDialog(
     onDismiss: () -> Unit
 ) {
 
+
     Dialog(onDismissRequest = onDismiss) {
         // 完全自定义的内容
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(32.dp),
+                .heightIn(min = (LocalConfiguration.current.screenHeightDp / 2).dp) // 根据屏幕物理高度获取
+                .padding(8.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
-            LazyColumn() {
-                items(songLists) { item ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                    ) {
-                        Text(item.name)
+            Column (
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    "添加到歌单",
+                    fontSize = 20.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold
+                )
+                LazyColumn() {
+                    items(songLists) { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            Text(item.name)
+                        }
                     }
                 }
             }
         }
-
 
     }
 }

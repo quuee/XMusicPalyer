@@ -103,7 +103,7 @@ fun MultiSelectSongItem(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(end = 8.dp)
         ) {
             AnimatedVisibility(
                 visible = isSelectionMode,
@@ -139,54 +139,47 @@ fun MultiSelectSongItem(
             Spacer(modifier = Modifier.width(12.dp))
 
             // 显示内容区域
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Box(contentAlignment = Alignment.Center) {
+                // 歌曲封面
+                ImageWidget(
+                    cover = song.artworkUri,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(all = 4.dp)
+                        .clip(MaterialTheme.shapes.small),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
-                Box(contentAlignment = Alignment.Center) {
-                    // 歌曲封面
-                    ImageWidget(
-                        cover = song.artworkUri,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(all = 4.dp)
-                            .clip(MaterialTheme.shapes.small),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = song.title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                    )
-
-                    Text(
-                        text = song.artist,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (isCurrent) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = 0.7f
-                        ),
-                        maxLines = 1,
-                    )
-                }
-
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = formatTime(song.duration),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                    text = song.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                    color = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
 
-                IconButton(onClick = onMenuClick) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = stringResource(R.string.more)
-                    )
-                }
+                Text(
+                    text = song.artist,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isCurrent) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurface.copy(
+                        alpha = 0.7f
+                    ),
+                    maxLines = 1,
+                )
+            }
+
+            Text(
+                text = formatTime(song.duration),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+            )
+
+            IconButton(onClick = onMenuClick) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = stringResource(R.string.more)
+                )
             }
         }
     }

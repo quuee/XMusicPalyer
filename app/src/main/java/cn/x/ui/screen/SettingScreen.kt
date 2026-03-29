@@ -149,7 +149,7 @@ fun SettingScreen(
                                 .padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("是否扫描小于30秒的音频")
+                            Text("扫描小于30秒的音频")
                             Switch(
                                 checked = false,
                                 onCheckedChange = {}
@@ -161,7 +161,7 @@ fun SettingScreen(
                                 .padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("是否显示桌面歌词")
+                            Text("开启桌面歌词")
                             Switch(
                                 checked = false,
                                 onCheckedChange = {}
@@ -227,7 +227,7 @@ fun SettingScreen(
                                     modifier = Modifier.width(100.dp)
 //                        .background(MaterialTheme.colorScheme.inverseOnSurface)
                                 ) {
-                                    Text(String.format("%dGB", 4))
+                                    Text(stringResource(R.string.system_cache_limit,2))
                                     Icon(
                                         Icons.Default.ArrowDropDown,
                                         contentDescription = "Select protocol"
@@ -239,7 +239,7 @@ fun SettingScreen(
                                     onDismissRequest = { expanded = false }
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text("2GB") },
+                                        text = { Text(stringResource(R.string.system_cache_limit,2)) },
                                         onClick = {
 //                                    cacheMax = 2
                                             expanded = false
@@ -247,7 +247,7 @@ fun SettingScreen(
                                         }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text("4GB") },
+                                        text = { Text(stringResource(R.string.system_cache_limit,4)) },
                                         onClick = {
 //                                    cacheMax = 4
                                             expanded = false
