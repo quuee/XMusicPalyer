@@ -1,18 +1,13 @@
 package cn.x.ui.screen.sub_screen
 
-import androidx.compose.animation.core.FastOutSlowInEasing
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,7 +19,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -34,11 +28,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
@@ -50,8 +44,9 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -61,34 +56,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -103,8 +86,7 @@ import cn.x.util.LyricLine
 import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
 import coil3.compose.AsyncImage
-import kotlin.math.abs
-import kotlin.math.roundToInt
+
 
 /**
  * 播放页面
@@ -133,56 +115,35 @@ fun PlayerScreen(
 
     val lyrics by playerScreenVM.lyrics.collectAsState()
 
-    val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
-    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
-    val screenHeight = configuration.screenHeightDp.dp
-
-    val sheetOffsetY by animateDpAsState(
-        targetValue = if (playerScreenVM.isSheetOpen) 0.dp else with(density) { screenHeightPx.toDp() },
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "sheet_offset"
-    )
-
-    // 主界面向上推的偏移量（Sheet 打开时向上推，关闭时恢复）
-    val mainContentOffsetY by animateDpAsState(
-        targetValue = if (playerScreenVM.isSheetOpen) -screenHeight * 0.3f else 0.dp,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "main_offset"
-    )
+    val verticalPagerState = rememberPagerState(pageCount = { 2 })
 
 
+    VerticalPager(state = verticalPagerState) { pageIndex ->
+        when (pageIndex) {
+            0 -> {
+                MainContent(
+                    naviBack,
+                    currentSong,
+                    lyrics,
+                    playProgress,
+                    buffering,
+                    duration,
+                    isPlaying,
+                    playMode,
+                    seekTo = { playerScreenVM.seekTo(it) },
+                    prev = { playerScreenVM.prev() },
+                    togglePlayMode = { playerScreenVM.togglePlayMode() },
+                    next = { playerScreenVM.next() },
+                    togglePlayPause = { playerScreenVM.togglePlayPause() },
+                )
+            }
 
-    MainContent(
-        naviBack,
-        currentSong,
-        lyrics,
-        playProgress,
-        buffering,
-        duration,
-        isPlaying,
-        playMode,
-        seekTo = { playerScreenVM.seekTo(it) },
-        prev = { playerScreenVM.prev() },
-        togglePlayMode = { playerScreenVM.togglePlayMode() },
-        next = { playerScreenVM.next() },
-        togglePlayPause = { playerScreenVM.togglePlayPause() },
-        openSheet = { playerScreenVM.openSheet() },
-        modifier = Modifier
-            .fillMaxSize()
-            .offset { IntOffset(0, mainContentOffsetY.roundToPx()) }
-    )
-
-
-    if (playerScreenVM.isSheetOpen) {
-        GestureBottomSheet(
-            modifier = Modifier
-                .offset { IntOffset(0, sheetOffsetY.roundToPx()) }
-                .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.statusBars),
-            onDismiss = { playerScreenVM.closeSheet() }
-        )
+            1 -> {
+                PlayListContent()
+            }
+        }
     }
+
 
 }
 
@@ -201,23 +162,9 @@ private fun MainContent(
     togglePlayPause: () -> Unit,
     next: () -> Unit,
     togglePlayMode: () -> Unit,
-    openSheet: () -> Unit,
-    modifier: Modifier
 ) {
-    Box(
-        modifier = modifier.pointerInput(Unit) {
-            detectVerticalDragGestures(
-                onVerticalDrag = { change, dragAmount ->
-                    // 向上滑动 (dragAmount < 0) 且滑动距离足够时打开
-                    if (dragAmount < 0 && abs(dragAmount) > 50f) {
-                        openSheet()
-                    }
-                    change.consume()
-                }
-            )
-        }
-    )
-    {
+
+    Box(modifier = Modifier.fillMaxSize()) {
         // 背景模糊效果
         ImageWidget(
             cover = currentSong?.mediaMetadata?.artworkUri.toString(),
@@ -279,7 +226,7 @@ private fun MainContent(
                     playPause = { togglePlayPause() },
                     playNext = { next() },
                     togglePlayMode = { togglePlayMode() },
-                    playList = { openSheet() },
+                    playList = { },
                     isPlaying,
                     playMode,
                     modifier = Modifier
@@ -634,105 +581,17 @@ private fun ControlsButton(
     }
 }
 
-
 @Composable
-fun GestureBottomSheet(
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit
-) {
-    val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
-    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
-
-    // Sheet 的偏移量（0 = 完全显示，正数 = 向下偏移）
-    var sheetOffset by remember { mutableStateOf(0f) }
-    var isDragging by remember { mutableStateOf(false) }
-
-    // LazyColumn 的状态
-    val listState = rememberLazyListState()
-    val isAtTop by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0
-        }
-    }
-
-    // 动画偏移
-    val animatedOffset by animateFloatAsState(
-        targetValue = if (isDragging) sheetOffset else 0f,
-        animationSpec = spring(
-            stiffness = Spring.StiffnessMediumLow,
-            dampingRatio = Spring.DampingRatioMediumBouncy
-        ),
-        label = "sheet_offset_anim"
-    )
-
-    // 处理拖拽结束
-    LaunchedEffect(isDragging) {
-        if (!isDragging && sheetOffset > 0) {
-            if (sheetOffset > screenHeightPx * 0.3f) {
-                onDismiss()
-            }
-            sheetOffset = 0f
-        }
-    }
-
-    // 为 LazyColumn 创建嵌套滚动连接
-    val lazyColumnNestedScroll = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                // 只在列表在顶部且向下滑动时拦截
-                if (available.y > 0 && isAtTop) {
-                    if (!isDragging) {
-                        isDragging = true
-                    }
-                    val newOffset = (sheetOffset + available.y).coerceIn(0f, screenHeightPx)
-                    sheetOffset = newOffset
-                    return available // 消费掉滚动事件
-                }
-                return Offset.Zero
-            }
-
-            override suspend fun onPreFling(available: Velocity): Velocity {
-                if (isDragging && available.y > 500f) {
-                    onDismiss()
-                    isDragging = false
-                    sheetOffset = 0f
-                    return available
-                }
-                return Velocity.Zero
-            }
-        }
-    }
-
+private fun PlayListContent() {
     Column(
-        modifier = modifier
-            .offset { IntOffset(0, animatedOffset.roundToInt()) }
+        modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
+            .windowInsetsPadding(WindowInsets.statusBars)
     ) {
         // 顶部拖拽区域 - 独立手势处理
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .pointerInput(Unit) {
-                    detectVerticalDragGestures(
-                        onDragStart = {
-                            isDragging = true
-                        },
-                        onVerticalDrag = { change, dragAmount ->
-                            change.consume()// 消费掉这个手势事件，防止它被其他手势处理器再次处理
-                            // 计算新的偏移量：(当前偏移量 + 本次拖拽的增量)，并确保结果在 0 到屏幕高度之间
-                            val newOffset =
-                                (sheetOffset + dragAmount * 3).coerceIn(0f, screenHeightPx)
-                            sheetOffset = newOffset
-                        },
-                        onDragEnd = {
-                            isDragging = false
-                        },
-                        onDragCancel = {
-                            isDragging = false
-                        }
-                    )
-                }
                 .padding(vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -760,18 +619,18 @@ fun GestureBottomSheet(
 
         // LazyColumn 区域 - 使用嵌套滚动
         LazyColumn(
-            state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .nestedScroll(lazyColumnNestedScroll)
+
         ) {
             itemsIndexed((1..50).toList()) { _, item ->
                 ListItem(
                     headlineContent = { Text("列表项 $item") },
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                 )
-                Divider()
+                HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
             }
         }
     }
 }
+

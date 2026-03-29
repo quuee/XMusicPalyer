@@ -1,7 +1,6 @@
 package cn.x.ui.screen.sub_screen
 
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.service.PlayMode
@@ -26,12 +25,10 @@ class PlayerScreenVM @Inject constructor(
     private val _lyrics = MutableStateFlow(listOf(LyricLine(0L, "no lyric")))
     val lyrics = _lyrics.asStateFlow()
 
-    private val _isSheetOpen = mutableStateOf(false)
-    val isSheetOpen: Boolean get() = _isSheetOpen.value
-
 
     init {
         viewModelScope.launch(Dispatchers.IO){
+            // todo 应是实时监听触发,不然即使切歌也不会更新歌词
             getCurrentSongLyric()
         }
     }
@@ -72,6 +69,4 @@ class PlayerScreenVM @Inject constructor(
         playerController.setPlayMode(newMode)
     }
 
-    fun openSheet() { _isSheetOpen.value = true }
-    fun closeSheet() { _isSheetOpen.value = false }
 }
