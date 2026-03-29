@@ -20,6 +20,9 @@ interface SongListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSongListAll(list: List<SongListEntity>)
 
+    @Query("SELECT * FROM song_lists where id = :songListId")
+    fun getSongList(songListId:Long): SongListEntity
+
     @Query("SELECT * FROM song_lists order by sort")
     fun getAllSongLists(): List<SongListEntity>
 

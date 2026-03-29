@@ -45,13 +45,10 @@ class SongsScreenVM @Inject constructor(
 
     init {
 
-        // todo 在添加歌曲后返回该页面,这种方式不会重新加载歌曲
-        // 先用refresh吧
-        loadData()
     }
 
     fun loadData() {
-        // 模拟加载数据
+        // 加载数据
         viewModelScope.launch {
             val songListWithSongs = withContext(Dispatchers.IO) {
                 // 查询歌单 查询歌曲 独立进行 不然后续不好分页
@@ -105,6 +102,10 @@ class SongsScreenVM @Inject constructor(
                     )
                 }
                 db.SongListDao().deleteSongFromSongList(removeList)
+
+                val songList = db.SongListDao().getSongList(songListId)
+                val newNongList = songList.copy(count = songList.count-removeList.size)
+                db.SongListDao().updateSongList(newNongList)
             }
             _songs.value = _songs.value.filter { it.uniqueId !in _selectedIds.value }
             _selectedIds.value = emptySet()

@@ -3,6 +3,7 @@ package cn.x.ui.screen.sub_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.MediaItem
 import cn.x.service.PlayMode
 import cn.x.service.PlayerController
 import cn.x.util.AudioMetadataUtil
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -27,21 +29,42 @@ class PlayerScreenVM @Inject constructor(
 
 
     init {
-        viewModelScope.launch(Dispatchers.IO){
-            // todo 应是实时监听触发,不然即使切歌也不会更新歌词
-            getCurrentSongLyric()
+        viewModelScope.launch {
+            playerController.currentSong.collect { song ->
+                song?.let { mediaItem->
+                    getCurrentSongLyric(mediaItem)
+                }
+            }
         }
     }
 
-    private fun getCurrentSongLyric() {
-        val filepath = playerController.currentSong.value?.mediaMetadata?.getFilePath() ?: ""
-        val metadata = AudioMetadataUtil.readMetadata(filepath)
-        val lyrics = metadata["lyrics"]
-//        Log.d("PlayerScreenVM", "getCurrentSongLyric: ${lyrics}")
+    private fun getCurrentSongLyric(mediaItem: MediaItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val filepath = mediaItem.mediaMetadata.getFilePath()
+            if (filepath.isBlank()) {
+                _lyrics.value = listOf(LyricLine(0L, "no lyric"))
+                return@launch
+            }
 
-        if (!lyrics.isNullOrBlank()) {
-            val line = LyricUtil.parseLyric(lyrics)
-            _lyrics.value = line!!
+            try {
+                // 在 IO 线程执行文件读取操作
+                val metadata = AudioMetadataUtil.readMetadata(filepath)
+                val lyrics = metadata["lyrics"]
+
+                // 在主线程更新 UI 状态
+                withContext(Dispatchers.Main) {
+                    if (!lyrics.isNullOrBlank()) {
+                        val parsedLines = LyricUtil.parseLyric(lyrics)
+                        _lyrics.value = parsedLines ?: listOf(LyricLine(0L, "no lyric"))
+                    } else {
+                        _lyrics.value = listOf(LyricLine(0L, "no lyric"))
+                    }
+                }
+            } catch (e: Exception) {
+                // 处理异常情况
+                e.printStackTrace()
+                _lyrics.value = listOf(LyricLine(0L, "load lyric failed"))
+            }
         }
 
     }

@@ -90,7 +90,6 @@ class SongListScreenVM @Inject constructor(
                 }
             }
             dismissDialog() // 这里是异步,防止dismissDialog把状态重置,只能放里面
-            // todo 但是为什么不关闭菜单呢
         }
     }
 

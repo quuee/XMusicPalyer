@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.MusicDatabase
 import cn.x.data.db.SongEntity
+import cn.x.data.db.SongListEntity
 import cn.x.data.db.SongListWithSongEntity
 import cn.x.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,6 +77,9 @@ class AddSelectSongScreenVM @Inject constructor(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 db.SongListDao().insertSongsToSongList(list)
+                val songList = db.SongListDao().getSongList(songListId)
+                val newNongList = songList.copy(count = songList.count+list.size)
+                db.SongListDao().updateSongList(newNongList)
             }
 
         }
