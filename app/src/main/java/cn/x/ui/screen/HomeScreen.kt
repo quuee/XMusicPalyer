@@ -32,6 +32,7 @@ import cn.x.ui.componets.PushDrawer
 
 /**
  * 主页面
+ * app已经有一层Scaffold,**这个界面不套**,因为这个界面做类似菜单路由,菜单页面还有Scaffold,不然嵌套了
  */
 @Composable
 fun HomeScreen(

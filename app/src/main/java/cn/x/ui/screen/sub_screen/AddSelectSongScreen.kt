@@ -24,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.componets.MultiSelectSongItem
+import cn.x.util.GlobalMessageManager
 
 /**
  * 添加歌曲到歌单（支持搜索）
@@ -173,6 +175,7 @@ private fun TopSearchBar(
             focusManager.clearFocus() // 先 关闭焦点=关闭键盘
             selectDone()
             naviBack()
+            GlobalMessageManager.show("操作成功！", duration = SnackbarDuration.Short)
         }) {
             Icon(imageVector = Icons.Default.Done, contentDescription = null)
         }

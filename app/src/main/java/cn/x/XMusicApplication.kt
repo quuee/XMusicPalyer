@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +29,9 @@ import cn.x.di.SettingModule
 import cn.x.service.MusicPlaybackService
 import cn.x.ui.NavigationGraph
 import cn.x.ui.Screens
+import cn.x.ui.componets.CustomSnackbar
 import cn.x.ui.theme.XMusicPlayerTheme
+import cn.x.util.GlobalMessageManager
 import cn.x.util.SPUtil
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.HiltAndroidApp
@@ -61,12 +64,21 @@ fun XMusicApplicationApp(
 ) {
     val isReady by PlayServiceModule.isPlayerReady.collectAsState()
     val themeMode by SettingModule.themeMode.collectAsState()
+
+
     XMusicPlayerTheme(
         themeMode = themeMode
     ) {
         if (isReady) {
             Scaffold(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                snackbarHost = {
+                    SnackbarHost(
+                        GlobalMessageManager.snackbarHostState,
+                        snackbar = { snackbarData ->
+                            CustomSnackbar(snackbarData)
+                        })
+                }
             ) {
                 val navHostController = rememberNavController()
                 NavigationGraph(

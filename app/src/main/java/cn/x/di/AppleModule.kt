@@ -2,7 +2,6 @@ package cn.x.di
 
 import android.app.Application
 import cn.x.util.MusicScanUtilByMediaStoreFlow
-import cn.x.util.SPUtil
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
