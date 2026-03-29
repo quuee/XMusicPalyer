@@ -19,7 +19,7 @@ fun CustomSnackbar(snackbarData: SnackbarData) {
         modifier = Modifier.padding(16.dp),
         actionOnNewLine = false,
         shape = SnackbarDefaults.shape,
-        containerColor = colorScheme.surface,
+        containerColor = colorScheme.surface.copy(alpha = 0.8f),
         contentColor = colorScheme.onSurface,
         actionColor = colorScheme.secondaryContainer,
         actionContentColor = colorScheme.onSecondaryContainer,

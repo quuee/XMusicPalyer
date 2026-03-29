@@ -31,7 +31,7 @@ import cn.x.ui.NavigationGraph
 import cn.x.ui.Screens
 import cn.x.ui.componets.CustomSnackbar
 import cn.x.ui.theme.XMusicPlayerTheme
-import cn.x.util.GlobalMessageManager
+import cn.x.util.GlobalMessageUtil
 import cn.x.util.SPUtil
 import com.google.common.util.concurrent.MoreExecutors
 import dagger.hilt.android.HiltAndroidApp
@@ -74,10 +74,12 @@ fun XMusicApplicationApp(
                 modifier = Modifier.fillMaxSize(),
                 snackbarHost = {
                     SnackbarHost(
-                        GlobalMessageManager.snackbarHostState,
+                        GlobalMessageUtil.snackbarHostState,
                         snackbar = { snackbarData ->
                             CustomSnackbar(snackbarData)
-                        })
+                        },
+//                        modifier = Modifier.align(Alignment.TopCenter)
+                        )
                 }
             ) {
                 val navHostController = rememberNavController()

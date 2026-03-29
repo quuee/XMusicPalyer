@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-object GlobalMessageManager {
+object GlobalMessageUtil {
     // 全局唯一的 SnackbarHostState
     val snackbarHostState = SnackbarHostState()
 

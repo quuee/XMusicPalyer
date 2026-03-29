@@ -43,7 +43,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.componets.MultiSelectSongItem
-import cn.x.util.GlobalMessageManager
+import cn.x.util.GlobalMessageUtil
+
 
 /**
  * 添加歌曲到歌单（支持搜索）
@@ -175,7 +176,7 @@ private fun TopSearchBar(
             focusManager.clearFocus() // 先 关闭焦点=关闭键盘
             selectDone()
             naviBack()
-            GlobalMessageManager.show("操作成功！", duration = SnackbarDuration.Short)
+            GlobalMessageUtil.show("操作成功！", duration = SnackbarDuration.Short)
         }) {
             Icon(imageVector = Icons.Default.Done, contentDescription = null)
         }

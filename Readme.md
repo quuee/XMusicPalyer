@@ -24,9 +24,8 @@
 ### 通过mediastore获取歌曲信息为 未知
     已加入jaudiotagger库,目前拿来读取歌词,暂时不急
 ### 添加歌曲页面返回到歌单,新歌不显示
-    暂时加个刷新按钮
     主要是两个页面 两个viewmodel,得合并一个
-    或者使用 LaunchedEffect(Unit) { } 返回后歌曲页面刷新
+    暂时使用 LaunchedEffect(Unit) { } 返回后歌曲页面刷新
 
 ## 想做的功能 TODO
 ### 直接添加目录,获取该目录下的歌曲
