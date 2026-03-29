@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -74,97 +73,20 @@ fun LocalSongScreen(
     val songs by localSongScreenVM.songs.collectAsState()
     val songLists by localSongScreenVM.songLists.collectAsState()
 
+    // 添加到歌单 dialog
     val songListDialogVisible by localSongScreenVM.songListDialogVisible.collectAsState()
+
     // 控制 BottomSheet 是否显示
     val bottomSheetVisible by localSongScreenVM.bottomSheetVisible.collectAsState()
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val letters = (listOf("#") + Constants.alphabet)
-    val listState = rememberLazyListState()
+    val alphabetIndexListState = rememberLazyListState()
 
     val controller = localSongScreenVM.playerController
     val currentSong by controller.currentSong.collectAsState()
 
-    // 只有在 showBottomSheet 为 true 时才显示
-    if (bottomSheetVisible) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                localSongScreenVM.hideBottomSheet()
-                // 等待动画结束再移除 UI
-                scope.launch {
-                    sheetState.hide()
-                }
-            },
-            sheetState = sheetState,
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .clickable(onClick = { localSongScreenVM.showSongListDialog() })
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("添加到歌单")
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.Share, contentDescription = null)
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("分享")
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.PlaylistAdd, contentDescription = null)
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("下一首播放")
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.Info, contentDescription = null)
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("歌曲信息")
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("编辑元信息")
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        tint = Color.Red
-                    )
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text("永久删除")
-                }
-            }
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -214,7 +136,7 @@ fun LocalSongScreen(
                         if (firstIndex != -1) {
                             // 这里需要根据实际数据结构计算正确的索引
                             // 简化示例，实际需要更复杂的逻辑
-                            listState.animateScrollToItem(firstIndex)
+                            alphabetIndexListState.animateScrollToItem(firstIndex)
                         }
                     }
                 },
@@ -229,6 +151,23 @@ fun LocalSongScreen(
                 songLists = songLists,
                 onChoose = {},
                 onDismiss = { localSongScreenVM.hideSongListDialog() }
+            )
+        }
+
+        if (bottomSheetVisible) {
+            SongBottomSheet(
+                onDismissRequest = {
+                    localSongScreenVM.hideBottomSheet()
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                },
+                onAddToPlaylist = { localSongScreenVM.showSongListDialog() },
+                onShare = { /* 处理分享逻辑 */ },
+                onPlayNext = { /* 处理下一首逻辑 */ },
+                onShowInfo = { /* 处理信息逻辑 */ },
+                onEditMetadata = { /* 处理编辑逻辑 */ },
+                onDelete = { /* 处理删除逻辑 */ }
             )
         }
 
@@ -253,7 +192,7 @@ private fun SongListDialog(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
         ) {
-            Column (
+            Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
@@ -277,5 +216,91 @@ private fun SongListDialog(
             }
         }
 
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SongBottomSheet(
+    onDismissRequest: () -> Unit,
+    onAddToPlaylist: () -> Unit,
+    onShare: () -> Unit,
+    onPlayNext: () -> Unit,
+    onShowInfo: () -> Unit,
+    onEditMetadata: () -> Unit,
+    onDelete: () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // 每一个 Row 都是一个菜单项
+            BottomSheetItem(
+                icon = Icons.Default.Add,
+                text = "添加到歌单",
+                onClick = onAddToPlaylist
+            )
+            BottomSheetItem(
+                icon = Icons.Default.Share,
+                text = "分享",
+                onClick = onShare
+            )
+            BottomSheetItem(
+                icon = Icons.Default.PlaylistAdd,
+                text = "下一首播放",
+                onClick = onPlayNext
+            )
+            BottomSheetItem(
+                icon = Icons.Default.Info,
+                text = "歌曲信息",
+                onClick = onShowInfo
+            )
+            BottomSheetItem(
+                icon = Icons.Default.Edit,
+                text = "编辑元信息",
+                onClick = onEditMetadata
+            )
+            BottomSheetItem(
+                icon = Icons.Default.Delete,
+                text = "永久删除",
+                onClick = onDelete,
+                iconTint = Color.Red,
+                textColor = Color.Red
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun BottomSheetItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    onClick: () -> Unit,
+    iconTint: Color = MaterialTheme.colorScheme.onSurface,
+    textColor: Color = MaterialTheme.colorScheme.onSurface
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable(onClick = onClick)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconTint
+        )
+        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+        Text(
+            text = text,
+            color = textColor
+        )
     }
 }
