@@ -49,12 +49,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.R
+import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
 import cn.x.ui.Screens
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.Constants
+import cn.x.util.formatTime
 import cn.x.util.getSongId
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.launch
@@ -72,9 +74,12 @@ fun LocalSongScreen(
     val colorScheme = MaterialTheme.colorScheme
     val songs by localSongScreenVM.songs.collectAsState()
     val songLists by localSongScreenVM.songLists.collectAsState()
+    val selectedSong by localSongScreenVM.selectedSong.collectAsState()
 
     // 添加到歌单 dialog
     val songListDialogVisible by localSongScreenVM.songListDialogVisible.collectAsState()
+    // 歌曲信息dialog
+    val songInfoDialogVisible by localSongScreenVM.songInfoDialogVisible.collectAsState()
 
     // 控制 BottomSheet 是否显示
     val bottomSheetVisible by localSongScreenVM.bottomSheetVisible.collectAsState()
@@ -153,6 +158,9 @@ fun LocalSongScreen(
                 onDismiss = { localSongScreenVM.hideSongListDialog() }
             )
         }
+        if(songInfoDialogVisible){
+            SongInfoDialog(song = selectedSong, onDismiss = {localSongScreenVM.hideSongInfoDialog()})
+        }
 
         if (bottomSheetVisible) {
             SongBottomSheet(
@@ -165,12 +173,53 @@ fun LocalSongScreen(
                 onAddToPlaylist = { localSongScreenVM.showSongListDialog() },
                 onShare = { /* 处理分享逻辑 */ },
                 onPlayNext = { /* 处理下一首逻辑 */ },
-                onShowInfo = { /* 处理信息逻辑 */ },
+                onShowInfo = { localSongScreenVM.showSongInfoDialog() },
                 onEditMetadata = { /* 处理编辑逻辑 */ },
                 onDelete = { /* 处理删除逻辑 */ }
             )
         }
 
+    }
+}
+
+@Composable
+private fun SongInfoDialog(
+    song: SongEntity?,
+    onDismiss: () -> Unit){
+
+    Dialog(onDismissRequest = onDismiss) {
+        // 完全自定义的内容
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = (LocalConfiguration.current.screenHeightDp / 1.5).dp) // 根据屏幕物理高度获取
+                .padding(8.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                // title
+                Text(
+                    "歌曲信息",
+                    fontSize = 20.sp,
+                    fontStyle = FontStyle.Normal,
+                    fontWeight = FontWeight.Bold
+                )
+
+                //content
+                Text(song?.title?:"")
+                Text(song?.artist?:"")
+                Text(song?.album?:"")
+                Text(formatTime(song?.duration?:0L))
+                Text(song?.fileName?:"")
+                Text(song?.fileSize.toString())
+                Text(song?.absolutePath?:"")
+
+            }
+        }
     }
 }
 

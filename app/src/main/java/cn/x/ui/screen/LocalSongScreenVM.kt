@@ -34,16 +34,20 @@ class LocalSongScreenVM @Inject constructor(
     val songLists: StateFlow<List<SongListEntity>> = _songLists.asStateFlow()
 
     // 选中的歌曲
-    private val _selectSong = MutableStateFlow<SongEntity?>(null)
-//    val selectSong = _selectSong.asStateFlow()
+    private val _selectedSong = MutableStateFlow<SongEntity?>(null)
+    val selectedSong = _selectedSong.asStateFlow()
 
     // 底部开关
     private val _bottomSheetVisible = MutableStateFlow(false)
     val bottomSheetVisible = _bottomSheetVisible.asStateFlow()
 
-    // 选者歌单弹窗开关
+    // 选择歌单弹窗开关
     private val _songListDialogVisible = MutableStateFlow(false)
     val songListDialogVisible = _songListDialogVisible.asStateFlow()
+
+    // 歌曲信息弹窗开关
+    private val _songInfoDialogVisible = MutableStateFlow(false)
+    val songInfoDialogVisible = _songInfoDialogVisible.asStateFlow()
 
     // 搜索关键字
     private val _searchWord = MutableStateFlow<String?>(null)
@@ -77,12 +81,12 @@ class LocalSongScreenVM @Inject constructor(
 
     fun showBottomSheet(song: SongEntity) {
         _bottomSheetVisible.value = true
-        _selectSong.value = song
+        _selectedSong.value = song
     }
 
     fun hideBottomSheet() {
         _bottomSheetVisible.value = false
-        _selectSong.value = null
+        _selectedSong.value = null
     }
 
     fun showSongListDialog() {
@@ -92,6 +96,15 @@ class LocalSongScreenVM @Inject constructor(
 
     fun hideSongListDialog() {
         _songListDialogVisible.value = false
+    }
+
+    fun showSongInfoDialog() {
+        _songInfoDialogVisible.value = true
+        // 或者 打开时才 用jaudiotagger读取更详细信息
+    }
+
+    fun hideSongInfoDialog() {
+        _songInfoDialogVisible.value = false
     }
 
 }

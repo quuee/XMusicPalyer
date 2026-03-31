@@ -104,11 +104,18 @@ class SongsScreenVM @Inject constructor(
                 db.SongListDao().deleteSongFromSongList(removeList)
 
                 val songList = db.SongListDao().getSongList(songListId)
-                val newNongList = songList.copy(count = songList.count-removeList.size)
+                val newNongList = songList.copy(count = songList.count - removeList.size)
                 db.SongListDao().updateSongList(newNongList)
             }
             _songs.value = _songs.value.filter { it.uniqueId !in _selectedIds.value }
             _selectedIds.value = emptySet()
         }
+    }
+
+    suspend fun getCurrentSongIndex(): Int {
+        val index =
+            _songs.value.indexOfFirst { it.uniqueId == playerController.currentSong.value?.mediaId }
+        return index
+
     }
 }

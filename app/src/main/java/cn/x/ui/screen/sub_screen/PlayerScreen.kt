@@ -8,6 +8,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -139,7 +140,11 @@ fun PlayerScreen(
             }
 
             1 -> {
-                PlayListContent()
+                PlayListContent(
+                    playlist,
+                    currentSongId = currentSong?.mediaId ?: "",
+                    onClick = {playerScreenVM.play(it)},
+                    )
             }
         }
     }
@@ -582,7 +587,11 @@ private fun ControlsButton(
 }
 
 @Composable
-private fun PlayListContent() {
+private fun PlayListContent(
+    playList: List<MediaItem>,
+    currentSongId: String,
+    onClick: (String) -> Unit,
+) {
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -605,7 +614,7 @@ private fun PlayListContent() {
         }
 
         Text(
-            text = "底部弹窗",
+            text = "播放队列",
             fontSize = 20.sp,
             modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
         )
@@ -623,10 +632,19 @@ private fun PlayListContent() {
                 .fillMaxSize()
 
         ) {
-            itemsIndexed((1..50).toList()) { _, item ->
+            itemsIndexed(playList) { _, item ->
                 ListItem(
-                    headlineContent = { Text("列表项 $item") },
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    headlineContent = {
+                        Text(
+                            item.mediaMetadata.title.toString(),
+                            color = if (currentSongId == item.mediaId) MaterialTheme.colorScheme.primary.copy(
+                                alpha = 0.7f
+                            ) else MaterialTheme.colorScheme.onSurface.copy(
+                                alpha = 0.7f
+                            ),
+                        )
+                    },
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).clickable(onClick={onClick(item.mediaId)})
                 )
                 HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
             }

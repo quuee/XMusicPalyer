@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -53,6 +54,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -74,6 +76,7 @@ import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.getSongId
 import cn.x.util.toMediaItem
+import kotlinx.coroutines.launch
 
 
 /**
@@ -97,6 +100,7 @@ fun SongsScreen(
 
     val colorScheme = MaterialTheme.colorScheme
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     // 计算顶部区域是否还在可见范围内
     val topSectionHeightDp = with(LocalConfiguration.current) { screenHeightDp.dp / 5 }
@@ -218,7 +222,7 @@ fun SongsScreen(
                         clearSelection = { songsScreenVM.clearSelection() },
                         allSelection = { songsScreenVM.allSelection() },
                         toggleSelectionMode = { songsScreenVM.toggleSelectionMode() },
-                        refresh = { songsScreenVM.loadData() },
+                        location = { coroutineScope.launch { listState.scrollToItem(songsScreenVM.getCurrentSongIndex()) } },
                         isAllSelection = isAllSelection,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -263,7 +267,7 @@ private fun Toolbar(
     clearSelection: () -> Unit,
     allSelection: () -> Unit,
     toggleSelectionMode: () -> Unit,
-    refresh: () -> Unit,
+    location: () -> Unit,
     isAllSelection: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -316,9 +320,9 @@ private fun Toolbar(
             }
 
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = refresh) {
+            IconButton(onClick = location) {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
+                    imageVector = Icons.Default.MyLocation,
                     contentDescription = null
                 )
             }

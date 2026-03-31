@@ -92,4 +92,8 @@ class PlayerScreenVM @Inject constructor(
         playerController.setPlayMode(newMode)
     }
 
+    fun play(songUniqueId:String){
+        playerController.play(songUniqueId)
+    }
+
 }
