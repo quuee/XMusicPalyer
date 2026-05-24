@@ -52,7 +52,6 @@ dependencies {
     // Compose BOM 管理版本
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
-    implementation(libs.androidx.compose.ui.text)
 
     // Compose 预览和调试
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -68,7 +67,7 @@ dependencies {
 
     // Network
     implementation(libs.bundles.network)
-    implementation(libs.gson)
+
 
     // Room
     implementation(libs.bundles.room)
@@ -102,8 +101,6 @@ dependencies {
     implementation("androidx.media3:media3-session:1.7.1") // 用于MediaSession和后台播放
 
     implementation("net.jthink:jaudiotagger:3.0.1")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.9.0")
 
 }
 
