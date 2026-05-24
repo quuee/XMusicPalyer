@@ -11,8 +11,10 @@ import cn.x.data.db.SongListEntity
 import cn.x.service.PlayerController
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 
@@ -24,9 +26,14 @@ class LocalSongScreenVM(
 
 
     private val tag = "LocalSongScreenVM"
+
     // 歌曲
-    private val _songs = MutableStateFlow<List<SongEntity>>(emptyList())
-    val songs: StateFlow<List<SongEntity>> = _songs.asStateFlow()
+    val songs: StateFlow<List<SongEntity>> = songDao.queryAll().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
 
     // 歌单
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
@@ -58,9 +65,9 @@ class LocalSongScreenVM(
 
     fun loadData() {
         viewModelScope.launch {
-            songDao.queryAll().collect { items ->
-                _songs.value = items
-            }
+//            songDao.queryAll().collect { items ->
+//                songs.value = items
+//            }
             songListDao.getAllSongLists().collect { items ->
                 _songLists.value = items
             }
@@ -75,7 +82,7 @@ class LocalSongScreenVM(
     }
 
     fun play(song: MediaItem) {
-        playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
+        playerController.replaceAll(songs.value.map { it.toMediaItem() }, song)
     }
 
     fun showBottomSheet(song: SongEntity) {

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import cn.x.data.db.PlayListSongEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -28,4 +29,10 @@ interface PlayListDao {
 
     @Query("DELETE FROM play_list_songs")
     suspend fun clear()
+
+    @Transaction
+    suspend fun replaceAll(songs: List<PlayListSongEntity>) {
+        clear()
+        insertAll(songs)
+    }
 }

@@ -19,6 +19,9 @@ import cn.x.ui.screen.sub_screen.SearchScreenVM
 import cn.x.ui.screen.sub_screen.SongListSortScreenVM
 import cn.x.ui.screen.sub_screen.SongsScreenVM
 import cn.x.util.MediaStoreScanUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -27,8 +30,16 @@ import org.koin.dsl.module
 
 
 val appModule = module {
+//    single<CoroutineScope> {
+//        // 使用 Koin 内置的应用级作用域
+//        koinApplicationScope()
+//    }
 
-    single<PlayerController> { PlayerControllerImpl(player = get(), get()) }
+    single<CoroutineScope> {
+        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    }
+
+    single<PlayerController> { PlayerControllerImpl(player = get(), get(),get()) }
 
 }
 

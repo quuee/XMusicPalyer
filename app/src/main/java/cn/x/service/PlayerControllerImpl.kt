@@ -1,6 +1,5 @@
 package cn.x.service
 
-import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
@@ -14,27 +13,38 @@ import cn.x.util.toMediaItem
 import cn.x.util.toPlayListSongEntity
 import cn.x.util.toSongEntity
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlin.collections.indexOfFirst
+import kotlin.collections.map
 
 class PlayerControllerImpl
     (
     private val player: MediaController,
     private val db: MusicDatabase,
-) : PlayerController, CoroutineScope by MainScope() {
+    private val applicationScope: CoroutineScope,
+) : PlayerController {
 
     override val mediaController: MediaController
         get() = player
 
-    private val _playlist = MutableStateFlow(emptyList<MediaItem>())
-    override val playlist = _playlist.asStateFlow()
+    override val playlist: StateFlow<List<MediaItem>> =
+        db.PlayListDao().queryAll().map { entities ->
+            entities.map { it.toSongEntity().toMediaItem() }
+        }
+            .stateIn(
+                scope = applicationScope,  // 使用应用级作用域
+//                started = SharingStarted.WhileSubscribed(3000),  // 延迟3秒停止订阅
+                started = SharingStarted.Lazily, // 无延迟
+                initialValue = emptyList()
+            )
 
     private val _currentSong = MutableStateFlow<MediaItem?>(null)
     override val currentSong = _currentSong.asStateFlow()
@@ -52,8 +62,6 @@ class PlayerControllerImpl
     override val playMode: StateFlow<PlayMode> = _playMode.asStateFlow()
 
     private var audioSessionId = 0
-
-    private val TAG = "PlayerControllerImpl"
 
     init {
         player.playWhenReady = false
@@ -90,7 +98,7 @@ class PlayerControllerImpl
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 super.onMediaItemTransition(mediaItem, reason)
                 mediaItem ?: return
-                val playlist = _playlist.value
+                val playlist = playlist.value
                 _currentSong.value = playlist.find { it.mediaId == mediaItem.mediaId }
             }
 
@@ -110,23 +118,17 @@ class PlayerControllerImpl
 
         setPlayMode(PlayMode.valueOf(SPUtil.getInt(Constants.PlayMode)))
 
-        launch(Dispatchers.Main.immediate) {
-            db.PlayListDao().queryAll().collect { items ->
-                if(items.isNotEmpty()){
-                    val mediaList = items.map { it.toSongEntity().toMediaItem() }
-                    _playlist.value = mediaList
-                    player.setMediaItems(mediaList)
-                    val currentSongId = SPUtil.getString(Constants.CurrentSongId)
-                    if (currentSongId.isNotEmpty()) {
-                        val currentSongIndex = mediaList.indexOfFirst { it.mediaId == currentSongId }.coerceAtLeast(0)
-                        _currentSong.value = mediaList[currentSongIndex]
-                        player.seekTo(currentSongIndex, 0)
-                    }
-                }
-            }
+        player.setMediaItems(playlist.value)
+
+        val currentSongId = SPUtil.getString(Constants.CurrentSongId)
+        if (currentSongId.isNotEmpty()) {
+            val currentSongIndex =
+                playlist.value.indexOfFirst { it.mediaId == currentSongId }.coerceAtLeast(0)
+            _currentSong.value = playlist.value[currentSongIndex]
+            player.seekTo(currentSongIndex, 0)
         }
 
-        launch {
+        applicationScope.launch {
             while (isActive) {
                 if (player.isPlaying) {
                     _playProgress.value = player.currentPosition
@@ -134,13 +136,14 @@ class PlayerControllerImpl
                 delay(1000)
             }
         }
+
     }
 
-    @MainThread
+
     override fun addAndPlay(song: MediaItem) {
-        launch(Dispatchers.Main.immediate) {
-            val newPlaylist = _playlist.value.toMutableList()
-            val index = newPlaylist.indexOfFirst { it.mediaId == song.mediaId }
+        applicationScope.launch {
+            val newPlaylist = playlist.value.toMutableList()
+            val index = playlist.value.indexOfFirst { it.mediaId == song.mediaId }
             if (index >= 0) {
                 newPlaylist[index] = song
                 player.replaceMediaItem(index, song)
@@ -148,35 +151,24 @@ class PlayerControllerImpl
                 newPlaylist.add(song)
                 player.addMediaItem(song)
             }
-            withContext(Dispatchers.IO) {
-                db.PlayListDao().clear()
-                db.PlayListDao()
-                    .insertAll(newPlaylist.map { it.toSongEntity().toPlayListSongEntity() })
-            }
-            _playlist.value = newPlaylist
+            db.PlayListDao()
+                .replaceAll(newPlaylist.map { it.toSongEntity().toPlayListSongEntity() })
             play(song.mediaId)
         }
     }
 
-    @MainThread
+
     override fun replaceAll(songList: List<MediaItem>, song: MediaItem) {
-        launch(Dispatchers.Main.immediate) {
-            withContext(Dispatchers.IO) {
-                db.PlayListDao().clear()
-                db.PlayListDao()
-                    .insertAll(songList.map { it.toSongEntity().toPlayListSongEntity() })
-            }
+        applicationScope.launch {
+            db.PlayListDao().replaceAll(songList.map { it.toSongEntity().toPlayListSongEntity() })
             stop()
             player.setMediaItems(songList)
-            _playlist.value = songList
-            _currentSong.value = song
             play(song.mediaId)
         }
     }
 
-    @MainThread
     override fun play(mediaId: String) {
-        val playlist = _playlist.value
+        val playlist = playlist.value
         if (playlist.isEmpty()) {
             return
         }
@@ -194,39 +186,29 @@ class PlayerControllerImpl
         _bufferingPercent.value = 0
     }
 
-    @MainThread
     override fun delete(song: MediaItem) {
-        launch(Dispatchers.Main.immediate) {
-            val playlist = _playlist.value.toMutableList()
+        applicationScope.launch {
+            val playlist = playlist.value.toMutableList()
             val index = playlist.indexOfFirst { it.mediaId == song.mediaId }
             if (index < 0) return@launch
             if (playlist.size == 1) {
                 clearPlaylist()
             } else {
                 playlist.removeAt(index)
-                _playlist.value = playlist
-                withContext(Dispatchers.IO) {
-                    db.PlayListDao().delete(song.toSongEntity().toPlayListSongEntity())
-                }
+                db.PlayListDao().delete(song.toSongEntity().toPlayListSongEntity())
                 player.removeMediaItem(index)
             }
         }
     }
 
-    @MainThread
     override fun clearPlaylist() {
-        launch(Dispatchers.Main.immediate) {
-            withContext(Dispatchers.IO) {
-                db.PlayListDao().clear()
-            }
-            stop()
+        applicationScope.launch {
+            db.PlayListDao().clear()
             player.clearMediaItems()
-            _playlist.value = emptyList()
             _currentSong.value = null
         }
     }
 
-    @MainThread
     override fun playPause() {
         if (player.mediaItemCount == 0) return
         when (player.playbackState) {
@@ -255,7 +237,6 @@ class PlayerControllerImpl
         }
     }
 
-    @MainThread
     override fun next() {
         if (player.mediaItemCount == 0) return
         player.seekToNextMediaItem()
@@ -264,7 +245,6 @@ class PlayerControllerImpl
         _bufferingPercent.value = 0
     }
 
-    @MainThread
     override fun prev() {
         if (player.mediaItemCount == 0) return
         player.seekToPreviousMediaItem()
@@ -273,21 +253,18 @@ class PlayerControllerImpl
         _bufferingPercent.value = 0
     }
 
-    @MainThread
     override fun seekTo(msec: Long) {
         if (player.playbackState == Player.STATE_READY) {
             player.seekTo(msec)
         }
     }
 
-    @MainThread
     override fun getAudioSessionId(): Int {
         return audioSessionId
     }
 
-    @MainThread
     override fun setPlayMode(mode: PlayMode) {
-        SPUtil.putInt(Constants.PlayMode,mode.value)
+        SPUtil.putInt(Constants.PlayMode, mode.value)
         _playMode.value = mode
         when (mode) {
             PlayMode.Loop -> {
@@ -307,7 +284,6 @@ class PlayerControllerImpl
         }
     }
 
-    @MainThread
     override fun stop() {
         player.stop()
         _playState.value = PlayState.Idle
