@@ -45,19 +45,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.data.db.SongEntity
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 import kotlinx.coroutines.flow.StateFlow
-import java.io.File
+import org.koin.androidx.compose.koinViewModel
+
 
 /**
  * 扫描歌曲
  */
 @Composable
 fun ScanScreen(
-    scanVM: ScanScreenVM = hiltViewModel(),
+    scanVM: ScanScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit
 ) {
 

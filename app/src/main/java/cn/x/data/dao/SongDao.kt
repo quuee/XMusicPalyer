@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SongDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(entity: SongEntity)
+    suspend fun insert(entity: SongEntity)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(list: List<SongEntity>)
+    suspend fun insertAll(list: List<SongEntity>)
 
     @Query("SELECT * FROM songs")
-    fun queryAll(): List<SongEntity>
+    fun queryAll(): Flow<List<SongEntity>>
 
     @Query(
         """
@@ -29,7 +29,7 @@ interface SongDao {
     ORDER BY title ASC
     """
     )
-    fun queryLike(searchWord: String?): List<SongEntity>
+    fun queryLike(searchWord: String?): Flow<List<SongEntity>>
     @Query(
         """
         SELECT * FROM songs 
@@ -50,11 +50,11 @@ interface SongDao {
           AND (:searchWord IS NULL OR album LIKE :searchWord)
           AND (:parentPath IS NULL OR relative_path = :parentPath)
     """)
-    fun queryLikeCount(searchWord: String?,parentPath: String?): Int
+    suspend fun queryLikeCount(searchWord: String?,parentPath: String?): Int
 
     @Delete
-    fun delete(entity: SongEntity)
+    suspend fun delete(entity: SongEntity)
 
     @Query("DELETE FROM songs")
-    fun clear()
+    suspend fun clear()
 }

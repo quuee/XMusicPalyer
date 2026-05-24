@@ -5,8 +5,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.MusicDatabase
+import cn.x.data.dao.SongListDao
 import cn.x.data.db.SongListEntity
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,11 +14,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Collections
-import javax.inject.Inject
 
-@HiltViewModel
-class SongListSortScreenVM @Inject constructor(
-    private val db: MusicDatabase,
+
+class SongListSortScreenVM (
+    private val songListDao: SongListDao,
 ) : ViewModel() {
     private val TAG = "SongListSortVM"
 
@@ -33,9 +32,10 @@ class SongListSortScreenVM @Inject constructor(
     val draggingOffset = MutableStateFlow(Offset.Zero)
 
     fun loadSongLists() {
-        // 从 repository 加载歌单列表
-        viewModelScope.launch(Dispatchers.IO) {
-            _songLists.value = db.SongListDao().getAllSongLists()
+        viewModelScope.launch {
+            songListDao.getAllSongLists().collect { items->
+                _songLists.value = items
+            }
         }
     }
 
@@ -104,11 +104,7 @@ class SongListSortScreenVM @Inject constructor(
             val updatedList = _songLists.value.mapIndexed { index, item ->
                 item.copy(sort = index)
             }
-
-            withContext(Dispatchers.IO) {
-                db.SongListDao().updateSongListAll(updatedList)
-            }
-
+            songListDao.updateSongListAll(updatedList)
             _songLists.value = updatedList // 触发 Compose 重组
         }
 

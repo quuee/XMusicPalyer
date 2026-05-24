@@ -47,7 +47,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.R
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
@@ -60,6 +59,7 @@ import cn.x.util.formatTime
 import cn.x.util.getSongId
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * 本地所有歌曲
@@ -67,7 +67,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocalSongScreen(
-    localSongScreenVM: LocalSongScreenVM = hiltViewModel(),
+    localSongScreenVM: LocalSongScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit,
     naviRouteItem: (String) -> Unit,
 ) {

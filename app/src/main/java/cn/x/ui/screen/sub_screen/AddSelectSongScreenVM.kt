@@ -4,21 +4,22 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.MusicDatabase
+import cn.x.data.dao.SongDao
+import cn.x.data.dao.SongListDao
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListWithSongEntity
 import cn.x.util.Constants
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class AddSelectSongScreenVM @Inject constructor(
-    private val db: MusicDatabase,
+
+class AddSelectSongScreenVM(
+    private val songListDao: SongListDao,
+    private val songDao: SongDao,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -41,21 +42,16 @@ class AddSelectSongScreenVM @Inject constructor(
     fun loadData() {
         // 进入歌单页面 加载数据
         viewModelScope.launch {
-            val songs = withContext(Dispatchers.IO) {
-                // 查询歌单歌曲
-                db.SongListDao().getSongsBySongListId(songListId)?.songs ?: emptyList()
-            }
+            val songListWithSongs = songListDao.getSongsBySongListId(songListId)
+            val songs = songListWithSongs?.songs ?: emptyList()
 
-            val selectedSongIds = songs.map { it.uniqueId }.toSet() // 在 Main 线程获取快照
+            val selectedSongIds = songs.map { it.uniqueId }.toSet()
 
-            val unselectedSongs = withContext(Dispatchers.IO) {
-                // 查询所有歌曲
-                val allSongs = db.SongDao().queryAll()
+            songDao.queryAll().collect { items ->
                 // 过滤已有歌曲
-                allSongs.filter { it.uniqueId !in selectedSongIds }
+                val unselectedSongs = items.filter { it.uniqueId !in selectedSongIds }
+                _unselectSongs.value = unselectedSongs
             }
-
-            _unselectSongs.value = unselectedSongs // 在 Main 线程更新
         }
     }
 
@@ -69,40 +65,34 @@ class AddSelectSongScreenVM @Inject constructor(
         _selectedIds.value = current
     }
 
-
     fun addSelectToSongList(songListId: Long) {
         val list =
             _selectedIds.value.map { SongListWithSongEntity(songlistId = songListId, songId = it) }
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                db.SongListDao().insertSongsToSongList(list)
-                val songList = db.SongListDao().getSongList(songListId)
-                val newNongList = songList.copy(count = songList.count+list.size)
-                db.SongListDao().updateSongList(newNongList)
+                songListDao.insertSongsToSongList(list)
+                val songList = songListDao.getSongList(songListId)
+                val newNongList = songList.copy(count = songList.count + list.size)
+                songListDao.updateSongList(newNongList)
             }
 
         }
     }
 
-    fun changeSearchWord(word:String?){
+    fun changeSearchWord(word: String?) {
         _searchWord.value = word
 
         viewModelScope.launch {
-            val songs = withContext(Dispatchers.IO) {
-                // 查询歌单歌曲
-                db.SongListDao().getSongsBySongListId(songListId)?.songs ?: emptyList()
-            }
+            val songListWithSongs = songListDao.getSongsBySongListId(songListId)
+            val songs = songListWithSongs?.songs ?: emptyList()
 
-            val selectedSongIds = songs.map { it.uniqueId }.toSet() // 在 Main 线程获取快照
+            val selectedSongIds = songs.map { it.uniqueId }.toSet()
 
-            val unselectedSongs = withContext(Dispatchers.IO) {
-                // 查询所有歌曲
-                val allSongs = db.SongDao().queryLike(word)
+            songDao.queryLike(word).collect { items ->
                 // 过滤已有歌曲
-                allSongs.filter { it.uniqueId !in selectedSongIds }
+                val unselectedSongs = items.filter { it.uniqueId !in selectedSongIds }
+                _unselectSongs.value = unselectedSongs
             }
-
-            _unselectSongs.value = unselectedSongs // 在 Main 线程更新
         }
     }
 }

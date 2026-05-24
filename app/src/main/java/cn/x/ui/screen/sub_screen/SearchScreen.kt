@@ -19,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,8 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.componets.MultiSelectSongItem
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * 就单纯搜歌
@@ -48,7 +47,7 @@ import cn.x.ui.componets.MultiSelectSongItem
 @Composable
 fun SearchScreen(
     naviBack: () -> Unit,
-    searchScreenVM: SearchScreenVM = hiltViewModel()
+    searchScreenVM: SearchScreenVM = koinViewModel()
 ) {
 
     val searchWord by searchScreenVM.searchWord.collectAsState()

@@ -20,7 +20,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -29,6 +28,7 @@ import cn.x.ui.Screens
 import cn.x.ui.componets.DrawerContent
 import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.PushDrawer
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * 主页面
@@ -36,7 +36,7 @@ import cn.x.ui.componets.PushDrawer
  */
 @Composable
 fun HomeScreen(
-    homeScreenVM: HomeScreenVM = hiltViewModel(),
+    homeScreenVM: HomeScreenVM = koinViewModel(),
     naviRouteItem: (String) -> Unit,
 ) {
 

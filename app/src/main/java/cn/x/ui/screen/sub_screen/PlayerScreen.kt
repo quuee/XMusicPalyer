@@ -75,7 +75,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import cn.x.R
 import cn.x.service.PlayMode
@@ -87,6 +86,7 @@ import cn.x.util.LyricLine
 import cn.x.util.LyricUtil.Companion.findCurrentLyricIndex
 import cn.x.util.formatTime
 import coil3.compose.AsyncImage
+import org.koin.compose.viewmodel.koinViewModel
 
 
 /**
@@ -95,7 +95,7 @@ import coil3.compose.AsyncImage
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerScreen(
-    playerScreenVM: PlayerScreenVM = hiltViewModel(),
+    playerScreenVM: PlayerScreenVM = koinViewModel(),
     naviBack: () -> Unit
 ) {
 

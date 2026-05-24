@@ -5,10 +5,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cn.x.data.db.FolderEntity
-import cn.x.data.MusicDatabase
+import cn.x.data.dao.FolderDao
+import cn.x.data.dao.SongDao
 import cn.x.data.db.SongEntity
 import cn.x.util.MediaStoreScanUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,12 +16,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class ScanScreenVM @Inject constructor(
+class ScanScreenVM(
     private val mediaStoreScanUtil: MediaStoreScanUtil,
-    private val db: MusicDatabase,
+    private val songDao: SongDao,
+    private val folderDao: FolderDao,
 ) : ViewModel() {
 
     private val TAG = "ScanScreenVM"
@@ -62,8 +61,8 @@ class ScanScreenVM @Inject constructor(
 //                Log.d(TAG, "startScanByMediaStore: count:$count")
                 // *** 关键修改：将数据库操作移到后台线程 ***
                 withContext(Dispatchers.IO) {
-                    db.SongDao().insertAll(_musicList.value)
-                    db.FolderDao().insertAll(_currentFolders.value)
+                    songDao.insertAll(_musicList.value)
+                    folderDao.insertAll(_currentFolders.value)
                 }
 
                 _scanState.value = ScanState.Completed

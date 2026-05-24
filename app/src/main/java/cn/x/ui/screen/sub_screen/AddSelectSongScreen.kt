@@ -41,9 +41,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.GlobalMessageUtil
+import org.koin.androidx.compose.koinViewModel
 
 
 /**
@@ -53,7 +53,7 @@ import cn.x.util.GlobalMessageUtil
 @Composable
 fun AddSelectSongScreen(
     naviBack: () -> Unit,
-    addSelectSongScreenVM: AddSelectSongScreenVM = hiltViewModel(),
+    addSelectSongScreenVM: AddSelectSongScreenVM = koinViewModel(),
     songListId: Long
 ) {
 

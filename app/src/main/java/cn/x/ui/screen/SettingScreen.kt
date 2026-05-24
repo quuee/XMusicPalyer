@@ -38,11 +38,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.R
-import cn.x.di.SettingModule
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.theme.AppThemeMode
+import org.koin.androidx.compose.koinViewModel
 
 
 /**
@@ -51,11 +50,10 @@ import cn.x.ui.theme.AppThemeMode
 @Composable
 fun SettingScreen(
     onDrawerToggle: () -> Unit,
-    settingScreenVM: SettingScreenVM = hiltViewModel(),
+    settingScreenVM: SettingScreenVM = koinViewModel(),
 ) {
 
     var expanded by remember { mutableStateOf(false) }
-    val themeMode by SettingModule.themeMode.collectAsState()
 
     Scaffold(
         topBar = {
@@ -103,8 +101,8 @@ fun SettingScreen(
                         ) {
                             ModernSelectionCards(
                                 options = AppThemeMode.entries.toTypedArray(),
-                                selectedIndex = themeMode,
-                                onOptionSelected = { SettingModule.saveThemeMode(it) }
+                                selectedIndex = AppThemeMode.SYSTEM,
+                                onOptionSelected = {  }
                             )
                         }
 

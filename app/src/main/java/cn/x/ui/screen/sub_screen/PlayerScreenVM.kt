@@ -10,17 +10,14 @@ import cn.x.util.AudioMetadataUtil
 import cn.x.util.LyricLine
 import cn.x.util.LyricUtil
 import cn.x.util.getFilePath
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 
-@HiltViewModel
-class PlayerScreenVM @Inject constructor(
+class PlayerScreenVM (
     val playerController: PlayerController // 注入单例控制器
 ) : ViewModel() {
 

@@ -1,5 +1,6 @@
 package cn.x.ui.screen.sub_screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -38,9 +39,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.R
 import cn.x.ui.componets.ImageWidget
+import org.koin.androidx.compose.koinViewModel
 import kotlin.math.roundToInt
 
 /**
@@ -50,7 +51,7 @@ import kotlin.math.roundToInt
 @Composable
 fun SongListSortScreen(
     naviBack: () -> Unit,
-    songListSortScreenVM: SongListSortScreenVM = hiltViewModel(),
+    songListSortScreenVM: SongListSortScreenVM = koinViewModel(),
 ) {
 
     val draggingOffset = songListSortScreenVM.draggingOffset.collectAsState()
@@ -81,11 +82,8 @@ fun SongListSortScreen(
         ) { padding ->
 
         Box(modifier = Modifier.padding(padding)) {
-
             LazyColumn {
-
                 itemsIndexed(songLists.value) { index, item ->
-
                     Box(
                         Modifier
                             .fillMaxWidth()
@@ -103,6 +101,7 @@ fun SongListSortScreen(
                                 }
                             }
                             .onGloballyPositioned { layoutCoordinates ->
+                                Log.d("Debug", "SongListSortScreen: $index")
                                 // 获取项的位置信息
                                 val position = layoutCoordinates.positionInWindow()
                                 songListSortScreenVM.calculateDeltaY(
@@ -130,7 +129,7 @@ fun SongListSortScreen(
 
                             }
                             Column(modifier = Modifier.weight(1f)) {
-                                // 歌曲信息
+                                // 歌单信息
                                 Text(item.name)
                             }
 

@@ -46,20 +46,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.R
 import cn.x.data.db.SongListEntity
 import cn.x.ui.Screens
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FloatingDropdownMenu
 import cn.x.ui.componets.ImageWidget
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * 歌单列表
  */
 @Composable
 fun SongListScreen(
-    songListScreenVM: SongListScreenVM = hiltViewModel(),
+    songListScreenVM: SongListScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit,
     naviRouteItem: (String) -> Unit,
 ) {
@@ -67,10 +67,6 @@ fun SongListScreen(
     val showDialog by songListScreenVM.showDialog.collectAsState()
     val createOrRenameSongList by songListScreenVM.createOrRenameSongList.collectAsState()
 
-
-    LaunchedEffect(Unit) {
-        songListScreenVM.loadSongLists()
-    }
 
     Scaffold(
         topBar = {

@@ -1,6 +1,5 @@
 package cn.x.service
 
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
@@ -21,7 +20,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -113,34 +111,18 @@ class PlayerControllerImpl
         setPlayMode(PlayMode.valueOf(SPUtil.getInt(Constants.PlayMode)))
 
         launch(Dispatchers.Main.immediate) {
-            val playlist = withContext(Dispatchers.IO) {
-                db.PlayListDao()
-                    .queryAll()
-                    .onEach {
-                        // 兼容老版本数据库
-//                        if (it.uri.isEmpty()) {
-//                            it.uri = it.path
-//                        }
-                        Log.d(TAG, "song: $it")
+            db.PlayListDao().queryAll().collect { items ->
+                if(items.isNotEmpty()){
+                    val mediaList = items.map { it.toSongEntity().toMediaItem() }
+                    _playlist.value = mediaList
+                    player.setMediaItems(mediaList)
+                    val currentSongId = SPUtil.getString(Constants.CurrentSongId)
+                    if (currentSongId.isNotEmpty()) {
+                        val currentSongIndex = mediaList.indexOfFirst { it.mediaId == currentSongId }.coerceAtLeast(0)
+                        _currentSong.value = mediaList[currentSongIndex]
+                        player.seekTo(currentSongIndex, 0)
                     }
-                    .map { it.toSongEntity().toMediaItem() }
-            }
-//            Log.d("PlayerControllerImpl", "playlist: $playlist")
-            if (playlist.isNotEmpty()) {
-                _playlist.value = playlist
-                player.setMediaItems(playlist)
-                val currentSongId = SPUtil.getString(Constants.CurrentSongId)
-                if (currentSongId.isNotEmpty()) {
-                    val currentSongIndex = playlist.indexOfFirst {
-                        it.mediaId == currentSongId
-                    }.coerceAtLeast(0)
-                    _currentSong.value = playlist[currentSongIndex]
-                    player.seekTo(currentSongIndex, 0)
                 }
-            }
-
-            _currentSong.collectLatest {
-                SPUtil.putString(Constants.CurrentSongId,it?.mediaId ?: "")
             }
         }
 

@@ -13,18 +13,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import cn.x.ui.Screens
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 import cn.x.util.Constants
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * 歌曲文件夹列表
  */
 @Composable
 fun FolderScreen(
-    folderScreenVM: FolderScreenVM = hiltViewModel(),
+    folderScreenVM: FolderScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit,
     naviRouteItem: (String) -> Unit,
 ) {

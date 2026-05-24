@@ -5,15 +5,13 @@ import cn.x.service.PlayerController
 import cn.x.ui.Screens
 import cn.x.util.Constants
 import cn.x.util.SPUtil
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import javax.inject.Inject
 
-@HiltViewModel
-class HomeScreenVM @Inject constructor(
-    val playerController: PlayerController,
+
+class HomeScreenVM (
+    val playerController: PlayerController
 ) : ViewModel() {
 
 
@@ -37,20 +35,3 @@ class HomeScreenVM @Inject constructor(
 
 
 }
-
-//data class FullPlayerUiState(
-//    val isVisible: Boolean = false,
-//    val offsetY: Float = 0f,
-//    val progress: Float = 0f,
-//    val isAnimating: Boolean = false,
-//    val screenHeight: Float = 0f
-//)
-//
-//sealed class FullPlayerEvent {
-//    data class Drag(val deltaY: Float) : FullPlayerEvent()
-//    data class DragEnd(val velocity: Float = 0f) : FullPlayerEvent()
-//    object Open : FullPlayerEvent()
-//    object Close : FullPlayerEvent()
-//    object Toggle : FullPlayerEvent()
-//    data class SetScreenHeight(val height: Float) : FullPlayerEvent()
-//}

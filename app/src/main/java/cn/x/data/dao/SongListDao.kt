@@ -10,46 +10,47 @@ import androidx.room.Update
 import cn.x.data.db.SongListEntity
 import cn.x.data.db.SongListWithSongEntity
 import cn.x.data.db.SongListWithSongs
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SongListDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSongList(songList: SongListEntity)
+    suspend fun insertSongList(songList: SongListEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSongListAll(list: List<SongListEntity>)
+    suspend fun insertSongListAll(list: List<SongListEntity>)
 
     @Query("SELECT * FROM song_lists where id = :songListId")
-    fun getSongList(songListId:Long): SongListEntity
+    suspend fun getSongList(songListId:Long): SongListEntity
 
     @Query("SELECT * FROM song_lists order by sort")
-    fun getAllSongLists(): List<SongListEntity>
+    fun getAllSongLists(): Flow<List<SongListEntity>>
 
     @Update
-    fun updateSongList(entity: SongListEntity)
+    suspend fun updateSongList(entity: SongListEntity)
 
     @Update
-    fun updateSongListAll(list: List<SongListEntity>)
+    suspend fun updateSongListAll(list: List<SongListEntity>)
 
     @Delete
-    fun delete(entity: SongListEntity)
+    suspend fun delete(entity: SongListEntity)
 
     @Query("DELETE FROM song_lists")
-    fun clear()
+    suspend fun clear()
 
     // 关联表操作
     @Insert
-    fun insertSongsToSongList(songs: List<SongListWithSongEntity>)
+    suspend fun insertSongsToSongList(songs: List<SongListWithSongEntity>)
 
     @Delete
-    fun deleteSongFromSongList(songlistSongs: List<SongListWithSongEntity>)
+    suspend fun deleteSongFromSongList(songlistSongs: List<SongListWithSongEntity>)
 
     @Transaction
     @Query("SELECT * FROM song_lists WHERE id = :songlistId")
-    fun getSongsBySongListId(songlistId: Long): SongListWithSongs?
+    suspend fun getSongsBySongListId(songlistId: Long): SongListWithSongs?
 
     @Query("DELETE FROM songlist_song WHERE songlist_id = :songlistId")
-    fun deleteAllBySongListId(songlistId: Long)
+    suspend fun deleteAllBySongListId(songlistId: Long)
 
 }

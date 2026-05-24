@@ -2,20 +2,18 @@ package cn.x.ui.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cn.x.data.MusicDatabase
+import cn.x.data.dao.SongListDao
 import cn.x.data.db.SongListEntity
 import cn.x.util.getCurrentDateTime
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class SongListScreenVM @Inject constructor(
-    private val db: MusicDatabase,
+
+class SongListScreenVM (
+    private val songListDao: SongListDao,
 ) : ViewModel() {
 
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
@@ -38,12 +36,14 @@ class SongListScreenVM @Inject constructor(
     )
     val createOrRenameSongList = _createOrRenameSongList.asStateFlow()
 
-    fun loadSongLists() {
-        // 从 repository 加载歌单列表
-        viewModelScope.launch(Dispatchers.IO) {
-            _songLists.value = db.SongListDao().getAllSongLists()
+    init {
+        viewModelScope.launch {
+            songListDao.getAllSongLists().collect { items->
+                _songLists.value =items
+            }
         }
     }
+
 
     fun openDialog(songListId: Long?) {
         _showDialog.value = true
@@ -77,16 +77,16 @@ class SongListScreenVM @Inject constructor(
             if (songListId == null || songListId == 0L) {
                 // create
                 withContext(Dispatchers.IO) {
-                    db.SongListDao().insertSongList(_createOrRenameSongList.value)
-                    loadSongLists() // 刷新列表
+                    songListDao.insertSongList(_createOrRenameSongList.value)
+
                 }
             } else {
                 // update
                 val oldItem = _songLists.value.first { songList -> songList.id == songListId }
                 val newItem = oldItem.copy(name = _createOrRenameSongList.value.name)
                 withContext(Dispatchers.IO) {
-                    db.SongListDao().updateSongList(newItem)
-                    loadSongLists() // 刷新列表
+                    songListDao.updateSongList(newItem)
+
                 }
             }
             dismissDialog() // 这里是异步,防止dismissDialog把状态重置,只能放里面
@@ -98,9 +98,8 @@ class SongListScreenVM @Inject constructor(
         viewModelScope.launch {
             // 调用实际的业务逻辑
             withContext(Dispatchers.IO) {
-                db.SongListDao().delete(item)
-                db.SongListDao().deleteAllBySongListId(songListId)
-                loadSongLists() // 刷新列表
+                songListDao.delete(item)
+                songListDao.deleteAllBySongListId(songListId)
             }
             dismissDialog()
         }

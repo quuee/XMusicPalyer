@@ -5,25 +5,23 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
-import cn.x.data.MusicDatabase
+import cn.x.data.dao.SongListDao
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
 import cn.x.data.db.SongListWithSongEntity
 import cn.x.service.PlayerController
 import cn.x.util.Constants
 import cn.x.util.toMediaItem
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-@HiltViewModel
-class SongsScreenVM @Inject constructor(
-    private val db: MusicDatabase,
+
+class SongsScreenVM (
+    private val songListDao: SongListDao,
     val playerController: PlayerController,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -43,19 +41,12 @@ class SongsScreenVM @Inject constructor(
 
     private val songListId: Long = savedStateHandle[Constants.SongListId] ?: 0L
 
-    init {
-
-    }
 
     fun loadData() {
         // 加载数据
         viewModelScope.launch {
-            val songListWithSongs = withContext(Dispatchers.IO) {
-                // 查询歌单 查询歌曲 独立进行 不然后续不好分页
-                // 先不分页了
-                db.SongListDao().getSongsBySongListId(songListId)
-            }
-            _songs.value = songListWithSongs?.songs ?: emptyList() // 在 Main 线程更新
+            val songListWithSongs = songListDao.getSongsBySongListId(songListId)
+            _songs.value = songListWithSongs?.songs ?: emptyList()
             _songList.value = songListWithSongs?.songList ?: EMPTY
         }
     }
@@ -101,18 +92,18 @@ class SongsScreenVM @Inject constructor(
                         songId = it
                     )
                 }
-                db.SongListDao().deleteSongFromSongList(removeList)
+                songListDao.deleteSongFromSongList(removeList)
 
-                val songList = db.SongListDao().getSongList(songListId)
+                val songList = songListDao.getSongList(songListId)
                 val newNongList = songList.copy(count = songList.count - removeList.size)
-                db.SongListDao().updateSongList(newNongList)
+                songListDao.updateSongList(newNongList)
             }
             _songs.value = _songs.value.filter { it.uniqueId !in _selectedIds.value }
             _selectedIds.value = emptySet()
         }
     }
 
-    suspend fun getCurrentSongIndex(): Int {
+    fun getCurrentSongIndex(): Int {
         val index =
             _songs.value.indexOfFirst { it.uniqueId == playerController.currentSong.value?.mediaId }
         return index

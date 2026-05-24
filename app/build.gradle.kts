@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 
-    alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+
 }
 
 android {
@@ -32,8 +32,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -42,20 +42,58 @@ android {
 }
 
 dependencies {
+
+// AndroidX Core
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.runtime)
+
+    // Compose BOM 管理版本
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.bundles.compose)
+    implementation(libs.androidx.compose.ui.text)
+
+    // Compose 预览和调试
+    debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+
+    // Navigation3
+    implementation(libs.androidx.navigation.compose)
+
+    // Koin DI
+    implementation(libs.bundles.koin)
+
+    // Network
+    implementation(libs.bundles.network)
+    implementation(libs.gson)
+
+    // Room
+    implementation(libs.bundles.room)
+    ksp(libs.room.compiler) // 强依赖 KSP 插件
+
+    // Coroutines
+    implementation(libs.bundles.coroutines)
+
+    // Serialization
+    // mplementation(libs.kotlinx.serialization.json)
+
+    // Coil 图片加载
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    // Permissions
+    implementation(libs.accompanist.permissions)
+
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     // Media3 (ExoPlayer) - Google官方推荐的媒体播放库
@@ -63,41 +101,9 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.7.1") // 包含MediaControlView等UI组件
     implementation("androidx.media3:media3-session:1.7.1") // 用于MediaSession和后台播放
 
-    // Hilt
-    implementation("com.google.dagger:hilt-android:2.57.2")
-    ksp("com.google.dagger:hilt-compiler:2.57.2")
-    // Hilt 对于 Compose 的支持
-    implementation("androidx.hilt:hilt-navigation-compose:1.3.0")
-
-    // Navigation Compose
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-
-    // Lifecycle ViewModel for Compose
-    //implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
-
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
-
-    // 图片
-    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
-
-    // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
-
-    // icon
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.material:material-icons-core")
-
-    implementation("com.github.promeg:tinypinyin:2.0.3")
-
-    implementation("androidx.paging:paging-compose:3.3.6")
-    implementation("androidx.paging:paging-runtime:3.3.6")
-
     implementation("net.jthink:jaudiotagger:3.0.1")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.9.0")
 
 }
 
