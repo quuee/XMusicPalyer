@@ -12,8 +12,10 @@ import cn.x.ui.screen.FolderScreenVM
 import cn.x.ui.screen.HomeScreenVM
 import cn.x.ui.screen.LocalSongScreenVM
 import cn.x.ui.screen.ScanScreenVM
+import cn.x.ui.screen.SettingScreenVM
 import cn.x.ui.screen.SongListScreenVM
 import cn.x.ui.screen.sub_screen.AddSelectSongScreenVM
+import cn.x.ui.screen.sub_screen.FolderSongsScreenVM
 import cn.x.ui.screen.sub_screen.PlayerScreenVM
 import cn.x.ui.screen.sub_screen.SearchScreenVM
 import cn.x.ui.screen.sub_screen.SongListSortScreenVM
@@ -25,21 +27,16 @@ import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
-import org.koin.core.scope.get
 import org.koin.dsl.module
 
 
 val appModule = module {
-//    single<CoroutineScope> {
-//        // 使用 Koin 内置的应用级作用域
-//        koinApplicationScope()
-//    }
 
     single<CoroutineScope> {
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     }
 
-    single<PlayerController> { PlayerControllerImpl(player = get(), get(),get()) }
+    single<PlayerController> { PlayerControllerImpl(player = get(), db = get(), get()) }
 
 }
 
@@ -100,13 +97,13 @@ val viewModelModule: Module = module {
 
     viewModel<SongListScreenVM> {
         SongListScreenVM(
-            songListDao= get<SongListDao>()
+            songListDao = get<SongListDao>()
         )
     }
     viewModel<AddSelectSongScreenVM> {
         AddSelectSongScreenVM(
             songDao = get<SongDao>(),
-            songListDao= get<SongListDao>(),
+            songListDao = get<SongListDao>(),
             savedStateHandle = get()
         )
     }
@@ -129,16 +126,25 @@ val viewModelModule: Module = module {
     }
     viewModel<SongListSortScreenVM> {
         SongListSortScreenVM(
-            songListDao= get<SongListDao>(),
+            songListDao = get<SongListDao>(),
         )
     }
-    viewModel<SongsScreenVM> {
-        SongsScreenVM(
-            songListDao= get<SongListDao>(),
-            playerController = get(),
+
+    viewModel<FolderSongsScreenVM> {
+        FolderSongsScreenVM(
             savedStateHandle = get()
         )
     }
 
+    viewModel<SettingScreenVM> {
+        SettingScreenVM(
+        )
+    }
+    viewModel<SongsScreenVM> {
+        SongsScreenVM(
+            songListDao = get<SongListDao>(),
+            playerController = get(),
+        )
+    }
 
 }

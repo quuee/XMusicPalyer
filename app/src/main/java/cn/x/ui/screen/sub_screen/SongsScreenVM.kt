@@ -20,10 +20,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class SongsScreenVM (
+class SongsScreenVM(
     private val songListDao: SongListDao,
     val playerController: PlayerController,
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val EMPTY = SongListEntity(0L, "", "", 0, "", -1)
@@ -39,10 +38,8 @@ class SongsScreenVM (
     private val _isSelectionMode = MutableStateFlow(false)
     val isSelectionMode: StateFlow<Boolean> = _isSelectionMode.asStateFlow()
 
-    private val songListId: Long = savedStateHandle[Constants.SongListId] ?: 0L
 
-
-    fun loadData() {
+    fun loadData(songListId: Long) {
         // 加载数据
         viewModelScope.launch {
             val songListWithSongs = songListDao.getSongsBySongListId(songListId)
@@ -70,7 +67,6 @@ class SongsScreenVM (
     }
 
     fun allSelection() {
-//        _selectedIds.value = emptySet()
         _selectedIds.value = _songs.value.map { it.uniqueId }.toMutableSet()
     }
 
@@ -83,7 +79,7 @@ class SongsScreenVM (
         playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
     }
 
-    fun remove() {
+    fun remove(songListId:Long) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val removeList = _selectedIds.value.map {

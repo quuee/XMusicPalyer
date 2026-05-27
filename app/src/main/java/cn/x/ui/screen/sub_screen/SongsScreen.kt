@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -68,8 +67,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cn.x.R
 import cn.x.data.db.SongListEntity
+import cn.x.route.LocalNavigator
 import cn.x.service.PlayState
-import cn.x.ui.Screens
+import cn.x.route.Routes
 import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MultiSelectSongItem
@@ -85,12 +85,10 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongsScreen(
-    naviBack: () -> Unit,
-    naviRouteItem: (String) -> Unit,
     songsScreenVM: SongsScreenVM = koinViewModel(),
     songListId: Long
 ) {
-
+    val navigator = LocalNavigator.current
     val items by songsScreenVM.songs.collectAsState()
     val songList by songsScreenVM.songList.collectAsState()
     val selectedIds by songsScreenVM.selectedIds.collectAsState()
@@ -130,7 +128,7 @@ fun SongsScreen(
     val isPlaying = playState == PlayState.Playing
 
     LaunchedEffect(Unit) {
-        songsScreenVM.loadData()
+        songsScreenVM.loadData(songListId)
     }
 
     Scaffold(
@@ -145,7 +143,7 @@ fun SongsScreen(
                 navigationIcon = {
                     IconButton(onClick = {
                         songsScreenVM.clearSelection()
-                        naviBack()
+                        navigator.popBack()
                     }) {
                         Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
                     }
@@ -154,7 +152,7 @@ fun SongsScreen(
                     if (!isSelectionMode) {
                         // 去添加歌曲
                         IconButton(onClick = {
-                            naviRouteItem(Screens.AddSelectSong.route.plus("/${songListId}"))
+                            navigator.navigateToAddSelectSong(songListId)
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Add,
@@ -178,7 +176,7 @@ fun SongsScreen(
             FloatingBottomPlayerBar(
                 mediaItem = currentSong,
                 isPlaying = isPlaying,
-                onClick = { naviRouteItem(Screens.Player.route) },
+                onClick = { navigator.navigate(Routes.Player) },
                 onNextClick = { controller.next() },
                 onPreviousClick = { controller.prev() },
                 onPlayPauseClick = { controller.playPause() },
@@ -253,7 +251,7 @@ fun SongsScreen(
             ) {
                 MultiSelectBottomBar(
                     onDeleteClick = { },
-                    onMoveClick = { songsScreenVM.remove() },
+                    onMoveClick = { songsScreenVM.remove(songListId) },
                     onAddToClick = { }
                 )
             }

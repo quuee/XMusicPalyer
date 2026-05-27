@@ -6,7 +6,6 @@ import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -87,7 +86,4 @@ class MusicPlaybackService : MediaSessionService() {
         mediaSession.release()
     }
 
-//    companion object {
-//        val EXTRA_NOTIFICATION = "${CommonApp.app.packageName}.notification"
-//    }
 }

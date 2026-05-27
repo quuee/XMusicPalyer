@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import cn.x.route.LocalNavigator
 import cn.x.ui.componets.MultiSelectSongItem
 import org.koin.androidx.compose.koinViewModel
 
@@ -46,10 +47,9 @@ import org.koin.androidx.compose.koinViewModel
  */
 @Composable
 fun SearchScreen(
-    naviBack: () -> Unit,
     searchScreenVM: SearchScreenVM = koinViewModel()
 ) {
-
+    val navigator = LocalNavigator.current
     val searchWord by searchScreenVM.searchWord.collectAsState()
     val songs by searchScreenVM.songs.collectAsState()
 
@@ -66,7 +66,7 @@ fun SearchScreen(
         ) {
             // 顶部工具栏
             TopSearchBar(
-                naviBack,
+                naviBack = {navigator.popBack()},
                 queryWord = searchWord,
                 onQueryChange = { searchScreenVM.changeSearchWord(it) },
             )

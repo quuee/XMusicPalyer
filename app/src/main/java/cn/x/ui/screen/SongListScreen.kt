@@ -32,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +47,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cn.x.R
 import cn.x.data.db.SongListEntity
-import cn.x.ui.Screens
+import cn.x.route.LocalNavigator
+import cn.x.route.Routes
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FloatingDropdownMenu
 import cn.x.ui.componets.ImageWidget
@@ -61,8 +61,8 @@ import org.koin.androidx.compose.koinViewModel
 fun SongListScreen(
     songListScreenVM: SongListScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit,
-    naviRouteItem: (String) -> Unit,
 ) {
+    val navigator = LocalNavigator.current
     val songLists by songListScreenVM.songLists.collectAsState()
     val showDialog by songListScreenVM.showDialog.collectAsState()
     val createOrRenameSongList by songListScreenVM.createOrRenameSongList.collectAsState()
@@ -76,7 +76,7 @@ fun SongListScreen(
                 actions = {
                     Actions(
                         onCreateClick = { songListScreenVM.openDialog(null) },
-                        naviRouteItem = { naviRouteItem(Screens.SongListSort.route) },
+                        naviRouteItem = { navigator.navigate(Routes.SongListSort) },
                     )
                 }
             )
@@ -87,7 +87,7 @@ fun SongListScreen(
                 SongListItemWidget(
                     songListItem,
                     onClick = {
-                        naviRouteItem(Screens.Songs.route.plus("/${songListItem.id}"))
+                        navigator.navigateToSongListDetail(songListItem.id)
                     },
                     onRenameClick = { songListScreenVM.openDialog(songListItem.id) },
                     onDeleteClick = { songListScreenVM.delete(songListItem.id) }

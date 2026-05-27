@@ -13,7 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import cn.x.ui.Screens
+import cn.x.route.LocalNavigator
+import cn.x.route.Routes
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 import cn.x.util.Constants
@@ -26,10 +27,10 @@ import org.koin.compose.viewmodel.koinViewModel
 fun FolderScreen(
     folderScreenVM: FolderScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit,
-    naviRouteItem: (String) -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val currentFolders by folderScreenVM.currentFolders.collectAsState()
+    val navigator = LocalNavigator.current
 
     Scaffold(
         topBar = {
@@ -51,7 +52,7 @@ fun FolderScreen(
                 FolderCard(
                     folder.folderPath,
                     folder.songCount,
-                    onClick = {naviRouteItem(Screens.FolderSongs.route.plus("?${Constants.FolderPath}=${folder.folderPath}"))}
+                    onClick = {}
                 )
             }
         }

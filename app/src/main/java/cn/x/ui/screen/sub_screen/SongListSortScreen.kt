@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cn.x.R
+import cn.x.route.LocalNavigator
 import cn.x.ui.componets.ImageWidget
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.roundToInt
@@ -50,10 +51,9 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongListSortScreen(
-    naviBack: () -> Unit,
     songListSortScreenVM: SongListSortScreenVM = koinViewModel(),
 ) {
-
+    val navigator = LocalNavigator.current
     val draggingOffset = songListSortScreenVM.draggingOffset.collectAsState()
     val draggingIndex = songListSortScreenVM.draggingIndex.collectAsState()
     val songLists = songListSortScreenVM.songLists.collectAsState()
@@ -72,7 +72,7 @@ fun SongListSortScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = naviBack) {
+                    IconButton(onClick =  {navigator.popBack()},) {
                         Icon(Icons.Filled.ArrowBackIosNew, contentDescription = "back")
                     }
                 },

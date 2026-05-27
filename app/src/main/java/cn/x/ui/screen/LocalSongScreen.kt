@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -50,7 +51,8 @@ import androidx.compose.ui.window.Dialog
 import cn.x.R
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
-import cn.x.ui.Screens
+import cn.x.route.LocalNavigator
+import cn.x.route.Routes
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
@@ -69,9 +71,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun LocalSongScreen(
     localSongScreenVM: LocalSongScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit,
-    naviRouteItem: (String) -> Unit,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
+    val navigator = LocalNavigator.current
     val songs by localSongScreenVM.songs.collectAsState()
     val songLists by localSongScreenVM.songLists.collectAsState()
     val selectedSong by localSongScreenVM.selectedSong.collectAsState()
@@ -99,7 +100,7 @@ fun LocalSongScreen(
                 stringResource(R.string.local_song),
                 onDrawerToggle,
                 actions = {
-                    IconButton(onClick = { naviRouteItem(Screens.Search.route) }) {
+                    IconButton(onClick = { navigator.navigate(Routes.Search)}) {
                         Icon(
                             Icons.Default.Search,
                             contentDescription = null
@@ -301,7 +302,7 @@ private fun SongBottomSheet(
                 onClick = onShare
             )
             BottomSheetItem(
-                icon = Icons.Default.PlaylistAdd,
+                icon = Icons.AutoMirrored.Filled.PlaylistAdd,
                 text = "下一首播放",
                 onClick = onPlayNext
             )

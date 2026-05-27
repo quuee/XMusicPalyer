@@ -24,14 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
-import androidx.navigation.compose.rememberNavController
 import cn.x.di.appModule
 import cn.x.di.databaseModule
 import cn.x.di.utilModule
 import cn.x.di.viewModelModule
 import cn.x.service.MusicPlaybackService
-import cn.x.ui.NavigationGraph
-import cn.x.ui.Screens
+import cn.x.route.NavigationGraph
 import cn.x.ui.componets.CustomSnackbar
 import cn.x.ui.theme.AppThemeMode
 import cn.x.ui.theme.XMusicPlayerTheme
@@ -143,11 +141,8 @@ fun XMusicApplicationApp(
                     )
                 }
             ) {
-                val navHostController = rememberNavController()
-                NavigationGraph(
-                    navHostController = navHostController,
-                    startDistance = Screens.Home.route
-                )
+
+                NavigationGraph()
             }
         }
     }

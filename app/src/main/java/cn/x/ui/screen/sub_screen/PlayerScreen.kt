@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.media3.common.MediaItem
 import cn.x.R
+import cn.x.route.LocalNavigator
 import cn.x.service.PlayMode
 import cn.x.service.PlayState
 import cn.x.ui.componets.BufferedSlider
@@ -96,9 +97,9 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun PlayerScreen(
     playerScreenVM: PlayerScreenVM = koinViewModel(),
-    naviBack: () -> Unit
 ) {
 
+    val navigator = LocalNavigator.current
     val controller = playerScreenVM.playerController
     // 1. 直接收集各个 StateFlow
     val currentSong by controller.currentSong.collectAsState()
@@ -123,7 +124,7 @@ fun PlayerScreen(
         when (pageIndex) {
             0 -> {
                 MainContent(
-                    naviBack,
+                    naviBack = {navigator.popBack()},
                     currentSong,
                     lyrics,
                     playProgress,

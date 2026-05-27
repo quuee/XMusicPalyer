@@ -49,8 +49,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import cn.x.R
-import cn.x.ui.Screens
+import cn.x.route.Routes
 import kotlinx.coroutines.launch
 
 @Composable
@@ -159,27 +160,31 @@ class DrawerControl internal constructor(
 enum class DrawerElement(
     val title: Int,
     val icon: Int,
-    val route: String
+    val index: Int
 ) {
     ScanLocalSong(
         R.string.drawer_scan_local_song,
         R.drawable.icon_drawer_scan,
-        Screens.Scan.route
+//        Routes.Scan
+        0
     ),
     Folder(
         R.string.drawer_local_folder,
         R.drawable.icon_drawer_folder,
-        Screens.Folder.route
+//        Routes.Folder,
+        1
     ),
     LocalSongList(
         R.string.drawer_local_song_list,
         R.drawable.icon_drawer_music_list,
-        Screens.SongList.route
+//        Routes.SongList
+        2
     ),
     LocalSong(
         R.string.drawer_local_song,
         R.drawable.icon_drawer_song,
-        Screens.LocalSong.route
+//        Routes.LocalSong
+        3
     ),
 }
 // endregion
@@ -187,7 +192,7 @@ enum class DrawerElement(
 @Composable
 fun DrawerContent(
     elements: Array<DrawerElement> = DrawerElement.entries.toTypedArray(),
-    naviRouteItem: (String) -> Unit,
+    naviRouteItem: (Int) -> Unit,
 ) {
 
     Column(
@@ -199,34 +204,7 @@ fun DrawerContent(
     ) {
 
         // 头像身份
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.spacedBy(16.dp), // 自动给子项之间加 24.dp 的间距
-//        ) {
-//            Image(
-//                painter = painterResource(id = R.drawable.music_logo),
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(48.dp)
-//                    .clip(MaterialTheme.shapes.small)
-//            )
-//            Column(
-//                verticalArrangement = Arrangement.spacedBy(8.dp)
-//            ) {
-//                Text(
-//                    text = "xxxxx",
-//                    style = MaterialTheme.typography.bodyMedium,
-//
-//                    )
-//                Text(
-//                    text = "管理员",
-//                    style = MaterialTheme.typography.bodyMedium,
-//
-//                    )
-//            }
-//        }
 
-//        Spacer(modifier = Modifier.height(8.dp))
 
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
@@ -236,7 +214,7 @@ fun DrawerContent(
             IconButton(
                 onClick = {
                     /* 跳转到设置页面 */
-                    naviRouteItem(Screens.Setting.route)
+                    naviRouteItem(4)
                 },
             ) {
                 Icon(
@@ -278,7 +256,7 @@ fun DrawerContent(
 @SuppressLint("ResourceType")
 @Composable
 private fun DrawerItem(
-    element: DrawerElement, naviRouteItem: (String) -> Unit
+    element: DrawerElement, naviRouteItem: (Int) -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -289,7 +267,7 @@ private fun DrawerItem(
                 .fillMaxSize()
                 .padding(8.dp)
                 .clickable {
-                    naviRouteItem(element.route)
+                    naviRouteItem(element.index)
                 },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start

@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import cn.x.route.LocalNavigator
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.GlobalMessageUtil
 import org.koin.androidx.compose.koinViewModel
@@ -52,11 +53,10 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSelectSongScreen(
-    naviBack: () -> Unit,
     addSelectSongScreenVM: AddSelectSongScreenVM = koinViewModel(),
     songListId: Long
 ) {
-
+    val navigator = LocalNavigator.current
     val items by addSelectSongScreenVM.unselectSongs.collectAsState()
     val selectedIds by addSelectSongScreenVM.selectedIds.collectAsState()
     val searchWord by addSelectSongScreenVM.searchWord.collectAsState()
@@ -76,7 +76,7 @@ fun AddSelectSongScreen(
         ) {
             // 顶部工具栏
             TopSearchBar(
-                naviBack,
+                naviBack = { navigator.popBack() },
                 queryWord = searchWord,
                 onQueryChange = { addSelectSongScreenVM.changeSearchWord(it) },
                 selectDone = { addSelectSongScreenVM.addSelectToSongList(songListId) })

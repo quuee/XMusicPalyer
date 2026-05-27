@@ -24,16 +24,12 @@ class LocalSongScreenVM(
     val playerController: PlayerController,
 ) : ViewModel() {
 
-
-    private val tag = "LocalSongScreenVM"
-
     // 歌曲
     val songs: StateFlow<List<SongEntity>> = songDao.queryAll().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
-
 
     // 歌单
     private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())

@@ -41,8 +41,8 @@ class PlayerControllerImpl
         }
             .stateIn(
                 scope = applicationScope,  // 使用应用级作用域
-//                started = SharingStarted.WhileSubscribed(3000),  // 延迟3秒停止订阅
-                started = SharingStarted.Lazily, // 无延迟
+                started = SharingStarted.WhileSubscribed(1000),  // 延迟3秒停止订阅
+//                started = SharingStarted.Lazily, // 无延迟
                 initialValue = emptyList()
             )
 

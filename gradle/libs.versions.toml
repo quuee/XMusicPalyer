@@ -13,9 +13,7 @@ compose-activity = "1.13.0"
 compose-lifecycle-runtimeKtx = "2.10.0"
 
 
-# Navigation2
-navigation-compose = "2.9.8"
-# todo Navigation3
+# Navigation3
 navigation3 = "1.1.2"
 
 # Koin (依赖注入 4.x)
@@ -115,8 +113,6 @@ androidx-compose-material-icons-extended = { module = "androidx.compose.material
 
 
 # 导航
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
-# 新导航
 androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "navigation3" }
 androidx-lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version="2.10.0" }
@@ -144,7 +140,6 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 
 # Coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
-coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
 # Accompanist
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
@@ -207,4 +202,9 @@ room = [
 coroutines = [
     "kotlinx-coroutines-core",
     "kotlinx-coroutines-android"
+]
+navigation3 = [
+    "androidx-navigation3-ui",
+    "androidx-navigation3-runtime",
+    "androidx-lifecycle-viewmodel-navigation3",
 ]
