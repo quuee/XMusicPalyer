@@ -52,8 +52,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -92,7 +94,8 @@ fun SongsScreen(
     val items by songsScreenVM.songs.collectAsState()
     val songList by songsScreenVM.songList.collectAsState()
     val selectedIds by songsScreenVM.selectedIds.collectAsState()
-    val isSelectionMode by songsScreenVM.isSelectionMode.collectAsState()
+
+    var isSelectionMode by remember { mutableStateOf(false) }
 
     val isAllSelection = items.size == selectedIds.size
 
@@ -220,7 +223,10 @@ fun SongsScreen(
                         isSelectionMode = isSelectionMode,
                         clearSelection = { songsScreenVM.clearSelection() },
                         allSelection = { songsScreenVM.allSelection() },
-                        toggleSelectionMode = { songsScreenVM.toggleSelectionMode() },
+                        toggleSelectionMode = {
+                            isSelectionMode = !isSelectionMode
+                            songsScreenVM.clearSelection()
+                        },
                         location = { coroutineScope.launch { listState.scrollToItem(songsScreenVM.getCurrentSongIndex()) } },
                         isAllSelection = isAllSelection,
                         modifier = Modifier

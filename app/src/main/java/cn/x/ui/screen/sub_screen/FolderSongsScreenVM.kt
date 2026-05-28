@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 
 
 class FolderSongsScreenVM (
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
 
@@ -32,7 +31,7 @@ class FolderSongsScreenVM (
     private val _songListDialogVisible = MutableStateFlow(false)
     val songListDialogVisible = _songListDialogVisible.asStateFlow()
 
-    private val parentPath: String? = savedStateHandle[Constants.FolderPath]
-    private val _searchWord = MutableStateFlow<String?>(null)
+//    private val parentPath: String? = savedStateHandle[Constants.FolderPath]
+//    private val _searchWord = MutableStateFlow<String?>(null)
 
 }

@@ -1,7 +1,6 @@
 package cn.x.ui.screen.sub_screen
 
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -10,7 +9,6 @@ import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
 import cn.x.data.db.SongListWithSongEntity
 import cn.x.service.PlayerController
-import cn.x.util.Constants
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,9 +33,6 @@ class SongsScreenVM(
     private val _selectedIds = MutableStateFlow<Set<String>>(emptySet())
     val selectedIds: StateFlow<Set<String>> = _selectedIds.asStateFlow()
 
-    private val _isSelectionMode = MutableStateFlow(false)
-    val isSelectionMode: StateFlow<Boolean> = _isSelectionMode.asStateFlow()
-
 
     fun loadData(songListId: Long) {
         // 加载数据
@@ -45,14 +40,6 @@ class SongsScreenVM(
             val songListWithSongs = songListDao.getSongsBySongListId(songListId)
             _songs.value = songListWithSongs?.songs ?: emptyList()
             _songList.value = songListWithSongs?.songList ?: EMPTY
-        }
-    }
-
-    fun toggleSelectionMode() {
-        val newMode = !_isSelectionMode.value
-        _isSelectionMode.value = newMode
-        if (!newMode) {
-            _selectedIds.value = emptySet()
         }
     }
 
@@ -103,6 +90,5 @@ class SongsScreenVM(
         val index =
             _songs.value.indexOfFirst { it.uniqueId == playerController.currentSong.value?.mediaId }
         return index
-
     }
 }

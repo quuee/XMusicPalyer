@@ -104,7 +104,6 @@ val viewModelModule: Module = module {
         AddSelectSongScreenVM(
             songDao = get<SongDao>(),
             songListDao = get<SongListDao>(),
-            savedStateHandle = get()
         )
     }
     viewModel<FolderScreenVM> {
@@ -132,7 +131,6 @@ val viewModelModule: Module = module {
 
     viewModel<FolderSongsScreenVM> {
         FolderSongsScreenVM(
-            savedStateHandle = get()
         )
     }
 
