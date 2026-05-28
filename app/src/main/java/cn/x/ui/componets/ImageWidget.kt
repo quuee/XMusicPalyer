@@ -31,8 +31,8 @@ fun ImageWidget(
         contentDescription = "image",
         modifier = modifier,
         contentScale = contentScale,
-        placeholder = painterResource(R.drawable.music_logo),
-        error = painterResource(R.drawable.music_logo)
+        placeholder = painterResource(R.drawable.logo),
+        error = painterResource(R.drawable.logo)
     )
 
 }

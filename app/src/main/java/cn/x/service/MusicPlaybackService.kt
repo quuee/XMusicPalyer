@@ -59,7 +59,7 @@ class MusicPlaybackService : MediaSessionService() {
         // 4 创建媒体通知
         setMediaNotificationProvider(
             DefaultMediaNotificationProvider.Builder(applicationContext).build().apply {
-                setSmallIcon(R.drawable.music_logo)
+                setSmallIcon(R.drawable.logo)
             }
         )
 

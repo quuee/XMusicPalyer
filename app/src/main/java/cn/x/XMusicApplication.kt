@@ -5,8 +5,11 @@ import android.app.Application
 import android.content.ComponentName
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -103,12 +107,15 @@ fun SplashScreen(onReady: () -> Unit) {
 
     // 等待期间展示的 UI
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         // 你的 Logo / 加载动画
         Image(
-            painter = painterResource(R.drawable.music_logo),
+            modifier = Modifier.size(72.dp),
+            painter = painterResource(R.drawable.logo),
             contentDescription = null
         )
     }
@@ -119,13 +126,14 @@ fun SplashScreen(onReady: () -> Unit) {
 fun XMusicApplicationApp(
 ) {
     var isReady by remember { mutableStateOf(false) }
+    
+    XMusicPlayerTheme(
+        themeMode = AppThemeMode.SYSTEM
+    ) {
+        if (!isReady) {
+            SplashScreen(onReady = { isReady = true })
+        } else {
 
-    if (!isReady) {
-        SplashScreen(onReady = { isReady = true })
-    }else{
-        XMusicPlayerTheme(
-            themeMode = AppThemeMode.SYSTEM
-        ) {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
             ) {

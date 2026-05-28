@@ -374,7 +374,7 @@ private fun AlbumCover(artworkUri: String?, isPlaying: Boolean) {
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
             placeholder = painterResource(R.drawable.icon_placeholder),
-            error = painterResource(R.drawable.music_logo)
+            error = painterResource(R.drawable.logo)
         )
     }
 }
