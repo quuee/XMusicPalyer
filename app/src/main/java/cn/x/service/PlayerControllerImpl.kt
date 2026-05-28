@@ -6,18 +6,21 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
-import cn.x.data.MusicDatabase
+import cn.x.data.dao.PlayListDao
 import cn.x.util.Constants
 import cn.x.util.SPUtil
 import cn.x.util.toMediaItem
 import cn.x.util.toPlayListSongEntity
 import cn.x.util.toSongEntity
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -28,7 +31,7 @@ import kotlin.collections.map
 class PlayerControllerImpl
     (
     private val player: MediaController,
-    private val db: MusicDatabase,
+    private val playListDao: PlayListDao,
     private val applicationScope: CoroutineScope,
 ) : PlayerController {
 
@@ -36,13 +39,13 @@ class PlayerControllerImpl
         get() = player
 
     override val playlist: StateFlow<List<MediaItem>> =
-        db.PlayListDao().queryAll().map { entities ->
+        playListDao.queryAll().map { entities ->
             entities.map { it.toSongEntity().toMediaItem() }
         }
             .stateIn(
                 scope = applicationScope,  // 使用应用级作用域
-                started = SharingStarted.WhileSubscribed(1000),  // 延迟3秒停止订阅
-//                started = SharingStarted.Lazily, // 无延迟
+//                started = SharingStarted.WhileSubscribed(1000),  // 延迟3秒停止订阅
+                started = SharingStarted.Lazily, // 无延迟
                 initialValue = emptyList()
             )
 
@@ -151,7 +154,7 @@ class PlayerControllerImpl
                 newPlaylist.add(song)
                 player.addMediaItem(song)
             }
-            db.PlayListDao()
+            playListDao
                 .replaceAll(newPlaylist.map { it.toSongEntity().toPlayListSongEntity() })
             play(song.mediaId)
         }
@@ -160,7 +163,7 @@ class PlayerControllerImpl
 
     override fun replaceAll(songList: List<MediaItem>, song: MediaItem) {
         applicationScope.launch {
-            db.PlayListDao().replaceAll(songList.map { it.toSongEntity().toPlayListSongEntity() })
+            playListDao.replaceAll(songList.map { it.toSongEntity().toPlayListSongEntity() })
             stop()
             player.setMediaItems(songList)
             play(song.mediaId)
@@ -168,22 +171,29 @@ class PlayerControllerImpl
     }
 
     override fun play(mediaId: String) {
-        val playlist = playlist.value
-        if (playlist.isEmpty()) {
-            return
-        }
-        val index = playlist.indexOfFirst { it.mediaId == mediaId }
-        if (index < 0) {
-            return
+        // 在添加歌曲,更新数据库后playlist.value不是最新.导致找不到歌曲
+        applicationScope.launch {
+            var playlist = playlist.value
+            var index = playlist.indexOfFirst { it.mediaId == mediaId }
+
+            if (index < 0) {
+
+                playlist = playListDao.queryAll().first()
+                    .map { it.toSongEntity().toMediaItem() }
+                index = playlist.indexOfFirst { it.mediaId == mediaId }
+
+            }
+            if (index < 0 || playlist.isEmpty()) return@launch
+
+            stop()
+            player.seekTo(index, 0)
+            player.prepare()
+
+            _currentSong.value = playlist[index]
+            _playProgress.value = 0
+            _bufferingPercent.value = 0
         }
 
-        stop()
-        player.seekTo(index, 0)
-        player.prepare()
-
-        _currentSong.value = playlist[index]
-        _playProgress.value = 0
-        _bufferingPercent.value = 0
     }
 
     override fun delete(song: MediaItem) {
@@ -195,7 +205,7 @@ class PlayerControllerImpl
                 clearPlaylist()
             } else {
                 playlist.removeAt(index)
-                db.PlayListDao().delete(song.toSongEntity().toPlayListSongEntity())
+                playListDao.delete(song.toSongEntity().toPlayListSongEntity())
                 player.removeMediaItem(index)
             }
         }
@@ -203,7 +213,7 @@ class PlayerControllerImpl
 
     override fun clearPlaylist() {
         applicationScope.launch {
-            db.PlayListDao().clear()
+            playListDao.clear()
             player.clearMediaItems()
             _currentSong.value = null
         }

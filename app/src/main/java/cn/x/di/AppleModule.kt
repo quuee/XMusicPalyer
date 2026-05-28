@@ -36,7 +36,7 @@ val appModule = module {
         CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     }
 
-    single<PlayerController> { PlayerControllerImpl(player = get(), db = get(), get()) }
+    single<PlayerController> { PlayerControllerImpl(player = get(), playListDao = get(), get()) }
 
 }
 

@@ -95,6 +95,8 @@ class AddSelectSongScreenVM(
         val newNongList = songList.copy(count = songList.count + list.size)
         songListDao.updateSongList(newNongList)
 
+        _searchWord.value = null
+        _selectedIds.value = emptySet<String>()
         //
         _effect.trySend(AddSelectSongEffect.ShowMessage("success"))
         _effect.trySend(AddSelectSongEffect.Back)
