@@ -61,6 +61,7 @@ import cn.x.route.Routes
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.Constants
+import cn.x.util.ToastUtil
 import cn.x.util.formatTime
 import cn.x.util.getSongId
 import cn.x.util.toMediaItem
@@ -94,7 +95,7 @@ fun LocalSongScreen(
     var selectedSong: SongEntity? by remember { mutableStateOf(null) }
 
     // bottomSheet
-    val scope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // 侧边索引
@@ -159,7 +160,7 @@ fun LocalSongScreen(
             AlphabetIndexSidebar(
                 onLetterSelected = { letter ->
                     // 滚动到对应字母的位置
-                    scope.launch {
+                    coroutineScope.launch {
                         val firstIndex = letters.indexOfFirst { it == letter }
                         if (firstIndex != -1) {
                             // 这里需要根据实际数据结构计算正确的索引
@@ -177,7 +178,19 @@ fun LocalSongScreen(
         if (songListDialogVisible) {
             SongListDialog(
                 songLists = songLists,
-                onChoose = {},
+                onChoose = {
+                    localSongScreenVM.addSelectToSongList(
+                        songListId = it,
+                        songId = selectedSong!!.uniqueId
+                    )
+                    songListDialogVisible = false
+                    bottomSheetVisible = false
+                    selectedSong = null
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    ToastUtil.showSuccess("添加完成")
+                },
                 onDismiss = { songListDialogVisible = false }
             )
         }
@@ -190,7 +203,7 @@ fun LocalSongScreen(
                 onDismissRequest = {
                     bottomSheetVisible = false
                     selectedSong = null
-                    scope.launch {
+                    coroutineScope.launch {
                         sheetState.hide()
                     }
                 },
@@ -251,10 +264,9 @@ private fun SongInfoDialog(
 @Composable
 private fun SongListDialog(
     songLists: List<SongListEntity>,
-    onChoose: () -> Unit,
+    onChoose: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
-
 
     Dialog(onDismissRequest = onDismiss) {
         // 完全自定义的内容
@@ -282,6 +294,7 @@ private fun SongListDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
+                                .clickable(onClick = { onChoose(item.id) })
                         ) {
                             Text(item.name)
                         }

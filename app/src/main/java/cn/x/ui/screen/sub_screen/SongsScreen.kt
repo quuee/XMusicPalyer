@@ -75,6 +75,7 @@ import cn.x.route.Routes
 import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MultiSelectSongItem
+import cn.x.util.ToastUtil
 import cn.x.util.getSongId
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.launch
@@ -164,7 +165,7 @@ fun SongsScreen(
                         }
                         // 编辑歌单 名称 封面
                         IconButton(onClick = {
-
+                            ToastUtil.showWarning("Todo")
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
@@ -176,26 +177,22 @@ fun SongsScreen(
             )
         },
         bottomBar = {
-            FloatingBottomPlayerBar(
-                mediaItem = currentSong,
-                isPlaying = isPlaying,
-                onClick = { navigator.navigate(Routes.Player) },
-                onNextClick = { controller.next() },
-                onPreviousClick = { controller.prev() },
-                onPlayPauseClick = { controller.playPause() },
-                modifier = Modifier.windowInsetsPadding(
-                    WindowInsets.navigationBars.only(
-                        WindowInsetsSides.Bottom
+            if (currentSong != null) {
+                FloatingBottomPlayerBar(
+                    mediaItem = currentSong,
+                    isPlaying = isPlaying,
+                    onClick = { navigator.navigate(Routes.Player) },
+                    onNextClick = { controller.next() },
+                    onPreviousClick = { controller.prev() },
+                    onPlayPauseClick = { controller.playPause() },
+                    modifier = Modifier.windowInsetsPadding(
+                        WindowInsets.navigationBars.only(
+                            WindowInsetsSides.Bottom
+                        )
                     )
                 )
-            )
+            }
         },
-        // todo 和我的歌曲按钮有冲突
-//        floatingActionButton = {
-//            IconButton(onClick = {}) {
-//                Icon(imageVector = Icons.Default.MyLocation, contentDescription = null)
-//            }
-//        }
 
     ) { padding ->
         Box(

@@ -57,6 +57,7 @@ import cn.x.route.LocalNavigator
 import cn.x.route.Routes
 import cn.x.ui.componets.FloatingDropdownMenu
 import cn.x.ui.componets.ImageWidget
+import cn.x.util.ToastUtil
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -172,6 +173,7 @@ private fun Actions(onCreateClick: () -> Unit, naviRouteItem: () -> Unit) {
             },
             onClick = {
                 /* 处理点击 */
+                ToastUtil.showWarning("功能未实现")
                 onDismiss()
             },
             leadingIcon = {

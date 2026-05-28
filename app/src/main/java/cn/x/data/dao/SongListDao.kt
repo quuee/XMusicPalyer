@@ -40,17 +40,20 @@ interface SongListDao {
     suspend fun clear()
 
     // 关联表操作
-    @Insert
+    @Insert(onConflict= OnConflictStrategy.IGNORE)
     suspend fun insertSongsToSongList(songs: List<SongListWithSongEntity>)
 
     @Delete
     suspend fun deleteSongFromSongList(songlistSongs: List<SongListWithSongEntity>)
 
     @Transaction
-    @Query("SELECT * FROM song_lists WHERE id = :songlistId")
-    suspend fun getSongsBySongListId(songlistId: Long): SongListWithSongs?
+    @Query("SELECT * FROM song_lists WHERE id = :songListId")
+    suspend fun getSongsBySongListId(songListId: Long): SongListWithSongs?
 
-    @Query("DELETE FROM songlist_song WHERE songlist_id = :songlistId")
-    suspend fun deleteAllBySongListId(songlistId: Long)
+    @Query("SELECT count(song_id) FROM songlist_song WHERE songlist_id = :songListId")
+    suspend fun getSongsCountBySongListId(songListId: Long):Int
+
+    @Query("DELETE FROM songlist_song WHERE songlist_id = :songListId")
+    suspend fun deleteAllBySongListId(songListId: Long)
 
 }

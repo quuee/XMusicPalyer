@@ -8,11 +8,13 @@ import cn.x.data.dao.SongDao
 import cn.x.data.dao.SongListDao
 import cn.x.data.db.SongEntity
 import cn.x.data.db.SongListEntity
+import cn.x.data.db.SongListWithSongEntity
 import cn.x.service.PlayerController
 import cn.x.util.toMediaItem
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 
 class LocalSongScreenVM(
@@ -34,10 +36,20 @@ class LocalSongScreenVM(
         initialValue = emptyList()
     )
 
-
     fun play(song: MediaItem) {
         playerController.replaceAll(songs.value.map { it.toMediaItem() }, song)
     }
 
+    fun addSelectToSongList(songListId: Long,songId:String) {
+        viewModelScope.launch {
+            songListDao.insertSongsToSongList(listOf(SongListWithSongEntity(songlistId = songListId, songId = songId)))
+            val songList = songListDao.getSongList(songListId)
+
+            val count = songListDao.getSongsCountBySongListId(songListId)
+
+            val newNongList = songList.copy(count = count)
+            songListDao.updateSongList(newNongList)
+        }
+    }
 
 }
