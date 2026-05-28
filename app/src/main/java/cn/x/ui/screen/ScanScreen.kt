@@ -21,10 +21,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,11 +45,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import cn.x.data.db.SongEntity
-import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FolderCard
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.koinViewModel
@@ -55,6 +58,7 @@ import org.koin.androidx.compose.koinViewModel
 /**
  * 扫描歌曲
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanScreen(
     scanVM: ScanScreenVM = koinViewModel(),
@@ -96,17 +100,27 @@ fun ScanScreen(
 
     Scaffold(
         topBar = {
-            CenterTopBar(
-                title = "Scan",
-                onDrawerToggle,
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Scan",
+                        textAlign = TextAlign.Center
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onDrawerToggle) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Drawer Menu")
+                    }
+                },
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             Icons.Default.MoreVert,
                             contentDescription = null
                         )
                     }
-                })
+                }
+            )
         }
     ) { padding ->
 

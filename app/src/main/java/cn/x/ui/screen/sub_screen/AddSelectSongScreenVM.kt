@@ -33,13 +33,8 @@ class AddSelectSongScreenVM(
     private val _searchWord = MutableStateFlow<String?>(null)
     val searchWord = _searchWord.asStateFlow()
 
-    private val songListId: Long = savedStateHandle[Constants.SongListId] ?: 0L
 
-    init {
-        loadData()
-    }
-
-    fun loadData() {
+    fun loadData(songListId:Long) {
         // 进入歌单页面 加载数据
         viewModelScope.launch {
             val songListWithSongs = songListDao.getSongsBySongListId(songListId)
@@ -79,7 +74,7 @@ class AddSelectSongScreenVM(
         }
     }
 
-    fun changeSearchWord(word: String?) {
+    fun changeSearchWord(songListId:Long,word: String?) {
         _searchWord.value = word
 
         viewModelScope.launch {

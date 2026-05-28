@@ -14,11 +14,14 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +30,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +41,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cn.x.R
-import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.theme.AppThemeMode
 import org.koin.androidx.compose.koinViewModel
 
@@ -47,6 +48,7 @@ import org.koin.androidx.compose.koinViewModel
 /**
  * 设置
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
     onDrawerToggle: () -> Unit,
@@ -57,17 +59,27 @@ fun SettingScreen(
 
     Scaffold(
         topBar = {
-            CenterTopBar(
-                title = stringResource(R.string.setting),
-                onDrawerToggle,
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.setting),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onDrawerToggle) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Drawer Menu")
+                    }
+                },
                 actions = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             Icons.Default.MoreVert,
                             contentDescription = null
                         )
                     }
-                })
+                }
+            )
         }
     ) { padding ->
 

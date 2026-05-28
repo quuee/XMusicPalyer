@@ -79,7 +79,7 @@ class SongsScreenVM(
         playerController.replaceAll(_songs.value.map { it.toMediaItem() }, song)
     }
 
-    fun remove(songListId:Long) {
+    fun remove(songListId: Long) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val removeList = _selectedIds.value.map {

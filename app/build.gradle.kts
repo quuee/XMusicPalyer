@@ -83,6 +83,9 @@ dependencies {
     // Coil 图片加载
     implementation(libs.coil.compose)
 
+    // toaster
+    implementation(libs.toaster)
+
     // Permissions
     implementation(libs.accompanist.permissions)
 

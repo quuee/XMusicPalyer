@@ -49,9 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavKey
 import cn.x.R
-import cn.x.route.Routes
 import kotlinx.coroutines.launch
 
 @Composable
@@ -164,25 +162,25 @@ enum class DrawerElement(
 ) {
     ScanLocalSong(
         R.string.drawer_scan_local_song,
-        R.drawable.icon_drawer_scan,
+        R.drawable.ic_leidatu,
 //        Routes.Scan
         0
     ),
     Folder(
         R.string.drawer_local_folder,
-        R.drawable.icon_drawer_folder,
+        R.drawable.ic_folder,
 //        Routes.Folder,
         1
     ),
     LocalSongList(
         R.string.drawer_local_song_list,
-        R.drawable.icon_drawer_music_list,
+        R.drawable.ic_music_list,
 //        Routes.SongList
         2
     ),
     LocalSong(
         R.string.drawer_local_song,
-        R.drawable.icon_drawer_song,
+        R.drawable.ic_music,
 //        Routes.LocalSong
         3
     ),
@@ -218,16 +216,18 @@ fun DrawerContent(
                 },
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.icon_drawer_setting),
-                    contentDescription = stringResource(R.string.setting)
+                    painter = painterResource(R.drawable.ic_setting),
+                    contentDescription = stringResource(R.string.setting),
+                    tint = null, // 影响默认颜色
                 )
             }
             IconButton(
                 onClick = {},
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.icon_camera_scan),
-                    contentDescription = "camera scan"
+                    painter = painterResource(R.drawable.ic_scan),
+                    contentDescription = "camera scan",
+                    tint = null, // 影响默认颜色
                 )
             }
         }
@@ -275,7 +275,7 @@ private fun DrawerItem(
             Icon(
                 painter = painterResource(id = element.icon),
                 contentDescription = stringResource(id = element.title),
-
+                tint = null, // 影响默认颜色
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))

@@ -21,11 +21,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.PlaylistAdd
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,7 +38,10 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,6 +49,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -54,7 +59,6 @@ import cn.x.data.db.SongListEntity
 import cn.x.route.LocalNavigator
 import cn.x.route.Routes
 import cn.x.ui.componets.AlphabetIndexSidebar
-import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.MultiSelectSongItem
 import cn.x.util.Constants
 import cn.x.util.formatTime
@@ -72,41 +76,58 @@ fun LocalSongScreen(
     localSongScreenVM: LocalSongScreenVM = koinViewModel(),
     onDrawerToggle: () -> Unit,
 ) {
+    // 导航
     val navigator = LocalNavigator.current
+    // 歌曲
     val songs by localSongScreenVM.songs.collectAsState()
+    // 歌单
     val songLists by localSongScreenVM.songLists.collectAsState()
-    val selectedSong by localSongScreenVM.selectedSong.collectAsState()
 
     // 添加到歌单 dialog
-    val songListDialogVisible by localSongScreenVM.songListDialogVisible.collectAsState()
+    var songListDialogVisible by remember { mutableStateOf(false) }
     // 歌曲信息dialog
-    val songInfoDialogVisible by localSongScreenVM.songInfoDialogVisible.collectAsState()
+    var songInfoDialogVisible by remember { mutableStateOf(false) }
 
     // 控制 BottomSheet 是否显示
-    val bottomSheetVisible by localSongScreenVM.bottomSheetVisible.collectAsState()
+    var bottomSheetVisible by remember { mutableStateOf(false) }
+    // 选中的歌曲
+    var selectedSong: SongEntity? by remember { mutableStateOf(null) }
+
+    // bottomSheet
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    // 侧边索引
     val letters = (listOf("#") + Constants.alphabet)
     val alphabetIndexListState = rememberLazyListState()
 
-    val controller = localSongScreenVM.playerController
-    val currentSong by controller.currentSong.collectAsState()
+    val playerController = localSongScreenVM.playerController
+    val currentSong by playerController.currentSong.collectAsState()
 
 
     Scaffold(
         topBar = {
-            CenterTopBar(
-                stringResource(R.string.local_song),
-                onDrawerToggle,
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.local_song),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onDrawerToggle) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Drawer Menu")
+                    }
+                },
                 actions = {
-                    IconButton(onClick = { navigator.navigate(Routes.Search)}) {
+                    IconButton(onClick = { navigator.navigate(Routes.Search) }) {
                         Icon(
                             Icons.Default.Search,
                             contentDescription = null
                         )
                     }
-                })
+                }
+            )
         }
     ) { padding ->
 
@@ -125,7 +146,8 @@ fun LocalSongScreen(
                         isCurrent = currentSong?.getSongId() == songItem.songId,
                         onClick = { localSongScreenVM.play(songItem.toMediaItem()) },
                         onMenuClick = {
-                            localSongScreenVM.showBottomSheet(songItem)
+                            bottomSheetVisible = true
+                            selectedSong = songItem
                         },
                         onToggleSelection = { }
                     )
@@ -156,25 +178,26 @@ fun LocalSongScreen(
             SongListDialog(
                 songLists = songLists,
                 onChoose = {},
-                onDismiss = { localSongScreenVM.hideSongListDialog() }
+                onDismiss = { songListDialogVisible = false }
             )
         }
-        if(songInfoDialogVisible){
-            SongInfoDialog(song = selectedSong, onDismiss = {localSongScreenVM.hideSongInfoDialog()})
+        if (songInfoDialogVisible) {
+            SongInfoDialog(song = selectedSong, onDismiss = { songInfoDialogVisible = false })
         }
 
         if (bottomSheetVisible) {
             SongBottomSheet(
                 onDismissRequest = {
-                    localSongScreenVM.hideBottomSheet()
+                    bottomSheetVisible = false
+                    selectedSong = null
                     scope.launch {
                         sheetState.hide()
                     }
                 },
-                onAddToPlaylist = { localSongScreenVM.showSongListDialog() },
+                onAddToPlaylist = { songListDialogVisible = true },
                 onShare = { /* 处理分享逻辑 */ },
                 onPlayNext = { /* 处理下一首逻辑 */ },
-                onShowInfo = { localSongScreenVM.showSongInfoDialog() },
+                onShowInfo = { songInfoDialogVisible = true },
                 onEditMetadata = { /* 处理编辑逻辑 */ },
                 onDelete = { /* 处理删除逻辑 */ }
             )
@@ -186,7 +209,8 @@ fun LocalSongScreen(
 @Composable
 private fun SongInfoDialog(
     song: SongEntity?,
-    onDismiss: () -> Unit){
+    onDismiss: () -> Unit
+) {
 
     Dialog(onDismissRequest = onDismiss) {
         // 完全自定义的内容
@@ -211,13 +235,13 @@ private fun SongInfoDialog(
                 )
 
                 //content
-                Text(song?.title?:"")
-                Text(song?.artist?:"")
-                Text(song?.album?:"")
-                Text(formatTime(song?.duration?:0L))
-                Text(song?.fileName?:"")
+                Text(song?.title ?: "")
+                Text(song?.artist ?: "")
+                Text(song?.album ?: "")
+                Text(formatTime(song?.duration ?: 0L))
+                Text(song?.fileName ?: "")
                 Text(song?.fileSize.toString())
-                Text(song?.absolutePath?:"")
+                Text(song?.absolutePath ?: "")
 
             }
         }

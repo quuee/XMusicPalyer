@@ -43,7 +43,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import cn.x.route.LocalNavigator
 import cn.x.ui.componets.MultiSelectSongItem
-import cn.x.util.GlobalMessageUtil
+import cn.x.util.ToastUtil
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -62,6 +62,9 @@ fun AddSelectSongScreen(
     val searchWord by addSelectSongScreenVM.searchWord.collectAsState()
 
 
+    LaunchedEffect(Unit) {
+        addSelectSongScreenVM.loadData(songListId)
+    }
 
     Box(
         modifier = Modifier
@@ -78,7 +81,7 @@ fun AddSelectSongScreen(
             TopSearchBar(
                 naviBack = { navigator.popBack() },
                 queryWord = searchWord,
-                onQueryChange = { addSelectSongScreenVM.changeSearchWord(it) },
+                onQueryChange = { addSelectSongScreenVM.changeSearchWord(songListId,it) },
                 selectDone = { addSelectSongScreenVM.addSelectToSongList(songListId) })
             Spacer(modifier = Modifier.height(8.dp))
             LazyColumn() {
@@ -176,7 +179,8 @@ private fun TopSearchBar(
             focusManager.clearFocus() // 先 关闭焦点=关闭键盘
             selectDone()
             naviBack()
-            GlobalMessageUtil.show("操作成功！", duration = SnackbarDuration.Short)
+            ToastUtil.showSuccess("添加成功")
+
         }) {
             Icon(imageVector = Icons.Default.Done, contentDescription = null)
         }

@@ -19,13 +19,17 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.ImportExport
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -43,13 +47,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cn.x.R
 import cn.x.data.db.SongListEntity
 import cn.x.route.LocalNavigator
 import cn.x.route.Routes
-import cn.x.ui.componets.CenterTopBar
 import cn.x.ui.componets.FloatingDropdownMenu
 import cn.x.ui.componets.ImageWidget
 import org.koin.androidx.compose.koinViewModel
@@ -57,6 +61,7 @@ import org.koin.androidx.compose.koinViewModel
 /**
  * 歌单列表
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongListScreen(
     songListScreenVM: SongListScreenVM = koinViewModel(),
@@ -70,9 +75,18 @@ fun SongListScreen(
 
     Scaffold(
         topBar = {
-            CenterTopBar(
-                title = stringResource(R.string.songList),
-                drawerToggle = onDrawerToggle,
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.songList),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onDrawerToggle) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Drawer Menu")
+                    }
+                },
                 actions = {
                     Actions(
                         onCreateClick = { songListScreenVM.openDialog(null) },

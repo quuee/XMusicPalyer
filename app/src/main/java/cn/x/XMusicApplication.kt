@@ -7,9 +7,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -30,11 +27,10 @@ import cn.x.di.utilModule
 import cn.x.di.viewModelModule
 import cn.x.service.MusicPlaybackService
 import cn.x.route.NavigationGraph
-import cn.x.ui.componets.CustomSnackbar
 import cn.x.ui.theme.AppThemeMode
 import cn.x.ui.theme.XMusicPlayerTheme
-import cn.x.util.GlobalMessageUtil
 import cn.x.util.SPUtil
+import cn.x.util.ToastUtil
 import kotlinx.coroutines.CompletableDeferred
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -51,6 +47,7 @@ class XMusicApplication : Application() {
         super.onCreate()
 
         SPUtil.init(this)
+        ToastUtil.init(this)
 
         // 初始化 Koin DI
         startKoin {
@@ -131,17 +128,7 @@ fun XMusicApplicationApp(
         ) {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
-                snackbarHost = {
-                    SnackbarHost(
-                        GlobalMessageUtil.snackbarHostState,
-                        snackbar = { snackbarData ->
-                            CustomSnackbar(snackbarData)
-                        },
-                        modifier = Modifier.offset(y = (-48).dp)
-                    )
-                }
             ) {
-
                 NavigationGraph()
             }
         }
