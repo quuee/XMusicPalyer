@@ -172,6 +172,7 @@ class PlayerControllerImpl
 
     override fun play(mediaId: String) {
         // 在添加歌曲,更新数据库后playlist.value不是最新.导致找不到歌曲
+        // todo 待优化: 现在修改后能正常播放对应歌曲,但是ui会切换第一首再切换到当前歌曲
         applicationScope.launch {
             var playlist = playlist.value
             var index = playlist.indexOfFirst { it.mediaId == mediaId }

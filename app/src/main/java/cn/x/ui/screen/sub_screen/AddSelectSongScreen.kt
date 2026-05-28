@@ -64,7 +64,6 @@ fun AddSelectSongScreen(
     val searchWord by addSelectSongScreenVM.searchWord.collectAsState()
     val isLoading by addSelectSongScreenVM.isLoading.collectAsState()
 
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         addSelectSongScreenVM.handleIntent(AddSelectSongIntent.LoadData(songListId))
@@ -101,24 +100,19 @@ fun AddSelectSongScreen(
                 naviBack = { navigator.popBack() },
                 queryWord = searchWord,
                 onQueryChange = {
-                    coroutineScope.launch {
-                        addSelectSongScreenVM.handleIntent(
-                            AddSelectSongIntent.ChangeSearchWord(
-                                songListId,
-                                it
-                            )
+                    addSelectSongScreenVM.handleIntent(
+                        AddSelectSongIntent.ChangeSearchWord(
+                            songListId,
+                            it
                         )
-                    }
-
+                    )
                 },
                 selectDone = {
-                    coroutineScope.launch {
-                        addSelectSongScreenVM.handleIntent(
-                            AddSelectSongIntent.AddSelectToSongList(
-                                songListId
-                            )
+                    addSelectSongScreenVM.handleIntent(
+                        AddSelectSongIntent.AddSelectToSongList(
+                            songListId
                         )
-                    }
+                    )
                 })
             Spacer(modifier = Modifier.height(8.dp))
             if (isLoading) {
@@ -134,13 +128,11 @@ fun AddSelectSongScreen(
                             onClick = {},
                             onMenuClick = {},
                             onToggleSelection = {
-                                coroutineScope.launch {
-                                    addSelectSongScreenVM.handleIntent(
-                                        AddSelectSongIntent.ToggleSelection(
-                                            song.uniqueId
-                                        )
+                                addSelectSongScreenVM.handleIntent(
+                                    AddSelectSongIntent.ToggleSelection(
+                                        song.uniqueId
                                     )
-                                }
+                                )
                             }
                         )
                     }

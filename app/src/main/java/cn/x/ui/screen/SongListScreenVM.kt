@@ -5,103 +5,118 @@ import androidx.lifecycle.viewModelScope
 import cn.x.data.dao.SongListDao
 import cn.x.data.db.SongListEntity
 import cn.x.util.getCurrentDateTime
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
-class SongListScreenVM (
+sealed class SongListIntent {
+    data class OnSongListNameChange(val name: String) : SongListIntent()
+    data class OpenRename(val songListEntity: SongListEntity) : SongListIntent()
+    data object SubmitForm : SongListIntent()
+    data class Delete(val songListId: Long) : SongListIntent()
+}
+
+sealed class SongListEffect {
+    data class ShowMessage(val message: String) : SongListEffect()
+    data object Back : SongListEffect()
+}
+
+class SongListScreenVM(
     private val songListDao: SongListDao,
 ) : ViewModel() {
 
-    private val _songLists = MutableStateFlow<List<SongListEntity>>(emptyList())
-    val songLists = _songLists.asStateFlow()
+    // 私有副作用通道 (Channel 用于处理一次性事件)
+    private val _effect = Channel<SongListEffect>(Channel.BUFFERED)
+    val effect: Flow<SongListEffect> = _effect.receiveAsFlow()
 
-    private val _showDialog = MutableStateFlow(false)
-    val showDialog = _showDialog.asStateFlow()
-
-
-    private val EmptySongList = SongListEntity(
-        id = 0L,
-        name = "",
-        cover = "",
-        count = 0,
-        createDate = "",
-        sort = 1
+    private val _songLists: StateFlow<List<SongListEntity>> = songListDao.getAllSongLists().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(1000),
+        initialValue = emptyList()
     )
-    private val _createOrRenameSongList = MutableStateFlow(
-        EmptySongList
-    )
-    val createOrRenameSongList = _createOrRenameSongList.asStateFlow()
+    val songLists = _songLists
 
-    init {
-        viewModelScope.launch {
-            songListDao.getAllSongLists().collect { items->
-                _songLists.value =items
-            }
+
+    private val _songListFormData = MutableStateFlow(
+        SongListFormState()
+    )
+    val songListFormData = _songListFormData.asStateFlow()
+
+    fun handleIntent(intent: SongListIntent) {
+        when (intent) {
+            is SongListIntent.OnSongListNameChange -> onSongListNameChange(intent.name)
+            is SongListIntent.OpenRename -> openRename(intent.songListEntity)
+            is SongListIntent.SubmitForm -> submitForm()
+            is SongListIntent.Delete -> delete(intent.songListId)
         }
     }
 
 
-    fun openDialog(songListId: Long?) {
-        _showDialog.value = true
-        if (songListId != null && songListId != 0L) {
-            val item = _songLists.value.first { songList -> songList.id == songListId }
-            _createOrRenameSongList.value = item
-        }
-
-    }
-
-    fun dismissDialog() {
-        _showDialog.value = false
-        _createOrRenameSongList.value = EmptySongList.copy()
+    private fun openRename(songListEntity: SongListEntity) {
+        _songListFormData.value = SongListFormState(
+            id = songListEntity.id,
+            name = songListEntity.name,
+            cover = songListEntity.cover,
+        )
     }
 
 
     // 更新输入框内容
-    fun onNewSongListNameChange(name: String) {
-        _createOrRenameSongList.value = EmptySongList.copy(
-            id = _createOrRenameSongList.value.id,
+    private fun onSongListNameChange(name: String) {
+        _songListFormData.value = _songListFormData.value.copy(
             name = name,
-            createDate = getCurrentDateTime()
         )
     }
 
     // 确认创建
-    fun songListConfirm(songListId: Long?) {
-        val name = _createOrRenameSongList.value.name.trim()
-        if (name.isEmpty()) return // 简单校验
-        viewModelScope.launch {
-            if (songListId == null || songListId == 0L) {
-                // create
-                withContext(Dispatchers.IO) {
-                    songListDao.insertSongList(_createOrRenameSongList.value)
+    private fun submitForm() {
+        val name = _songListFormData.value.name.trim()
+        if (name.isEmpty()) {
+            _effect.trySend(SongListEffect.ShowMessage("not empty"))
+            return // 简单校验
+        }
 
-                }
+        viewModelScope.launch {
+            if (_songListFormData.value.id == null || _songListFormData.value.id == 0L) {
+                // create
+                val s =  SongListEntity(
+                    id = 0L,
+                    name = _songListFormData.value.name,
+                    cover = "",
+                    count = 0,
+                    createDate = getCurrentDateTime(),
+                    sort = _songLists.value.size
+                )
+                songListDao.insertSongList(s)
             } else {
                 // update
-                val oldItem = _songLists.value.first { songList -> songList.id == songListId }
-                val newItem = oldItem.copy(name = _createOrRenameSongList.value.name)
-                withContext(Dispatchers.IO) {
-                    songListDao.updateSongList(newItem)
-
-                }
+                val oldItem = _songLists.value.first { songList -> songList.id == _songListFormData.value.id }
+                val newItem = oldItem.copy(name = _songListFormData.value.name)
+                songListDao.updateSongList(newItem)
             }
-            dismissDialog() // 这里是异步,防止dismissDialog把状态重置,只能放里面
+            // reset
+            _songListFormData.value = SongListFormState()
         }
     }
 
-    fun delete(songListId: Long) {
+    private fun delete(songListId: Long) {
         val item = _songLists.value.first { songList -> songList.id == songListId }
         viewModelScope.launch {
-            // 调用实际的业务逻辑
-            withContext(Dispatchers.IO) {
-                songListDao.delete(item)
-                songListDao.deleteAllBySongListId(songListId)
-            }
-            dismissDialog()
+            songListDao.delete(item)
+            songListDao.deleteAllBySongListId(songListId)
         }
     }
 }
+
+data class SongListFormState(
+    val id: Long? = null,
+    val name: String = "",
+    val cover: String = "",
+)

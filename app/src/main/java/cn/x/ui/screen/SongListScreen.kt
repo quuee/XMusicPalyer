@@ -40,6 +40,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +57,9 @@ import cn.x.route.LocalNavigator
 import cn.x.route.Routes
 import cn.x.ui.componets.FloatingDropdownMenu
 import cn.x.ui.componets.ImageWidget
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+
 
 /**
  * 歌单列表
@@ -68,9 +71,12 @@ fun SongListScreen(
     onDrawerToggle: () -> Unit,
 ) {
     val navigator = LocalNavigator.current
+
     val songLists by songListScreenVM.songLists.collectAsState()
-    val showDialog by songListScreenVM.showDialog.collectAsState()
-    val createOrRenameSongList by songListScreenVM.createOrRenameSongList.collectAsState()
+    val songListFormData by songListScreenVM.songListFormData.collectAsState()
+
+    // 歌单 新建 编辑 窗口
+    var showDialog by remember { mutableStateOf(false) }
 
 
     Scaffold(
@@ -89,7 +95,7 @@ fun SongListScreen(
                 },
                 actions = {
                     Actions(
-                        onCreateClick = { songListScreenVM.openDialog(null) },
+                        onCreateClick = { showDialog = true },
                         naviRouteItem = { navigator.navigate(Routes.SongListSort) },
                     )
                 }
@@ -103,8 +109,13 @@ fun SongListScreen(
                     onClick = {
                         navigator.navigateToSongListDetail(songListItem.id)
                     },
-                    onRenameClick = { songListScreenVM.openDialog(songListItem.id) },
-                    onDeleteClick = { songListScreenVM.delete(songListItem.id) }
+                    onRenameClick = {
+                        showDialog = true
+                        songListScreenVM.handleIntent(SongListIntent.OpenRename(songListItem))
+                    },
+                    onDeleteClick = {
+                        songListScreenVM.handleIntent(SongListIntent.Delete(songListItem.id))
+                    }
                 )
 
             }
@@ -113,13 +124,16 @@ fun SongListScreen(
         // 创建或编辑歌单的弹窗
         if (showDialog) {
             CreateRenameSongListDialog(
-                songList = createOrRenameSongList,
-                onNameChange = { songListScreenVM.onNewSongListNameChange(it) },
+                songList = songListFormData,
+                onNameChange = {
+                    songListScreenVM.handleIntent(SongListIntent.OnSongListNameChange(it))
+                },
                 onConfirm = {
-                    songListScreenVM.songListConfirm(it)
+                    songListScreenVM.handleIntent(SongListIntent.SubmitForm)
+                    showDialog = false
                 },
                 onDismiss = {
-                    songListScreenVM.dismissDialog()
+                    showDialog = false
                 }
             )
         }
@@ -194,7 +208,7 @@ private fun Actions(onCreateClick: () -> Unit, naviRouteItem: () -> Unit) {
 
 @Composable
 private fun CreateRenameSongListDialog(
-    songList: SongListEntity,
+    songList: SongListFormState,
     onNameChange: (String) -> Unit,
     onConfirm: (Long?) -> Unit,
     onDismiss: () -> Unit
