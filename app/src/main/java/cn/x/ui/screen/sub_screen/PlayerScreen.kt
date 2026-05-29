@@ -109,6 +109,7 @@ fun PlayerScreen(
     val playMode by controller.playMode.collectAsState()
     val playlist by controller.playlist.collectAsState()
 
+
     // 2. 获取瞬时值 (Duration 不是 Flow，每次重组都会读取最新值，这是安全的)
     val duration = controller.mediaController.duration.coerceAtLeast(0L)
 
@@ -125,13 +126,13 @@ fun PlayerScreen(
             0 -> {
                 MainContent(
                     naviBack = {navigator.popBack()},
-                    currentSong,
+                    currentSong=currentSong,
                     lyrics,
-                    playProgress,
-                    buffering,
+                    playProgress=playProgress,
+                    buffering = buffering,
                     duration,
-                    isPlaying,
-                    playMode,
+                    isPlaying = isPlaying,
+                    playMode=playMode,
                     seekTo = { playerScreenVM.seekTo(it) },
                     prev = { playerScreenVM.prev() },
                     togglePlayMode = { playerScreenVM.togglePlayMode() },
@@ -142,7 +143,7 @@ fun PlayerScreen(
 
             1 -> {
                 PlayListContent(
-                    playlist,
+                    playList = playlist,
                     currentSongId = currentSong?.mediaId ?: "",
                     onClick = {playerScreenVM.play(it)},
                     )
@@ -159,7 +160,7 @@ private fun MainContent(
     currentSong: MediaItem?,
     lyrics: List<LyricLine>,
     playProgress: Long,
-    buffering: Int,
+    buffering: Long,
     duration: Long,
     isPlaying: Boolean,
     playMode: PlayMode,
@@ -429,7 +430,7 @@ private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
 private fun SongBufferedSlider(
     currentSong: MediaItem?,
     progress: Long,
-    buffering: Int,
+    buffering: Long,
     duration: Long,
     seekTo: (Long) -> Unit,
     modifier: Modifier

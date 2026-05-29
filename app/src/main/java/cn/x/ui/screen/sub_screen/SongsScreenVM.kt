@@ -86,7 +86,8 @@ class SongsScreenVM(
         }
     }
 
-    fun getCurrentSongIndex(): Int {
+    fun getCurrentSongIndex(currentSong: MediaItem?): Int {
+        if(currentSong == null) return 0
         val index =
             _songs.value.indexOfFirst { it.uniqueId == playerController.currentSong.value?.mediaId }
         return index

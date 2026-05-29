@@ -25,8 +25,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 
-
-
+/**
+ * 自定义实现文字跑马灯
+ * Modifier.basicMarquee() 已实现
+ */
 @Composable
 fun MarqueeText(
     text: String,

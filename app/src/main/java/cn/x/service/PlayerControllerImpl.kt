@@ -9,18 +9,17 @@ import androidx.media3.session.MediaController
 import cn.x.data.dao.PlayListDao
 import cn.x.util.Constants
 import cn.x.util.SPUtil
+import cn.x.util.ToastUtil
 import cn.x.util.toMediaItem
 import cn.x.util.toPlayListSongEntity
 import cn.x.util.toSongEntity
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
@@ -48,7 +47,6 @@ class PlayerControllerImpl
                 started = SharingStarted.Lazily, // 无延迟
                 initialValue = emptyList()
             )
-
     private val _currentSong = MutableStateFlow<MediaItem?>(null)
     override val currentSong = _currentSong.asStateFlow()
 
@@ -58,11 +56,19 @@ class PlayerControllerImpl
     private val _playProgress = MutableStateFlow<Long>(0)
     override val playProgress = _playProgress.asStateFlow()
 
-    private val _bufferingPercent = MutableStateFlow(0)
+    private val _bufferingPercent = MutableStateFlow<Long>(0)
     override val bufferingPercent = _bufferingPercent.asStateFlow()
 
     private val _playMode = MutableStateFlow(PlayMode.valueOf(SPUtil.getInt(Constants.PlayMode)))
     override val playMode: StateFlow<PlayMode> = _playMode.asStateFlow()
+
+//    private val _playbackState = MutableStateFlow(PlaybackState())
+//    override val playbackState = _playbackState
+//        .stateIn(
+//            scope = applicationScope,
+//            started = SharingStarted.WhileSubscribed(5000L),
+//            initialValue = PlaybackState()
+//        )
 
     private var audioSessionId = 0
 
@@ -87,7 +93,8 @@ class PlayerControllerImpl
                         _playState.value = PlayState.Playing
                     }
 
-                    Player.STATE_ENDED -> {}
+                    Player.STATE_ENDED -> {
+                    }
                 }
             }
 
@@ -115,7 +122,7 @@ class PlayerControllerImpl
             override fun onPlayerError(error: PlaybackException) {
                 super.onPlayerError(error)
                 stop()
-                //toast("播放失败(${error.errorCodeName},${error.localizedMessage})")
+                ToastUtil.showError("play error: ${error.errorCodeName},${error.localizedMessage}")
             }
         })
 

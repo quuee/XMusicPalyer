@@ -224,7 +224,7 @@ fun SongsScreen(
                             isSelectionMode = !isSelectionMode
                             songsScreenVM.clearSelection()
                         },
-                        location = { coroutineScope.launch { listState.scrollToItem(songsScreenVM.getCurrentSongIndex()) } },
+                        location = { coroutineScope.launch { listState.scrollToItem(songsScreenVM.getCurrentSongIndex(currentSong)) } },
                         isAllSelection = isAllSelection,
                         modifier = Modifier
                             .fillMaxWidth()

@@ -10,8 +10,11 @@ interface PlayerController {
     val currentSong: StateFlow<MediaItem?>
     val playState: StateFlow<PlayState>
     val playProgress: StateFlow<Long>
-    val bufferingPercent: StateFlow<Int>
+    val bufferingPercent: StateFlow<Long>
     val playMode: StateFlow<PlayMode>
+
+    // 放一起不好用？
+//    val playbackState: StateFlow<PlaybackState>
 
     fun addAndPlay(song: MediaItem)
 

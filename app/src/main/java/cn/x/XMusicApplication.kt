@@ -126,7 +126,7 @@ fun SplashScreen(onReady: () -> Unit) {
 fun XMusicApplicationApp(
 ) {
     var isReady by remember { mutableStateOf(false) }
-    
+
     XMusicPlayerTheme(
         themeMode = AppThemeMode.SYSTEM
     ) {
