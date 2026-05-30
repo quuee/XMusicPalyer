@@ -127,6 +127,7 @@ fun HomeScreen(
                                 onPlayPause = { controller.playPause() },
                                 onPrevious = { controller.prev() },
                                 onNext = { controller.next() },
+                                playMode = playMode
                             )
                         }
 

@@ -75,6 +75,7 @@ import cn.x.route.Routes
 import cn.x.ui.componets.FloatingBottomPlayerBar
 import cn.x.ui.componets.ImageWidget
 import cn.x.ui.componets.MultiSelectSongItem
+import cn.x.ui.componets.PlayerSheet
 import cn.x.util.ToastUtil
 import cn.x.util.getSongId
 import cn.x.util.toMediaItem
@@ -125,9 +126,13 @@ fun SongsScreen(
         }
     }
 
+    var playerBottomSheet by remember { mutableStateOf(false) }
+
     val controller = songsScreenVM.playerController
     // 1. 直接收集各个 StateFlow
     val currentSong by controller.currentSong.collectAsState()
+    val playProgress by controller.playProgress.collectAsState()
+    val playMode by controller.playMode.collectAsState()
     val playState by controller.playState.collectAsState()
     val isPlaying = playState == PlayState.Playing
 
@@ -177,20 +182,40 @@ fun SongsScreen(
             )
         },
         bottomBar = {
-            if (currentSong != null) {
-                FloatingBottomPlayerBar(
-                    mediaItem = currentSong,
-                    isPlaying = isPlaying,
-                    onClick = { navigator.navigate(Routes.Player) },
-                    onNextClick = { controller.next() },
-                    onPreviousClick = { controller.prev() },
-                    onPlayPauseClick = { controller.playPause() },
-                    modifier = Modifier.windowInsetsPadding(
-                        WindowInsets.navigationBars.only(
-                            WindowInsetsSides.Bottom
-                        )
+//            if (currentSong != null) {
+//                FloatingBottomPlayerBar(
+//                    mediaItem = currentSong,
+//                    isPlaying = isPlaying,
+//                    onClick = { navigator.navigate(Routes.Player) },
+//                    onNextClick = { controller.next() },
+//                    onPreviousClick = { controller.prev() },
+//                    onPlayPauseClick = { controller.playPause() },
+//                    modifier = Modifier.windowInsetsPadding(
+//                        WindowInsets.navigationBars.only(
+//                            WindowInsetsSides.Bottom
+//                        )
+//                    )
+//                )
+//            }
+            AnimatedVisibility(
+                visible = currentSong != null,
+                enter = slideInVertically(initialOffsetY = { it }),
+                exit = slideOutVertically(targetOffsetY = { it }),
+            ) {
+                currentSong?.let {
+                    PlayerSheet(
+                        isExpanded = playerBottomSheet,
+                        onPlayerExpandedChange = { playerBottomSheet = !playerBottomSheet },
+                        isPlaying=isPlaying,
+                        currentTrack = currentSong!!,
+                        progress = playProgress,
+                        onPlayPause = { controller.playPause() },
+                        onPrevious = { controller.prev() },
+                        onNext = { controller.next() },
+                        playMode = playMode
                     )
-                )
+                }
+
             }
         },
 
