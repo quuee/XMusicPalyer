@@ -19,13 +19,14 @@ sealed class Routes {
     @Serializable
     object SongList : NavKey
     @Serializable
+    object Setting : NavKey
+    @Serializable
     object Player : NavKey
     @Serializable
     data class Songs(val songListId: Long) : NavKey
     @Serializable
     data class AddSelectSong(val songListId: Long) : NavKey
-    @Serializable
-    object Setting : NavKey
+
     @Serializable
     object Search : NavKey
     @Serializable

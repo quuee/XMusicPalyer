@@ -120,26 +120,29 @@ fun PlayerSheet(
     val thresholdY = with(density) { 150.dp.toPx() }
     val decay = rememberSplineBasedDecay<Float>()
 
-    val translationY = remember {
-        Animatable(0f).apply {
-            if (isExpanded) {
-                updateBounds(
-                    lowerBound = 0f,
-                    upperBound = thresholdY
-                )
-            } else {
-                updateBounds(
-                    lowerBound = -thresholdY,
-                    upperBound = thresholdY
-                )
-            }
+    val translationY = remember { Animatable(0f) }
+    LaunchedEffect(isExpanded) {
+        if (isExpanded) {
+            // 展开状态：只能向下拖拽（正方向），不能向上
+            translationY.updateBounds(lowerBound = 0f, upperBound = thresholdY)
+            // 如果之前有负偏移，归零
+            translationY.snapTo(0f)
+        } else {
+            // 收起状态：可以向上拖拽展开（负方向），也可以向下拖拽关闭（正方向）
+            translationY.updateBounds(lowerBound = -thresholdY, upperBound = thresholdY)
         }
     }
+
     val draggableState = rememberDraggableState { dragAmount ->
         coroutineScope.launch {
-            translationY.snapTo(
-                translationY.value + (dragAmount * (1 - (translationY.value / thresholdY).absoluteValue))
-            )
+            // 展开状态下，完全忽略向上的拖拽（dragAmount < 0）
+            val effectiveDrag = if (isExpanded && dragAmount < 0f) 0f else dragAmount
+
+            // 阻尼效果：越接近边界阻力越大
+            val fraction = (translationY.value / thresholdY).absoluteValue.coerceIn(0f, 1f)
+            val dampedDrag = effectiveDrag * (1f - fraction)
+
+            translationY.snapTo(translationY.value + dampedDrag)
         }
     }
 
@@ -175,33 +178,28 @@ fun PlayerSheet(
                     )
 
                     coroutineScope.launch {
-                        if (!isExpanded) {
-                            val shouldStopPlayback = decayY > thresholdY * .5f
-                            if (shouldStopPlayback) {
+                        // 展开状态下，只有向下拖拽超过阈值才触发状态变更
+                        // 非展开状态下，向上拖拽（decayY < 0）超过阈值触发展开
+                        val shouldExpand = !isExpanded && decayY < -(thresholdY * 0.5f)
+                        val shouldCollapse = isExpanded && decayY > (thresholdY * 0.5f)
+
+                        // 非展开状态下向下滑动超过阈值 → 停止播放
+                        val shouldStopPlayback = !isExpanded && decayY > (thresholdY * 0.5f)
+
+                        when {
+                            shouldStopPlayback -> {
 //                                onReset()
                                 return@launch
                             }
-                        }
-
-                        val shouldChangeExpandedState = decayY.absoluteValue > (thresholdY * 0.5f)
-                        if (shouldChangeExpandedState) {
-                            onPlayerExpandedChange(!isExpanded)
-                            translationY.apply {
-                                animateTo(0f)
-                                if (isExpanded) {
-                                    updateBounds(
-                                        lowerBound = 0f,
-                                        upperBound = thresholdY
-                                    )
-                                } else {
-                                    updateBounds(
-                                        lowerBound = -thresholdY,
-                                        upperBound = thresholdY
-                                    )
-                                }
+                            shouldExpand || shouldCollapse -> {
+                                onPlayerExpandedChange(!isExpanded)
+                                translationY.animateTo(0f)
+                                // bounds 会在 LaunchedEffect(isExpanded) 中自动更新
                             }
-                        } else {
-                            translationY.animateTo(0f)
+                            else -> {
+                                // 未达到阈值，回弹到原位
+                                translationY.animateTo(0f)
+                            }
                         }
                     }
                 }
@@ -505,7 +503,6 @@ private fun ExpandedPlayer(
 
                 // 歌曲信息 进度条
                 SongBufferedSlider(
-                    currentTrack,
                     progress,
                     0,
                     currentTrack.mediaMetadata.getDuration(),
@@ -694,7 +691,6 @@ private fun LyricsScroller(lyrics: List<LyricLine>, currentPosition: Long) {
 
 @Composable
 private fun SongBufferedSlider(
-    currentSong: MediaItem?,
     progress: Long,
     buffering: Long,
     duration: Long,
@@ -799,5 +795,4 @@ private fun ControlsButton(
 @Composable
 fun PPPP() {
 
-//    PlayerSheet(isExpanded = false, onPlayerExpandedChange = {}, currentTrack = MediaItem())
 }

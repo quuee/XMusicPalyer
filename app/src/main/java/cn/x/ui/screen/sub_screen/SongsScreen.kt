@@ -27,6 +27,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CheckBox
@@ -39,6 +41,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -174,6 +177,14 @@ fun SongsScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
+                                contentDescription = null
+                            )
+                        }
+                        IconButton(onClick = {
+                            ToastUtil.showWarning("Todo")
+                        }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Sort,
                                 contentDescription = null
                             )
                         }
@@ -438,7 +449,7 @@ private fun MultiSelectBottomBar(
                     onClick = onDeleteClick
                 )
                 BottomBarItem(
-                    icon = Icons.Default.ExitToApp,
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
                     text = stringResource(R.string.song_remove),
                     onClick = onMoveClick
                 )
