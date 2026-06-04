@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import cn.x.di.appModule
@@ -33,7 +35,8 @@ import cn.x.service.MusicPlaybackService
 import cn.x.route.NavigationGraph
 import cn.x.ui.theme.AppThemeMode
 import cn.x.ui.theme.XMusicPlayerTheme
-import cn.x.util.SPUtil
+import cn.x.util.MMKVUtil
+import cn.x.util.ThemeManager
 import cn.x.util.ToastUtil
 import kotlinx.coroutines.CompletableDeferred
 import org.koin.android.ext.koin.androidContext
@@ -50,7 +53,8 @@ class XMusicApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        SPUtil.init(this)
+//        SPUtil.init(this)
+        MMKVUtil.init(this)
         ToastUtil.init(this)
 
         // 初始化 Koin DI
@@ -121,14 +125,16 @@ fun SplashScreen(onReady: () -> Unit) {
     }
 }
 
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun XMusicApplicationApp(
 ) {
     var isReady by remember { mutableStateOf(false) }
+    val themeMode by ThemeManager.themeMode.collectAsStateWithLifecycle()
 
     XMusicPlayerTheme(
-        themeMode = AppThemeMode.SYSTEM
+        themeMode = themeMode
     ) {
         if (!isReady) {
             SplashScreen(onReady = { isReady = true })
@@ -136,8 +142,10 @@ fun XMusicApplicationApp(
 
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
-            ) {
-                NavigationGraph()
+            ) { innerPadding ->
+                Box(modifier = Modifier.padding(innerPadding)) {
+                    NavigationGraph()
+                }
             }
         }
     }

@@ -86,6 +86,8 @@ dependencies {
     // toaster
     implementation(libs.toaster)
 
+    implementation(libs.mmkv)
+
     // Permissions
     implementation(libs.accompanist.permissions)
 

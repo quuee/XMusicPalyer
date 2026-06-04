@@ -40,8 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cn.x.R
 import cn.x.ui.theme.AppThemeMode
+import cn.x.util.ThemeManager
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -56,6 +58,7 @@ fun SettingScreen(
 ) {
 
     var expanded by remember { mutableStateOf(false) }
+    val themeMode by ThemeManager.themeMode.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -113,8 +116,8 @@ fun SettingScreen(
                         ) {
                             ModernSelectionCards(
                                 options = AppThemeMode.entries.toTypedArray(),
-                                selectedIndex = AppThemeMode.SYSTEM,
-                                onOptionSelected = {  }
+                                selectedIndex = themeMode,
+                                onOptionSelected = { ThemeManager.setThemeMode(it)  }
                             )
                         }
 

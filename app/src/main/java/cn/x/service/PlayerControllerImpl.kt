@@ -7,8 +7,9 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import cn.x.data.dao.PlayListDao
-import cn.x.util.Constants
-import cn.x.util.SPUtil
+import cn.x.util.ConfigKeys
+import cn.x.util.MMKVUtil
+//import cn.x.util.SPUtil
 import cn.x.util.ToastUtil
 import cn.x.util.toMediaItem
 import cn.x.util.toPlayListSongEntity
@@ -59,7 +60,7 @@ class PlayerControllerImpl
     private val _bufferingPercent = MutableStateFlow<Long>(0)
     override val bufferingPercent = _bufferingPercent.asStateFlow()
 
-    private val _playMode = MutableStateFlow(PlayMode.valueOf(SPUtil.getInt(Constants.PlayMode)))
+    private val _playMode = MutableStateFlow(PlayMode.valueOf(MMKVUtil.getInt(ConfigKeys.PlayMode)))
     override val playMode: StateFlow<PlayMode> = _playMode.asStateFlow()
 
 //    private val _playbackState = MutableStateFlow(PlaybackState())
@@ -126,11 +127,11 @@ class PlayerControllerImpl
             }
         })
 
-        setPlayMode(PlayMode.valueOf(SPUtil.getInt(Constants.PlayMode)))
+        setPlayMode(PlayMode.valueOf(MMKVUtil.getInt(ConfigKeys.PlayMode)))
 
         player.setMediaItems(playlist.value)
 
-        val currentSongId = SPUtil.getString(Constants.CurrentSongId)
+        val currentSongId = MMKVUtil.getString(ConfigKeys.CurrentSongId)
         if (currentSongId.isNotEmpty()) {
             val currentSongIndex =
                 playlist.value.indexOfFirst { it.mediaId == currentSongId }.coerceAtLeast(0)
@@ -282,7 +283,7 @@ class PlayerControllerImpl
     }
 
     override fun setPlayMode(mode: PlayMode) {
-        SPUtil.putInt(Constants.PlayMode, mode.value)
+        MMKVUtil.putInt(ConfigKeys.PlayMode, mode.value)
         _playMode.value = mode
         when (mode) {
             PlayMode.Loop -> {

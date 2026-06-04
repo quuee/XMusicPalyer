@@ -1,9 +1,5 @@
 package cn.x.service
 
-import androidx.media3.common.MediaItem
-import cn.x.util.Constants
-import cn.x.util.SPUtil
-
 //data class PlaybackState(
 //    val playlist: List<MediaItem> = emptyList(),
 //    val currentTrack: MediaItem? = null,

@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
-import cn.x.util.Constants
+import cn.x.util.ConfigKeys
 import kotlin.math.max
 import kotlin.math.min
 
@@ -55,7 +55,7 @@ fun AlphabetIndexSidebar(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly // 均匀分布
     ) {
-        Constants.alphabet.forEach { letter ->
+        ConfigKeys.alphabet.forEach { letter ->
             val isSelected = selectedLetter == letter
             Text(
                 text = letter,
@@ -84,7 +84,7 @@ fun AlphabetIndexSidebar(
                             val letter = getLetterAtPosition(
                                 changed.position.y,
                                 size.height,
-                                Constants.alphabet.size
+                                ConfigKeys.alphabet.size
                             )
 
                             // 只有当字母改变时才触发
@@ -142,9 +142,9 @@ fun AlphabetIndexSidebar(
  * 根据 Y 轴位置计算对应的字母
  */
 private fun getLetterAtPosition(y: Float, height: Int, totalLetters: Int): String {
-    if (height <= 0) return Constants.alphabet[0]
+    if (height <= 0) return ConfigKeys.alphabet[0]
 
     val index = ((y / height) * totalLetters).toInt()
-    return Constants.alphabet[max(0, min(index, totalLetters - 1))]
+    return ConfigKeys.alphabet[max(0, min(index, totalLetters - 1))]
 }
 

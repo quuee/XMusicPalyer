@@ -37,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,7 +60,7 @@ import cn.x.route.LocalNavigator
 import cn.x.route.Routes
 import cn.x.ui.componets.AlphabetIndexSidebar
 import cn.x.ui.componets.MultiSelectSongItem
-import cn.x.util.Constants
+import cn.x.util.ConfigKeys
 import cn.x.util.ToastUtil
 import cn.x.util.formatTime
 import cn.x.util.getSongId
@@ -100,7 +99,7 @@ fun LocalSongScreen(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // 侧边索引
-    val letters = (listOf("#") + Constants.alphabet)
+    val letters = (listOf("#") + ConfigKeys.alphabet)
     val alphabetIndexListState = rememberLazyListState()
 
     val playerController = localSongScreenVM.playerController

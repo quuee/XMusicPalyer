@@ -1,6 +1,6 @@
 package cn.x.util
 
-object Constants {
+object ConfigKeys {
     const val PlayMode = "playMode"
     const val CurrentSongId = "currentSongId"
 

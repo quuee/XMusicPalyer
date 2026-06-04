@@ -164,6 +164,8 @@ androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4
 # 序列化相关库
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
+# 数据存储相关库
+mmkv = { group = "com.tencent", name = "mmkv", version.ref = "mmkv" }
 
 
 [plugins]
